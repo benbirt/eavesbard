@@ -111,6 +111,12 @@ export class CastAdapter implements PlaybackAdapter {
     }
   }
 
+  position(): { currentS: number; durationS: number } | undefined {
+    return this.player.isConnected && this.player.duration > 0
+      ? { currentS: this.player.currentTime, durationS: this.player.duration }
+      : undefined;
+  }
+
   onEvent(listener: PlaybackListener): void {
     this.listeners.push(listener);
   }

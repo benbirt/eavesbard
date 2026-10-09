@@ -6,6 +6,7 @@ import { assetUrl } from "./assets.js";
 import { startMic, type Mic } from "./audio/mic.js";
 import { loadSetting, saveSetting } from "./settings.js";
 import { WHISPER_MODELS, type FromWorker, type ToWorker, type WhisperModel } from "./stt/protocol.js";
+import { record } from "./timeline.js";
 
 export type ListenState =
   | { phase: "idle" }
@@ -63,6 +64,7 @@ export function onTranscriptLine(listener: (line: TranscriptLine) => void): void
 function addLine(line: Omit<TranscriptLine, "id">): void {
   const full = { id: nextId++, ...line };
   transcript.value = [...transcript.value, full];
+  record({ kind: "speech", text: full.text, durationS: full.durationS, latencyMs: full.latencyMs, dropped: full.dropped });
   if (!full.dropped) for (const listener of lineListeners) listener(full);
 }
 
@@ -101,6 +103,7 @@ function onMessage(message: FromWorker): void {
     case "error":
       if (state.value.phase === "loading") failed?.(new Error(message.message));
       else state.value = { phase: "error", message: message.message };
+      record({ kind: "error", text: `Speech-to-text: ${message.message}` });
       break;
   }
 }
@@ -141,11 +144,13 @@ export async function start(): Promise<void> {
     startedAt = Date.now();
     mic = await startMic((frame) => send({ type: "audio", samples: frame }, [frame.buffer]));
     state.value = { phase: "listening" };
+    record({ kind: "session", text: `Listening (Whisper ${model.value}).` });
     await holdWakeLock();
   } catch (err) {
     mic?.stop();
     mic = undefined;
     state.value = { phase: "error", message: describe(err) };
+    record({ kind: "error", text: `Couldn't start listening: ${describe(err)}` });
   }
 }
 

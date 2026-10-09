@@ -190,7 +190,7 @@ Two kinds of keyword trigger were tried and dropped; the classifier now simply r
 
 All parameters are configurable, and the defaults below are starting points to tune.
 
-- **Starting scene:** a configurable default (`tavern`, `calm`), which plays from the moment listening starts.
+- **Starting scene:** the person starting the session can type a few words describing the opening scene ("underground, exploring"). The classifier turns that into the starting setting and intensity, and the first track plays at once, before the speech model has even loaded. Without a description, an API key, or a usable answer, a default (`tavern`, `calm`) is used, and the timeline says why. The description is remembered for next time.
 - **Entering combat:** immediate, on a classifier result of `combat` with intensity confidence of at least 0.6.
 - **Leaving combat:** at least one minute in combat, so a lull between rounds doesn't drop the combat music; then either one non-combat classification with intensity confidence of at least 0.8, or two consecutive non-combat classifications. (Was three minutes and always two results: a simulation showed combat music outlasting a short fight by over two minutes even when the classifier saw at once that it had ended.)
 - **Setting changes:** require two consecutive classifications that agree on the new setting, and at least three minutes on the current setting.
@@ -232,39 +232,34 @@ Both adapters implement one interface: play a track with a given fade duration, 
 - Web Audio gain nodes would give smoother ramps, but routing an element through Web Audio needs a CORS-mode request, which the audio host refuses (section 4).
 - Output goes to whatever the laptop is connected to: built-in speakers, Bluetooth or wired.
 
-### 7.9 Session logger
+### 7.9 Timeline and session log
 
-Each classification cycle writes one record to IndexedDB containing:
+One event stream (`src/timeline.ts`) is both what the page shows and what's stored for evaluation. Each entry has the session id, its order, a timestamp and one event:
 
-- the timestamp;
-- the transcript window sent;
-- the model and request parameters;
-- the raw response, the parsed result and the latency;
-- the token usage;
-- the scene state before and after;
-- the track playing.
+- **session:** started (with the opening description), opening scene chosen, listening started, stopped;
+- **speech:** each transcript line, with its length and transcription time, including lines the hallucination filter dropped (and why);
+- **call:** each classifier request: purpose (opening or scene), model, the exact user message sent, the parsed answer with confidences and reason, latency, token usage and cost, or the error;
+- **decision:** after each scene call, the scene before and after, whether it changed, and a plain-words note for each axis from the state machine ("dungeon: 1 of 2 agreeing results; waiting", "calm held back: combat lasts at least 60 s, 40 s to go");
+- **music:** each track started and why (opening scene, intensity changed, setting changed, last track ended, borrowed from another setting), tracks carrying on, tracks ending;
+- **error:** anything that went wrong, from speech-to-text to playback.
 
-Scene changes and track starts and ends are logged as events of their own, so a replay keeps their order.
-
-Two buttons export a session or all sessions as JSONL, and a third clears all stored logs. These logs are the dataset for the classifier experiments in E9. Haiku's labels are treated as the reference, not as ground truth.
+Entries are written to IndexedDB as they happen. Buttons export the current session or all sessions as JSONL, and clear saved sessions. If the browser refuses storage, the timeline still works in memory and says so. These logs are the dataset for E8 and E9; Haiku's labels are treated as the reference, not as ground truth.
 
 ### 7.10 UI
 
-- **Settings:** API key (localStorage), model, classifier cadence, state-machine parameters, output (Cast or local) and Whisper model.
-- **Main view:**
-  - start and stop listening;
-  - the Cast button;
-  - the current scene and why it changed;
-  - the current track title;
-  - the live transcript;
-  - the session cost.
-- **Attribution footer:** "Ambiences by Tabletop Audio (tabletopaudio.com), CC BY-NC-ND 4.0", with links. The current track's title, shown in the main view, completes the per-work attribution.
-- **Privacy notice:** a short note, so the table knows, that transcript snippets are sent to Anthropic and that transcripts are stored in this browser until cleared and can be exported.
-- **API key risk:** any script running on the page could read the key from localStorage. To keep that surface small, all dependencies are bundled and ONNX Runtime is self-hosted; the only third-party script loaded at runtime is the Google Cast SDK, which Google requires to be loaded from gstatic.com. Model weights are data downloaded from Hugging Face, not code.
-- **Wake lock:** hold a Screen Wake Lock (`navigator.wakeLock.request("screen")`) while listening. In Chrome this stops the display sleeping and the screensaver starting, and with them the operating system's automatic lock (on macOS, auto-lock follows the screensaver or display sleep).
-  - Chrome releases the lock whenever the tab is hidden (another tab selected, window minimised). Re-request it on `visibilitychange` when the page becomes visible again.
-  - Show the lock's state in the main view, with a clear warning while listening without it, so whoever is running the game notices and brings the tab back.
-  - The request can fail (for example in low-power modes). Treat that the same way: warn, and carry on listening.
+- **Start box** (before a session): an optional opening-scene description, Start session, and the output choice (this computer or Cast).
+- **Now strip** (during a session):
+  - the scene in large type, how long it has lasted and why it was chosen;
+  - what's pending ("→ calm (1 of 2)", "combat stays at least 40 s more");
+  - a countdown to the next classifier check, or "next check when there's new speech", or "Asking Claude…";
+  - the playing track with a progress bar;
+  - listening status (model download progress, hearing speech), wake lock, and the session's classifier calls and cost;
+  - Stop session.
+- **Timeline** (7.9), newest first, with tick boxes to show or hide speech, Claude calls, decisions and music, plus dropped speech. Each call can be expanded to show exactly what was sent.
+- **Setup** (collapsed): API key, automatic music on or off with the privacy note, and the Whisper model.
+- **Pick tracks yourself** (collapsed): the manual track picker, transport controls and the raw playback log.
+- **Attribution footer:** "Ambiences by Tabletop Audio (tabletopaudio.com), CC BY-NC-ND 4.0", with links, and a link to the source code. The current track's title, shown in the Now strip, completes the per-work attribution.
+- **Wake lock:** held while listening, re-requested when the tab becomes visible again, with a warning when lost (7.2, section 4).
 
 ## 8. Tech stack and repo layout
 
@@ -368,7 +363,7 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 - **M3 — Automation:**
   - the Haiku classifier, state machine and track selector are wired end to end;
   - the cost meter is working.
-- **M4 — Instrumentation:** the IndexedDB logger and JSONL export are in place. Run E8 over real sessions, and E10 alongside it.
+- **M4 — Instrumentation:** the timeline (7.9) doubles as the IndexedDB session log with JSONL export, and the page is reorganised around it (7.10). Done; next, run E8 over real sessions, and E10 alongside it.
 - **M5 — Local classifier experiments:** E9, then decide whether the API key remains necessary.
 
 ## 11. Later and out of scope

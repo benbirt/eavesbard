@@ -4,7 +4,7 @@
 //
 //   ANTHROPIC_API_KEY=... bazel run //scripts:classifier_check
 
-import { classify } from "../src/classify/classifier.js";
+import { classify, userMessage } from "../src/classify/classifier.js";
 import type { Intensity, Setting } from "../src/library/scenes.js";
 
 interface Scenario {
@@ -73,13 +73,8 @@ async function main(): Promise<void> {
   let cost = 0;
   for (const s of SCENARIOS) {
     const now = Date.now();
-    const result = await classify({
-      apiKey,
-      scene: s.scene,
-      sceneForMs: 2 * 60_000,
-      entries: s.lines.map(([ago, text]) => ({ at: now - ago * 1000, text })),
-      now,
-    });
+    const entries = s.lines.map(([ago, text]) => ({ at: now - ago * 1000, text }));
+    const result = await classify({ apiKey, userText: userMessage(s.scene, 2 * 60_000, entries, now) });
     const c = result.classification;
     cost += result.costUsd ?? 0;
     const ok = s.expect.includes(c.intensity);

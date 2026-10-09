@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { parseClassification, userMessage } from "./classifier.js";
+import { openingMessage, parseClassification, userMessage } from "./classifier.js";
 
 test("parses a well-formed answer and clamps confidences", () => {
   assert.deepEqual(
@@ -17,6 +17,10 @@ test("rejects values outside the label sets", () => {
   assert.throws(() => parseClassification(JSON.stringify({ ...base, intensity: "panic" })), /intensity/);
   assert.throws(() => parseClassification(JSON.stringify({ ...base, setting_confidence: "high" })), /confidence/);
   assert.throws(() => parseClassification("not json"));
+});
+
+test("the opening message quotes the description", () => {
+  assert.match(openingMessage("  underground, exploring "), /describes the opening scene as: "underground, exploring"/);
 });
 
 test("the user message gives the scene, its age and the transcript", () => {

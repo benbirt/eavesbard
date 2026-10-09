@@ -106,6 +106,82 @@
         font-size: 1.25rem;
         text-transform: capitalize;
       }
+      .session {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin: 0 0 1rem;
+      }
+      .start input[type="text"] {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 0.25rem;
+        padding: 0.4rem;
+        font: inherit;
+      }
+      button.primary {
+        font: inherit;
+        font-weight: 600;
+        padding: 0.4rem 1rem;
+      }
+      .now p {
+        margin: 0.35rem 0;
+      }
+      .now .scene strong {
+        font-size: 1.5rem;
+      }
+      .now progress {
+        vertical-align: middle;
+        width: 10rem;
+        max-width: 40%;
+      }
+      progress.countdown {
+        width: 4rem;
+        margin-left: 0.5rem;
+      }
+      h2 {
+        font-size: 1.1rem;
+        margin: 1.5rem 0 0.5rem;
+      }
+      .filters label {
+        margin-right: 1rem;
+      }
+      .timeline {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .timeline li {
+        display: grid;
+        grid-template-columns: 4.75rem 1.75rem 1fr;
+        gap: 0.25rem;
+        padding: 0.35rem 0;
+        border-bottom: 1px solid var(--border);
+        overflow-wrap: anywhere;
+      }
+      .timeline .time {
+        font: 0.8125rem ui-monospace, monospace;
+        padding-top: 0.15rem;
+      }
+      .timeline .kind-speech .body {
+        font-style: italic;
+      }
+      .timeline .dropped {
+        text-decoration: line-through;
+        opacity: 0.6;
+      }
+      .timeline pre {
+        white-space: pre-wrap;
+        font-size: 0.8125rem;
+        margin: 0.25rem 0;
+      }
+      details {
+        margin: 1rem 0;
+      }
+      summary {
+        cursor: pointer;
+      }
       .event-log {
         font: 0.8125rem/1.4 ui-monospace, monospace;
         padding-left: 1.25rem;

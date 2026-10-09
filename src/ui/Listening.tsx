@@ -1,24 +1,30 @@
-import {
-  clearTranscript,
-  model,
-  setModel,
-  speaking,
-  start,
-  state,
-  stop,
-  transcript,
-  wakeLock,
-} from "../listener.js";
+import { model, setModel, speaking, state, wakeLock } from "../listener.js";
 import { WHISPER_DOWNLOAD_MB, WHISPER_MODELS, type WhisperModel } from "../stt/protocol.js";
-import { useSignal } from "@preact/signals";
 
 const MB = 1e6;
+
+/** Chooses the Whisper model (in the setup section). */
+export function SpeechModelChooser() {
+  const active = state.value.phase === "loading" || state.value.phase === "listening";
+  return (
+    <label>
+      Speech model{" "}
+      <select value={model.value} disabled={active} onChange={(e) => setModel(e.currentTarget.value as WhisperModel)}>
+        {WHISPER_MODELS.map((m) => (
+          <option key={m} value={m}>
+            Whisper {m} (about {WHISPER_DOWNLOAD_MB[m]} MB)
+          </option>
+        ))}
+      </select>{" "}
+      <span class="muted">Bigger is more accurate but slower. Downloaded once, then cached.</span>
+    </label>
+  );
+}
 
 function LoadingProgress({ loaded, total, preparing }: { loaded: number; total: number; preparing: boolean }) {
   // Files report their sizes only as each download starts, so until the big
   // ones begin, use the expected size to keep the bar from jumping backwards.
-  const expected = WHISPER_DOWNLOAD_MB[model.value] * MB;
-  const max = Math.max(total, expected);
+  const max = Math.max(total, WHISPER_DOWNLOAD_MB[model.value] * MB);
   return (
     <div class="progress">
       {/* No value: an indeterminate bar while the GPU setup runs. */}
@@ -35,76 +41,26 @@ function LoadingProgress({ loaded, total, preparing }: { loaded: number; total: 
 
 const WAKE_LOCK_TEXT = {
   off: "",
-  held: "Keeping the screen awake while listening.",
-  lost: "The screen may sleep or lock: keep this tab visible to stay awake.",
-  unsupported: "This browser can't keep the screen awake; stop the computer sleeping or locking yourself.",
+  held: "Screen kept awake.",
+  lost: "The screen may sleep or lock: keep this tab visible.",
+  unsupported: "This browser can't keep the screen awake.",
 };
 
-export function Listening() {
-  const showDropped = useSignal(false);
+/** Listening status for the "now" strip. */
+export function ListeningStatus() {
   const s = state.value;
-  const active = s.phase === "loading" || s.phase === "listening";
-  const lines = transcript.value.filter((l) => showDropped.value || !l.dropped).slice(-50).reverse();
-
   return (
-    <fieldset>
-      <legend>Listening</legend>
-      <div class="row">
-        <label>
-          Speech model{" "}
-          <select
-            value={model.value}
-            disabled={active}
-            onChange={(e) => setModel(e.currentTarget.value as WhisperModel)}
-          >
-            {WHISPER_MODELS.map((m) => (
-              <option key={m} value={m}>
-                Whisper {m} (about {WHISPER_DOWNLOAD_MB[m]} MB)
-              </option>
-            ))}
-          </select>
-        </label>
-        <p>
-          {active ? <button onClick={stop}>Stop listening</button> : <button onClick={start}>Start listening</button>}
-        </p>
-      </div>
+    <>
       {s.phase === "loading" && <LoadingProgress loaded={s.loaded} total={s.total} preparing={s.preparing} />}
-      {s.phase === "listening" && (
-        <p>
-          <span class={speaking.value ? "dot speaking" : "dot"} /> {speaking.value ? "Hearing speech…" : "Listening"}
-        </p>
-      )}
       {s.phase === "error" && <p class="warning">{s.message}</p>}
-      {wakeLock.value !== "off" && (
-        <p class={wakeLock.value === "held" ? "muted" : "warning"}>{WAKE_LOCK_TEXT[wakeLock.value]}</p>
+      {s.phase === "listening" && (
+        <span>
+          <span class={speaking.value ? "dot speaking" : "dot"} /> {speaking.value ? "Hearing speech" : "Listening"}
+        </span>
       )}
-      <p class="muted">
-        Speech is transcribed on this computer; no audio leaves the browser.{" "}
-        <label class="inline">
-          <input
-            type="checkbox"
-            checked={showDropped.value}
-            onChange={(e) => (showDropped.value = e.currentTarget.checked)}
-          />{" "}
-          Show lines the hallucination filter dropped
-        </label>{" "}
-        <button onClick={clearTranscript}>Clear</button>
-      </p>
-      <ol class="transcript">
-        {lines.map((l) => (
-          <li key={l.id} class={l.dropped ? "dropped" : undefined}>
-            <span class="muted">{l.time.toLocaleTimeString("en-GB")}</span> {l.text}
-            {l.dropped ? (
-              <span class="muted"> (dropped: {l.dropped})</span>
-            ) : (
-              <span class="muted">
-                {" "}
-                ({l.durationS.toFixed(1)} s of speech, transcribed in {((l.latencyMs ?? 0) / 1000).toFixed(1)} s)
-              </span>
-            )}
-          </li>
-        ))}
-      </ol>
-    </fieldset>
+      {wakeLock.value !== "off" && (
+        <span class={wakeLock.value === "held" ? "muted" : "warning"}> · {WAKE_LOCK_TEXT[wakeLock.value]}</span>
+      )}
+    </>
   );
 }

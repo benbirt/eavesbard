@@ -64,6 +64,13 @@ export class LocalAdapter implements PlaybackAdapter {
     if (Number.isFinite(el.duration)) el.currentTime = Math.max(0, el.duration - secondsBeforeEnd);
   }
 
+  position(): { currentS: number; durationS: number } | undefined {
+    const el = this.elements[this.active]!;
+    return el.getAttribute("src") && Number.isFinite(el.duration)
+      ? { currentS: el.currentTime, durationS: el.duration }
+      : undefined;
+  }
+
   onEvent(listener: PlaybackListener): void {
     this.listeners.push(listener);
   }

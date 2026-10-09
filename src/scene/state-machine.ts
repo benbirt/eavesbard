@@ -58,13 +58,17 @@ export interface SceneState {
   pendingIntensity?: Streak<Intensity>;
 }
 
-export function initialScene(at: number, options = DEFAULT_SCENE_OPTIONS): SceneState {
+export function initialScene(
+  at: number,
+  start: { setting: Setting; intensity: Intensity; reason: string } | undefined = undefined,
+  options = DEFAULT_SCENE_OPTIONS,
+): SceneState {
   return {
-    setting: options.startSetting,
-    intensity: options.startIntensity,
+    setting: start?.setting ?? options.startSetting,
+    intensity: start?.intensity ?? options.startIntensity,
     settingSince: at,
     intensitySince: at,
-    reason: "starting scene",
+    reason: start?.reason ?? "default starting scene",
   };
 }
 
@@ -72,62 +76,97 @@ export interface Transition {
   state: SceneState;
   /** True if the setting or intensity changed (one transition even if both did). */
   changed: boolean;
+  /** What happened on each axis, in plain words, for the timeline. */
+  notes: { setting: string; intensity: string };
 }
 
 export function nextScene(state: SceneState, event: SceneEvent, options = DEFAULT_SCENE_OPTIONS): Transition {
   const next: SceneState = { ...state };
+  const notes = { setting: "", intensity: "" };
   // Reported setting first, then intensity.
   const reasons: { setting?: string; intensity?: string } = {};
+  const waitFor = (sinceMs: number, minMs: number) => Math.ceil((minMs - (event.at - sinceMs)) / 1000);
 
   // --- Intensity ---
-  if (event.intensityConfidence >= options.minConfidence) {
-    const value = event.intensity;
-    if (value === state.intensity) {
-      next.pendingIntensity = undefined;
-    } else if (value === "combat" && event.intensityConfidence >= options.combatEntryConfidence) {
-      Object.assign(next, { intensity: value, intensitySince: event.at, pendingIntensity: undefined });
-      reasons.intensity = `classifier: combat (${pct(event.intensityConfidence)})`;
+  const intensity = event.intensity;
+  if (event.intensityConfidence < options.minConfidence) {
+    // Low confidence: ignored, so the streak neither grows nor resets.
+    notes.intensity = `${intensity} ignored: only ${pct(event.intensityConfidence)} confident.`;
+  } else if (intensity === state.intensity) {
+    notes.intensity = state.pendingIntensity
+      ? `still ${intensity}; dropped the pending change to ${state.pendingIntensity.value}.`
+      : `still ${intensity}.`;
+    next.pendingIntensity = undefined;
+  } else if (intensity === "combat" && event.intensityConfidence >= options.combatEntryConfidence) {
+    Object.assign(next, { intensity, intensitySince: event.at, pendingIntensity: undefined });
+    reasons.intensity = `classifier: combat (${pct(event.intensityConfidence)})`;
+    notes.intensity = `${state.intensity} → combat at once (${pct(event.intensityConfidence)} confident).`;
+  } else {
+    const streak = bump(state.pendingIntensity, intensity);
+    const leavingCombat = state.intensity === "combat";
+    const heldFor = leavingCombat ? waitFor(state.intensitySince, options.minCombatMs) : 0;
+    const confidentExit = leavingCombat && event.intensityConfidence >= options.combatExitConfidence;
+    const agreed = streak.count >= options.agreeingResults || confidentExit;
+    if (agreed && heldFor <= 0) {
+      Object.assign(next, { intensity, intensitySince: event.at, pendingIntensity: undefined });
+      const why =
+        streak.count >= options.agreeingResults
+          ? `${streak.count} results agree`
+          : `${pct(event.intensityConfidence)} confident, combat over`;
+      reasons.intensity = `classifier: ${intensity} (${why})`;
+      notes.intensity = `${state.intensity} → ${intensity} (${why}).`;
     } else {
-      const streak = bump(state.pendingIntensity, value);
-      const leavingCombat = state.intensity === "combat";
-      const combatHeld = leavingCombat && event.at - state.intensitySince < options.minCombatMs;
-      const agreed =
-        streak.count >= options.agreeingResults ||
-        (leavingCombat && event.intensityConfidence >= options.combatExitConfidence);
-      if (agreed && !combatHeld) {
-        Object.assign(next, { intensity: value, intensitySince: event.at, pendingIntensity: undefined });
-        reasons.intensity =
-          streak.count >= options.agreeingResults
-            ? `classifier: ${value} (${streak.count} results agree)`
-            : `classifier: ${value} (${pct(event.intensityConfidence)}), combat over`;
-      } else {
-        next.pendingIntensity = streak;
-      }
+      next.pendingIntensity = streak;
+      notes.intensity =
+        agreed
+          ? `${intensity} held back: combat lasts at least ${options.minCombatMs / 1000} s, ${heldFor} s to go.`
+          : `${intensity}: ${streak.count} of ${options.agreeingResults} agreeing results` +
+            `${leavingCombat ? ` (or one at ${pct(options.combatExitConfidence)}+)` : ""}; waiting.`;
     }
   }
-  // Low-confidence intensity: ignored, so the streak neither grows nor resets.
 
   // --- Setting ---
-  if (event.setting !== "unknown" && event.settingConfidence >= options.minConfidence) {
-    const value = event.setting;
-    if (value === state.setting) {
-      next.pendingSetting = undefined;
+  const setting = event.setting;
+  if (setting === "unknown") {
+    notes.setting = "unknown: no change.";
+  } else if (event.settingConfidence < options.minConfidence) {
+    notes.setting = `${setting} ignored: only ${pct(event.settingConfidence)} confident.`;
+  } else if (setting === state.setting) {
+    notes.setting = state.pendingSetting
+      ? `still ${setting}; dropped the pending change to ${state.pendingSetting.value}.`
+      : `still ${setting}.`;
+    next.pendingSetting = undefined;
+  } else {
+    const streak = bump(state.pendingSetting, setting);
+    const heldFor = waitFor(state.settingSince, options.minSettingMs);
+    if (streak.count >= options.agreeingResults && heldFor <= 0) {
+      Object.assign(next, { setting, settingSince: event.at, pendingSetting: undefined });
+      reasons.setting = `classifier: ${setting} (${streak.count} results agree)`;
+      notes.setting = `${state.setting} → ${setting} (${streak.count} results agree).`;
     } else {
-      const streak = bump(state.pendingSetting, value);
-      const settled = event.at - state.settingSince >= options.minSettingMs;
-      if (streak.count >= options.agreeingResults && settled) {
-        Object.assign(next, { setting: value, settingSince: event.at, pendingSetting: undefined });
-        reasons.setting = `classifier: ${value} (${streak.count} results agree)`;
-      } else {
-        next.pendingSetting = streak;
-      }
+      next.pendingSetting = streak;
+      notes.setting =
+        streak.count >= options.agreeingResults
+          ? `${setting} held back: a setting lasts at least ${options.minSettingMs / 60_000} minutes, ${heldFor} s to go.`
+          : `${setting}: ${streak.count} of ${options.agreeingResults} agreeing results; waiting.`;
     }
   }
-  // `unknown` or low confidence: keep doing what we're doing; the streak is untouched.
 
   const changed = next.setting !== state.setting || next.intensity !== state.intensity;
   if (changed) next.reason = [reasons.setting, reasons.intensity].filter(Boolean).join("; ");
-  return { state: next, changed };
+  return { state: next, changed, notes };
+}
+
+/** Changes under consideration, for the "now" display: e.g. "dungeon (1 of 2)". */
+export function pendingChanges(state: SceneState, now: number, options = DEFAULT_SCENE_OPTIONS): string[] {
+  const out: string[] = [];
+  if (state.pendingSetting) out.push(`→ ${state.pendingSetting.value} (${state.pendingSetting.count} of ${options.agreeingResults})`);
+  if (state.pendingIntensity) out.push(`→ ${state.pendingIntensity.value} (${state.pendingIntensity.count} of ${options.agreeingResults})`);
+  if (state.intensity === "combat") {
+    const left = Math.ceil((options.minCombatMs - (now - state.intensitySince)) / 1000);
+    if (left > 0) out.push(`combat stays at least ${left} s more`);
+  }
+  return out;
 }
 
 /** Extends a streak of agreeing results, or starts a new one. */

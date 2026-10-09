@@ -15,4 +15,6 @@ export interface PlaybackAdapter {
   /** Seek to `secondsBeforeEnd` before the end of the current track (for testing track-end events). */
   seekNearEnd(secondsBeforeEnd: number): void;
   onEvent(listener: PlaybackListener): void;
+  /** Where the current track is, in seconds, if known. */
+  position(): { currentS: number; durationS: number } | undefined;
 }

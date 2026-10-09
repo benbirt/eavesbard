@@ -19,6 +19,8 @@ export interface Classification {
 
 export interface ClassifyResult {
   classification: Classification;
+  /** The user message that was sent, for the timeline and logs. */
+  userText: string;
   usage: Usage;
   /** undefined if config/pricing.json has no price for the model. */
   costUsd: number | undefined;
@@ -62,6 +64,15 @@ function confidence(value: unknown): number {
   return Math.min(1, Math.max(0, value));
 }
 
+/** The message for choosing the opening scene from the game master's description. */
+export function openingMessage(description: string): string {
+  return (
+    "This is the start of the session, so there is no current scene and no transcript yet. " +
+    `The game master describes the opening scene as: "${description.trim()}"\n\n` +
+    "Choose the setting and intensity that best fit that description."
+  );
+}
+
 /** The per-request user message: the current scene, then the transcript window. */
 export function userMessage(
   scene: { setting: Setting; intensity: Intensity },
@@ -81,14 +92,8 @@ export function userMessage(
   );
 }
 
-export async function classify(options: {
-  apiKey: string;
-  model?: string;
-  scene: { setting: Setting; intensity: Intensity };
-  sceneForMs: number;
-  entries: readonly TranscriptEntry[];
-  now: number;
-}): Promise<ClassifyResult> {
+/** Asks the model for a scene. `userText` comes from `userMessage` or `openingMessage`. */
+export async function classify(options: { apiKey: string; model?: string; userText: string }): Promise<ClassifyResult> {
   const model = options.model ?? DEFAULT_MODEL;
   // The key is the user's own, pasted into this page (DESIGN.md section 4).
   const client = new Anthropic({ apiKey: options.apiKey, dangerouslyAllowBrowser: true, timeout: 30_000 });
@@ -101,7 +106,7 @@ export async function classify(options: {
       max_tokens: 1024,
       system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
       output_config: { effort: "low", format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
-      messages: [{ role: "user", content: userMessage(options.scene, options.sceneForMs, options.entries, options.now) }],
+      messages: [{ role: "user", content: options.userText }],
     });
   } catch (err) {
     throw new Error(describeApiError(err));
@@ -115,6 +120,7 @@ export async function classify(options: {
 
   return {
     classification: parseClassification(text),
+    userText: options.userText,
     usage: response.usage,
     costUsd: costOf(response.usage, priceOf(model)),
     latencyMs,

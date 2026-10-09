@@ -1,5 +1,7 @@
 import { useState } from "preact/hooks";
+import { auto, setAuto } from "../director.js";
 import { loadApiKey, saveApiKey } from "../settings.js";
+import { SpeechModelChooser } from "./Listening.js";
 
 export function Settings() {
   const [apiKey, setApiKey] = useState(loadApiKey);
@@ -36,6 +38,15 @@ export function Settings() {
           {status}
         </span>
         <p class="muted">Stored only in this browser's local storage.</p>
+        <label>
+          <input type="checkbox" checked={auto.value} onChange={(e) => setAuto(e.currentTarget.checked)} /> Choose music
+          automatically from what's said
+        </label>
+        <p class="muted">
+          While a session runs, the last two and a half minutes of transcript are sent to Anthropic every 15 seconds to
+          work out the scene. Let the table know.
+        </p>
+        <SpeechModelChooser />
       </fieldset>
     </form>
   );

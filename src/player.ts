@@ -6,6 +6,7 @@ import type { PlaybackAdapter, PlaybackEvent } from "./playback/adapter.js";
 import { CastAdapter, loadCastSdk } from "./playback/cast.js";
 import { LocalAdapter } from "./playback/local.js";
 import type { LibraryTrack } from "./library/tag-map.js";
+import { record } from "./timeline.js";
 import { audioUrl } from "./tracks.js";
 
 const FADE_MS = 4000;
@@ -43,6 +44,7 @@ const endedListeners: (() => void)[] = [];
 
 function log(source: Output, event: PlaybackEvent): void {
   events.value = [{ id: nextId++, time: new Date(), source, event }, ...events.value];
+  if (event.type === "error") record({ kind: "error", text: `Playback (${source}): ${event.detail}` });
   // Only the active output's track ending matters.
   if (event.type === "ended" && source === output.value) for (const listener of endedListeners) listener();
 }
@@ -123,6 +125,15 @@ export function play(entry: LibraryTrack | undefined): Promise<void> {
     nowPlaying.value = entry;
     return adapter().play(url, entry.track.title, FADE_MS);
   });
+}
+
+/** Where the playing track is, for progress display. */
+export function playbackPosition(): { currentS: number; durationS: number } | undefined {
+  try {
+    return adapter().position();
+  } catch {
+    return undefined;
+  }
 }
 
 export const stop = () =>
