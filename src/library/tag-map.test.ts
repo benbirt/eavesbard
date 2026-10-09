@@ -24,6 +24,7 @@ const MAP: TagMap = {
   excludeTracks: [],
   setting: {
     tavern: { words: ["inn"] },
+    interior: {},
     town: { civ: ["cities"] },
     wilderness: { biome: ["forest"] },
     dungeon: { biome: ["underground"] },

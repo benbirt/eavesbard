@@ -4,7 +4,7 @@
     "exclude": ["scifi", "scif", "modern"]
   },
   "includeTracks": [],
-  "excludeTracks": [],
+  "excludeTracks": [81, 145],
   "setting": {
     "tavern": {
       "words": ["tavern", "inn", "pub", "alehouse", "saloon"]
@@ -12,6 +12,26 @@
     "town": {
       "civ": ["cities", "slums", "public"],
       "words": ["town", "village", "city", "market", "bazaar", "fair", "festival"]
+    },
+    "interior": {
+      "civ": ["temples"],
+      "words": [
+        "castle",
+        "temple",
+        "library",
+        "court",
+        "hall",
+        "throne",
+        "manor",
+        "mansion",
+        "chapel",
+        "cathedral",
+        "palace",
+        "tower",
+        "shrine",
+        "study",
+        "office"
+      ]
     },
     "wilderness": {
       "civ": ["outposts"],
@@ -42,5 +62,5 @@
       "words": ["battle", "fight", "combat"]
     }
   },
-  "maxUnmapped": 51
+  "maxUnmapped": 24
 }

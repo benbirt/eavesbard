@@ -60,11 +60,11 @@ The app is a single page made of the following stages, each a separate module wi
 
 Scenes are described on two independent axes. Both are fixed enums, and the classifier must return values from them.
 
-**Setting** (where the party is): `tavern`, `town`, `wilderness`, `dungeon`, `travel`, `unknown`.
+**Setting** (where the party is): `tavern`, `town`, `interior`, `wilderness`, `dungeon`, `travel`, `unknown`. `interior` covers indoor places that are neither taverns nor dungeons: castles, temples, courts, libraries.
 
 **Intensity** (what's happening): `calm`, `tense`, `combat`.
 
-The setting list is provisional. Against Tabletop Audio's tags (7.1), every setting and intensity combination has tracks, though tavern is thin when tense or in combat (one track each) and relies on the track selector's fallbacks. The main gap is indoor locations that are neither taverns nor dungeons (castles, temples, courts, libraries), which make up most of the unmapped tracks. A setting for them is the likeliest addition. Add values only where the library has enough tracks to support them.
+The setting list is provisional. Against Tabletop Audio's tags (7.1), every setting and intensity combination has tracks, though tavern is thin when tense or in combat (one track each) and relies on the track selector's fallbacks. `interior` was added after the first tag review, when castles, temples and the like made up most of the unmapped tracks. Add values only where the library has enough tracks to support them.
 
 `unknown` means "keep doing what you're doing". It must never cause a track change.
 
@@ -126,10 +126,11 @@ The file also records when it was generated. Filenames are kept exactly as the s
 **Mapping and reporting**
 
 - **Tag mapping:** a hand-maintained `config/tag-map.json` maps Tabletop Audio's metadata onto our setting and intensity values:
-  - **Scope:** a track is in scope if it has an included genre (`fantasy`, `historical`, `horror`, `nature`) and no excluded one (`scifi`, `scif`, `modern`). `includeTracks` and `excludeTracks` override this for individual track ids.
+  - **Scope:** a track is in scope if it has an included genre (`fantasy`, `historical`, `horror`, `nature`) and no excluded one (`scifi`, `scif`, `modern`). `includeTracks` and `excludeTracks` override this for individual track ids; for example, two jazz-age tracks filed as historical (1920s Speakeasy, Cotton Club) are excluded.
+  - **Interior:** the `interior` rule uses the site's `temples` tag and words such as castle, throne and library, but not its broad `interiors` tag, which also covers every tavern and many dungeon rooms.
   - **Buckets:** each setting and intensity has a rule listing tag values per facet (`civ`, `biome`, `mood`, `action`) and `words`. A track is in a bucket if it has any listed tag, or any listed word appears as a whole word in its title or keywords. A track may sit in several buckets.
   - **Unmapped:** in-scope tracks with no setting or no intensity are left out. `maxUnmapped` records how many that currently is.
-  - At the first version (2026-10-09), 358 of 528 tracks are in scope, 307 are mapped and 51 are unmapped.
+  - As of 2026-10-09, 356 of 528 tracks are in scope, 332 are mapped and 24 are unmapped.
   - The library builder (`buildLibrary` in `src/library/tag-map.ts`) is shared by the app and the tests.
 - **Checks on the map:** the test suite fails if any setting and intensity bucket is empty, if the number of unmapped tracks exceeds `maxUnmapped`, or if the map names a tag, genre or track id that doesn't exist in the data (catching typos). So a weekly index update that brings in unmapped tracks fails its tests and opens no pull request until the map is updated.
 - **Tuning:** `bazel run //scripts:library_report` prints the bucket sizes and the unmapped tracks; `bazel run //scripts:library_report -- town/tense` lists one bucket.
