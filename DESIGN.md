@@ -4,7 +4,7 @@
 
 ## 1. Summary
 
-A static web app that listens to a tabletop RPG session, works out what kind of scene the party is in, and plays suitable ambient music and soundscapes without anyone touching it. Speech-to-text runs entirely in the browser. Only short transcript windows leave the machine, sent to a small, cheap language model that returns a scene label. Playback uses the Tabletop Audio ambience library, streamed directly from Tabletop Audio's own audio host, and is output either to a Chromecast or to local speakers. Track metadata is scraped from tabletopaudio.com by a scheduled job in a small, separate index repo. At startup, the app resolves that repo's default branch to a commit and loads the track index from that commit.
+A static web app that listens to a tabletop RPG session, works out what kind of scene the party is in, and plays suitable ambient music and soundscapes without anyone touching it. Speech-to-text runs entirely in the browser. Only short transcript windows leave the machine, sent to a small, cheap language model that returns a scene label. Playback uses the Tabletop Audio ambience library, streamed directly from Tabletop Audio's own audio host, and is output either to a Chromecast or to local speakers. Track metadata is scraped from tabletopaudio.com by a scheduled job into a generated index committed to this repo, and bundled into the app at build time.
 
 ## 2. Goals
 
@@ -12,9 +12,8 @@ A static web app that listens to a tabletop RPG session, works out what kind of 
 - Very low running cost: target pennies per four-hour session, and ideally zero once a local classifier is good enough.
 - Pure static site, deployable to GitHub Pages, with no backend.
 - Audio never leaves the browser; only text transcripts are sent to the model provider.
-- Consistent content: within a session, the track index always comes from one git commit of the index repo. That repo acts as the pin, because its HEAD only moves when we merge a regenerated index.
+- Consistent content: the track index is part of the build, so it only changes when we merge a regenerated index and redeploy.
 - Metadata comes from the original source: titles, descriptions, genres and tags are generated from tabletopaudio.com, not maintained by hand.
-- No third-party data in this repo: only our code and our own configuration. Scraped metadata lives in the index repo.
 - Built-in instrumentation so classifier options can be compared offline against logged sessions.
 
 ## 3. Non-goals (for now)
@@ -44,7 +43,7 @@ A static web app that listens to a tabletop RPG session, works out what kind of 
 
 The app is a single page made of the following stages, each a separate module with a narrow interface so that implementations can be swapped for experiments.
 
-1. **Library loader** — at startup, resolves the index repo's default branch to a commit SHA, fetches the track index at that SHA and builds the in-memory index. The result is cached for offline fallback.
+1. **Library loader** — at startup, applies the tag map to the bundled track index and builds the in-memory index.
 2. **Mic capture** — getUserMedia, mono, resampled to 16 kHz for Whisper.
 3. **Speech-to-text** — Whisper via transformers.js on WebGPU, with WASM as a fallback. Audio is chunked on voice activity.
 4. **Transcript buffer** — a rolling window of recent transcribed text with timestamps.
@@ -81,56 +80,46 @@ The setting list is provisional. Finalise it after reviewing Tabletop Audio's ow
   - `bootstrap/js/dictionary_a.js` gives free-text search keywords per track (useful later for E9b).
 - On 2026-10-09 the site listed 529 tracks. The community mirror `rsek/tabletop-audio-tracks` stopped at 313 in May 2022 and was maintained by hand, so we don't use it.
 
-**Index repo**
+**Generated index**
 
-- A small, separate public repo (working name `benbirt/tabletop-audio-index`) holds the generator script and its output, `tracks.json`. It contains no audio.
+- The generator, `scripts/build-index.ts`, scrapes the sources above and writes `data/tracks.json`. It contains no audio. The file is committed, so changes show up as reviewable diffs.
 - A scheduled GitHub Actions job (weekly) runs the generator. If the output changes, it opens a pull request rather than pushing to the default branch, so the index only moves when we merge.
 - The generator identifies itself with an honest user agent naming the project, and makes only a handful of requests per run.
 - The generator fails, rather than opening a pull request, if:
-  - the page structure no longer parses, or the number of tracks found in the HTML, `tags_data.js` and `dictionary_a.js` disagree by more than a small margin;
-  - the track count drops sharply compared with the current `tracks.json`;
-  - any setting and intensity bucket would be empty after applying this repo's `config/tag-map.json` (fetched from eavesbard's default branch);
+  - the page structure no longer parses, or the numbers of tracks found in the HTML, `tags_data.js` and `dictionary_a.js` disagree by more than a small margin;
+  - the track count drops sharply compared with the current `data/tracks.json`.
+- The normal CI on that pull request (and on any change to `config/tag-map.json`) then fails if:
+  - `data/tracks.json` doesn't match its schema;
+  - any setting and intensity bucket would be empty after applying the tag map;
   - the number of tracks excluded as unmapped has grown.
-- This replaces the CI check in the previous design. Because it runs before a merge, a bad scrape never reaches the app.
-- The repo's README carries the same third-party notice as ours (section 8), and its contents are not covered by our code licence.
+- Because these checks run before a merge, a bad scrape or tag map never reaches the deployed app.
 
-**`tracks.json` entry**
+**`data/tracks.json` entry**
 
 - `id` (Tabletop Audio's number), `title`, `description`, `genres`, `type`;
 - `tags` with the four facets `civ`, `biome`, `mood` and `action`, plus `keywords`;
 - `file`, the stem used to build the audio URL (`https://sounds.tabletopaudio.com/<file>.mp3`).
 
-Filenames are kept exactly as the site gives them; they are not always derivable from the title (e.g. `4_Solemn_Vow-a`).
+The file also records when it was generated. Filenames are kept exactly as the site gives them; they are not always derivable from the title (e.g. `4_Solemn_Vow-a`).
 
-**Startup sequence** (the library loader)
+**Loading**
 
-1. Resolve the index repo's branch to a commit SHA via the GitHub REST API, e.g. `GET https://api.github.com/repos/<owner>/<repo>/commits/<branch>`, reading the `sha` field.
-2. Fetch `https://raw.githubusercontent.com/<owner>/<repo>/<sha>/tracks.json`.
-3. Validate it against a schema shipped with the app, so a format change in the index repo fails loudly.
-4. Apply `config/tag-map.json` to build the in-memory index. Each entry holds:
-   - the track id and title;
-   - the original tags;
-   - the derived setting and intensity buckets;
-   - the full audio URL.
-
-The SHA pins the metadata only. Audio URLs point at Tabletop Audio's live files, which we can't pin; in practice they don't change once published.
+- `data/tracks.json` is imported by the app and bundled by Vite, so there is no runtime fetch, no GitHub API call and nothing to cache or fall back from.
+- At startup, the library loader applies `config/tag-map.json` to build the in-memory index. Each entry holds:
+  - the track id and title;
+  - the original tags;
+  - the derived setting and intensity buckets;
+  - the full audio URL.
+- The deploy pins the metadata only. Audio URLs point at Tabletop Audio's live files, which we can't pin; in practice they don't change once published.
 
 **Mapping and reporting**
 
 - **Tag mapping:** a hand-maintained `config/tag-map.json` maps Tabletop Audio's genres and tag facets to our setting and intensity values. Roughly: genre filters out sci-fi and modern tracks; `civ` and `biome` drive setting; `mood` and `action` drive intensity (e.g. mood `tension` or action `sneak` → `tense`; action `skirmish`, `war` or `boss` → `combat`). A track may sit in several buckets. Tracks with no usable tags are excluded.
-- **Library status:** the UI shows the resolved SHA (short form) and the number of tracks in each setting and intensity bucket. It also shows how many tracks were excluded because their tags aren't in the map. Some exclusions are expected (non-fantasy genres); growth in the count is the cue to update `tag-map.json`.
+- **Library status:** the UI shows when the index was generated, and the number of tracks in each setting and intensity bucket. It also shows how many tracks were excluded because their tags aren't in the map. Some exclusions are expected (non-fantasy genres).
 
-**Caching and failure handling**
+**Failure handling**
 
-- Cache the last successfully loaded SHA and parsed index in IndexedDB.
-- If the GitHub API call fails or is rate-limited, start from the cache and show a non-blocking warning. Do the same if the index fetch or validation fails.
-- If there is no cache and the API call fails, fall back to the branch-name raw URL (unpinned, but fine for a first load). If that fails too, show a clear error: playback can't work without an index.
 - If an audio file fails to load (the element's `error` event), log it, mark the track as bad for the session and pick another. The browser can't check files in advance, because that would need a CORS request.
-
-**Network notes**
-
-- api.github.com and raw.githubusercontent.com both allow cross-origin requests, so no proxy is needed for the index.
-- Unauthenticated GitHub API calls are limited to 60 per hour per IP. We make one per page load.
 - Audio requests go to sounds.tabletopaudio.com without CORS, as described in section 4.
 
 ### 7.2 Speech-to-text
@@ -220,7 +209,7 @@ Two buttons export a session or all sessions as JSONL. These logs are the datase
 
 ### 7.10 UI
 
-- **Settings:** API key (localStorage), model, classifier cadence, state-machine parameters, output (Cast or local) and Whisper model. Advanced settings also allow overriding the library source (index repo owner, name and branch).
+- **Settings:** API key (localStorage), model, classifier cadence, state-machine parameters, output (Cast or local) and Whisper model.
 - **Main view:**
   - start and stop listening;
   - the Cast button;
@@ -236,14 +225,15 @@ Two buttons export a session or all sessions as JSONL. These logs are the datase
 
 - TypeScript and Vite. Keep the framework minimal: vanilla TypeScript or Preact.
 - Deploy to GitHub Pages via GitHub Actions. Set Vite's base path to the repo name.
-- Vitest for unit tests, especially the state machine, track selector and tag mapping. The library loader should be tested against a fixture `tracks.json`.
-- The scraper and its scheduled job live in the index repo (7.1), not here.
+- Vitest for unit tests, especially the state machine, track selector and tag mapping. The library loader should be tested against a fixture `tracks.json`, and the generator's parser against saved fixture pages.
+- A scheduled GitHub Actions workflow runs the generator and opens pull requests (7.1).
 
 Suggested layout:
 
 ```
-/config            tag-map.json, keywords.json, defaults.json (incl. index repo owner/name/branch)
-/src/library       SHA resolution, index fetch + validation, index build, IndexedDB cache
+/config            tag-map.json, keywords.json, defaults.json
+/data              tracks.json (generated; do not edit by hand)
+/src/library       tag mapping and index build
 /src/audio         mic capture, VAD
 /src/stt           Whisper (transformers.js) wrapper
 /src/classify      classifier interface + anthropic.ts (later: webllm.ts, embeddings.ts)
@@ -252,11 +242,12 @@ Suggested layout:
 /src/log           IndexedDB logger, JSONL export
 /src/ui            views and settings
 /schema            tracks.schema.json (the index format the loader accepts)
-/test/fixtures     synthetic tracks.json matching the schema, for loader tests
+/scripts           build-index.ts (the generator)
+/test/fixtures     synthetic tracks.json and site pages, for loader and generator tests
 /experiments       notes and results per experiment ID
 ```
 
-The repo contains no third-party track data. The README should include a "Third-party content" section stating that the ambiences are by Tabletop Audio under CC BY-NC-ND 4.0, that audio is streamed from Tabletop Audio's own servers, that the track metadata is generated from tabletopaudio.com into the separate index repo, and that none of it is covered by this repo's licence. The loader test fixture should use invented track entries that match the schema, rather than copied data.
+The repo contains no audio, but `data/tracks.json` is third-party content: its titles, descriptions and tags are Tabletop Audio's. The README should include a "Third-party content" section stating that the ambiences are by Tabletop Audio under CC BY-NC-ND 4.0, that audio is streamed from Tabletop Audio's own servers, that `data/tracks.json` is generated from tabletopaudio.com, and that none of it is covered by this repo's MIT licence. The test fixtures should use invented track entries and pages rather than copied data.
 
 ## 9. Experiments and open risks
 
@@ -268,18 +259,15 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 - *Do this first: the whole hosting plan depends on it.*
 
 **E2 — Scraper and tag review.**
-- Write the generator for the index repo and check its output against the site: track count, a sample of titles, descriptions and filenames, and every audio URL returning 206 to a non-CORS range request.
+- Write the generator and check its output against the site: track count, a sample of titles, descriptions and filenames, and every audio URL returning 206 to a non-CORS range request.
 - Review Tabletop Audio's tag facets and genres to finalise the setting list and draft `tag-map.json`.
 
 **E3 — Hosting fallbacks.** Only needed if E1 fails, or if Tabletop Audio asks us not to stream from their host.
 - Mirror a curated subset of fantasy tracks ourselves: into a Pages repo (keeping well under the roughly 1 GB site size guideline) or into Cloudflare R2. Either way, the index's `file` field would point at our copy, and the generator would gain a download step.
 - Mirroring the full library in a git repo is not an option: 529 tracks at around 14 MB each is well above GitHub's recommended repo size.
 
-**E4 — Rate limits, caching and freshness.**
+**E4 — Rate limits and the generator.**
 - sounds.tabletopaudio.com: expected to be a non-issue at about one audio request every ten minutes, but confirm across a full-length session.
-- api.github.com: one call per page load should sit well within the unauthenticated limit, but confirm.
-- Check that the IndexedDB fallback works when the API call is blocked (simulate this in dev tools).
-- Check that a newly merged index is picked up on the next page load. SHA-addressed raw URLs are immutable, so CDN caching there shouldn't matter; only the API response's freshness does.
 - Check that the generator works from GitHub Actions runners. Cloudflare may treat datacentre IP addresses differently from the requests tested so far.
 
 **E5 — In-browser Whisper.**
@@ -314,8 +302,8 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 
 - **M0 — Skeleton:** Vite and TypeScript app deployed to GitHub Pages via Actions, with the settings screen and the API key in localStorage.
 - **M1 — Library and playback:**
-  - the index repo is created, with the generator and its scheduled job running;
-  - the library loader resolves the SHA, builds the index and caches it;
+  - the generator and its scheduled job are running, and `data/tracks.json` is committed;
+  - the library loader builds the index from it;
   - a manual track picker plays through both adapters.
   
   Complete E1 to E4 here.
