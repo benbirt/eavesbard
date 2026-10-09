@@ -37,6 +37,9 @@ export class CastAdapter implements PlaybackAdapter {
     context.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, (e) =>
       this.emit("info", `Cast session ${e.sessionState.toLowerCase()}`),
     );
+    context.addEventListener(cast.framework.CastContextEventType.CAST_STATE_CHANGED, (e) =>
+      this.emit("info", `Cast state: ${describeCastState(e.castState)}`),
+    );
     this.controller.addEventListener(cast.framework.RemotePlayerEventType.PLAYER_STATE_CHANGED, () => {
       const state = this.player.playerState;
       if (state === "PLAYING") {
@@ -50,6 +53,20 @@ export class CastAdapter implements PlaybackAdapter {
         this.emit("info", `receiver ${state.toLowerCase()}`);
       }
     });
+  }
+
+  /** The SDK's view of the network, e.g. whether it has found any devices. */
+  castState(): string {
+    return describeCastState(cast.framework.CastContext.getInstance().getCastState());
+  }
+
+  /** Opens the browser's device chooser directly, without the Cast icon. */
+  async connect(): Promise<void> {
+    try {
+      await cast.framework.CastContext.getInstance().requestSession();
+    } catch (code) {
+      throw new Error(`Couldn't start a Cast session (${String(code)})`);
+    }
   }
 
   async play(url: string, title: string, _fadeMs: number): Promise<void> {
@@ -95,5 +112,20 @@ export class CastAdapter implements PlaybackAdapter {
 
   private emit(type: "playing" | "ended" | "error" | "info", detail: string): void {
     for (const listener of this.listeners) listener({ type, detail });
+  }
+}
+
+function describeCastState(state: cast.framework.CastState): string {
+  switch (state) {
+    case "NO_DEVICES_AVAILABLE":
+      return "no Cast devices found on this network";
+    case "NOT_CONNECTED":
+      return "Cast devices found; not connected";
+    case "CONNECTING":
+      return "connecting";
+    case "CONNECTED":
+      return "connected";
+    default:
+      return String(state);
   }
 }

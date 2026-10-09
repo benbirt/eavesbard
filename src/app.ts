@@ -37,6 +37,7 @@ const trackInfo = $("track-info");
 const outputLocal = $<HTMLInputElement>("output-local");
 const outputCast = $<HTMLInputElement>("output-cast");
 const castStatus = $("cast-status");
+const castConnect = $<HTMLButtonElement>("cast-connect");
 const log = $("event-log");
 
 $("library-status").textContent =
@@ -92,13 +93,20 @@ local.onEvent((e) => logEvent("local", e));
 let castAdapter: CastAdapter | undefined;
 loadCastSdk().then((available) => {
   if (!available) {
-    castStatus.textContent = "Casting isn't available in this browser.";
+    castStatus.textContent = "Casting isn't available in this browser (the Cast SDK reported it unavailable).";
+    logEvent("cast", { type: "info", detail: `Cast SDK unavailable; user agent: ${navigator.userAgent}` });
     return;
   }
-  castAdapter = new CastAdapter();
-  castAdapter.onEvent((e) => logEvent("cast", e));
+  const adapter = new CastAdapter();
+  castAdapter = adapter;
+  const showState = () => (castStatus.textContent = `Cast SDK loaded: ${adapter.castState()}.`);
+  adapter.onEvent((e) => {
+    logEvent("cast", e);
+    showState();
+  });
   outputCast.disabled = false;
-  castStatus.textContent = "Use the Cast button to connect a device.";
+  castConnect.disabled = false;
+  showState();
 });
 
 function adapter(): PlaybackAdapter {
@@ -142,6 +150,7 @@ $("random").addEventListener("click", () =>
     return playTrack(entry);
   }),
 );
+castConnect.addEventListener("click", () => run("cast", () => castAdapter?.connect()));
 $("stop").addEventListener("click", () => run(source(), () => adapter().stop(FADE_MS)));
 $("seek").addEventListener("click", () => run(source(), () => adapter().seekNearEnd(20)));
 $<HTMLInputElement>("volume").addEventListener("input", (e) =>

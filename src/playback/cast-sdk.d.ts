@@ -45,7 +45,19 @@ declare namespace chrome.cast.media {
 
 declare namespace cast.framework {
   enum CastContextEventType {
+    CAST_STATE_CHANGED = "caststatechanged",
     SESSION_STATE_CHANGED = "sessionstatechanged",
+  }
+
+  enum CastState {
+    NO_DEVICES_AVAILABLE = "NO_DEVICES_AVAILABLE",
+    NOT_CONNECTED = "NOT_CONNECTED",
+    CONNECTING = "CONNECTING",
+    CONNECTED = "CONNECTED",
+  }
+
+  interface CastStateEventData {
+    castState: CastState;
   }
 
   enum RemotePlayerEventType {
@@ -65,7 +77,11 @@ declare namespace cast.framework {
     static getInstance(): CastContext;
     setOptions(options: CastOptions): void;
     getCurrentSession(): CastSession | null;
-    addEventListener(type: CastContextEventType, handler: (event: SessionStateEventData) => void): void;
+    getCastState(): CastState;
+    /** Opens the browser's device chooser. Rejects with an error code such as "cancel". */
+    requestSession(): Promise<string | undefined>;
+    addEventListener(type: CastContextEventType.SESSION_STATE_CHANGED, handler: (event: SessionStateEventData) => void): void;
+    addEventListener(type: CastContextEventType.CAST_STATE_CHANGED, handler: (event: CastStateEventData) => void): void;
   }
 
   class CastSession {
