@@ -3,6 +3,10 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.28.0",
+  "dependencies": {
+    "@preact/signals": "2.11.3",
+    "preact": "11.0.1"
+  },
   "devDependencies": {
     "@types/node": "22.20.5",
     "acorn": "8.19.0",

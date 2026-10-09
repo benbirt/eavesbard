@@ -65,84 +65,22 @@
         color: var(--error);
         font-size: 0.875rem;
       }
-      #event-log {
+      .event-log {
         font: 0.8125rem/1.4 ui-monospace, monospace;
         padding-left: 1.25rem;
         overflow-wrap: anywhere;
       }
-      #event-log .error {
+      .event-log .error {
         color: var(--error);
       }
-      #event-log .playing,
-      #event-log .ended {
+      .event-log .playing,
+      .event-log .ended {
         color: var(--ok);
       }
     </style>
   </head>
   <body>
-    <h1>Eavesbard</h1>
-
-    <form id="settings-form">
-      <fieldset>
-        <legend>Settings</legend>
-        <label>
-          Anthropic API key
-          <input id="api-key" type="password" autocomplete="off" size="40" />
-        </label>
-        <button type="submit">Save</button>
-        <span id="api-key-status" class="muted" role="status"></span>
-        <p class="muted">Stored only in this browser's local storage.</p>
-      </fieldset>
-    </form>
-
-    <fieldset>
-      <legend>Track picker</legend>
-      <p id="library-status" class="muted"></p>
-      <div class="row">
-        <label>
-          Setting
-          <select id="setting"></select>
-        </label>
-        <label>
-          Intensity
-          <select id="intensity"></select>
-        </label>
-      </div>
-      <label>
-        Track
-        <select id="track"></select>
-      </label>
-      <p id="track-info" class="muted"></p>
-      <label><input id="output-local" type="radio" name="output" checked /> This computer</label>
-      <label>
-        <input id="output-cast" type="radio" name="output" disabled /> Cast
-        <google-cast-launcher></google-cast-launcher>
-        <button id="cast-connect" type="button" disabled>Connect…</button>
-        <span id="cast-status" class="muted">Loading Cast support…</span>
-      </label>
-      <p id="cast-hint" class="warning" hidden></p>
-      <p>
-        <button id="play">Play (crossfade)</button>
-        <button id="random">Play a random track from this bucket</button>
-        <button id="stop">Stop</button>
-        <button id="seek">Skip to 20 s before end</button>
-      </p>
-      <label>
-        Volume
-        <input id="volume" type="range" min="0" max="1" step="0.05" value="1" />
-      </label>
-      <p class="muted">
-        Check in dev tools (Network) that audio requests carry no <code>Origin</code> header: the audio host refuses
-        them with 403 if they do.
-      </p>
-      <ol id="event-log" reversed></ol>
-    </fieldset>
-
-    <footer>
-      Ambiences by <a href="https://tabletopaudio.com/">Tabletop Audio</a>, licensed
-      <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
-    </footer>
-
+    <div id="app"></div>
     <script type="module" src="./main.js"></script>
   </body>
 </html>

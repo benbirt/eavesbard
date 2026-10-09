@@ -8,10 +8,15 @@ TESTS = glob(["**/*.test.ts"])
 ts_lib(
     name = "app",
     srcs = glob(
-        ["**/*.ts"],
+        [
+            "**/*.ts",
+            "**/*.tsx",
+        ],
         exclude = TESTS,
     ),
     deps = [
+        "//:node_modules/@preact/signals",
+        "//:node_modules/preact",
         "//config:tag_map",
         "//data:tracks",
         "//src/library",

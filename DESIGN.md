@@ -263,7 +263,8 @@ Two buttons export a session or all sessions as JSONL, and a third clears all st
   - `aspect_rules_ts` for type-checking and compiling TypeScript (`ts_project`);
   - `aspect_rules_esbuild` for bundling;
   - `bazel_lib` (`copy_to_directory`) for assembling the static site.
-- **Language:** TypeScript in strict mode. Vanilla DOM code, no UI framework.
+- **Language:** TypeScript in strict mode.
+- **UI:** Preact with Preact Signals. JSX is compiled by TypeScript (`jsxImportSource: preact`), so no extra build tooling is needed. State that changes outside the UI (playback, Cast, and later the audio worker and classifier) lives in signals in plain modules such as `src/player.ts`; components in `src/ui/` read them and stay thin.
 - **Packages:** pnpm. No dependency may run install scripts (`allowBuilds` in `pnpm-workspace.yaml`).
 - **Tests:** Node's built-in test runner (`node:test`), each test file run as a Bazel `js_test`. Priorities are the state machine, track selector and tag mapping. The library loader should be tested against a fixture `tracks.json`, and the generator's parser against saved fixture pages.
 - **Targets:** `bazel test //...` type-checks, builds and tests everything; `//src:site` is the deployable site; `bazel run //tools:serve` serves it on localhost.
@@ -275,7 +276,7 @@ Suggested layout:
 ```
 /config            tag-map.json, keywords.json, pricing.json, defaults.json
 /data              tracks.json (generated; do not edit by hand)
-/src               app entry point (app.ts), index.html, settings
+/src               app entry point (app.tsx), index.html, settings, player.ts (playback state and actions)
 /src/library       index format and validation, tag mapping and index build
 /src/audio         mic capture, VAD
 /src/stt           Whisper (transformers.js) wrapper
@@ -283,7 +284,7 @@ Suggested layout:
 /src/scene         state machine, track selector
 /src/playback      adapter interface, cast.ts, local.ts
 /src/log           IndexedDB logger, JSONL export
-/src/ui            views and settings
+/src/ui            Preact components
 /scripts           build-index.ts (the generator) and its parsing code
 /tools             dev server, shared Bazel macros
 /experiments       notes and results per experiment ID
