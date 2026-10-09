@@ -27,6 +27,16 @@ js_binary(
 ts_tests(
     name = "tests",
     srcs = TESTS,
-    data = ["//data:tracks"],
+    data = [
+        "//config:tag_map",
+        "//data:tracks",
+    ],
     deps = [":scripts"],
+)
+
+# Shows how config/tag-map.json sorts the tracks (see the file header).
+js_binary(
+    name = "library_report",
+    data = [":scripts"],
+    entry_point = "library-report.js",
 )

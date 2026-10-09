@@ -64,7 +64,7 @@ Scenes are described on two independent axes. Both are fixed enums, and the clas
 
 **Intensity** (what's happening): `calm`, `tense`, `combat`.
 
-The setting list is provisional. Finalise it after reviewing Tabletop Audio's own tag taxonomy (see 7.1 and experiment E2). Add values only where the library has enough tracks to support them.
+The setting list is provisional. Against Tabletop Audio's tags (7.1), every setting and intensity combination has tracks, though tavern is thin when tense or in combat (one track each) and relies on the track selector's fallbacks. The main gap is indoor locations that are neither taverns nor dungeons (castles, temples, courts, libraries), which make up most of the unmapped tracks. A setting for them is the likeliest addition. Add values only where the library has enough tracks to support them.
 
 `unknown` means "keep doing what you're doing". It must never cause a track change.
 
@@ -102,7 +102,7 @@ The setting list is provisional. Finalise it after reviewing Tabletop Audio's ow
 - The test suite (in that workflow, and in CI on any change to `config/tag-map.json`) fails if:
   - `data/tracks.json` doesn't match its format (checked by `parseTracksFile` in `src/library/tracks-file.ts`, which the app also uses);
   - any setting and intensity bucket would be empty after applying the tag map;
-  - the number of tracks excluded as unmapped has grown.
+  - the number of tracks excluded as unmapped has grown (see the checks on the map below).
 - Because these checks run before a merge, a bad scrape or tag map never reaches the deployed app.
 
 **`data/tracks.json` entry**
@@ -125,7 +125,14 @@ The file also records when it was generated. Filenames are kept exactly as the s
 
 **Mapping and reporting**
 
-- **Tag mapping:** a hand-maintained `config/tag-map.json` maps Tabletop Audio's genres and tag facets to our setting and intensity values. Roughly: genre filters out sci-fi and modern tracks; `civ` and `biome` drive setting; `mood` and `action` drive intensity (e.g. mood `tension` or action `sneak` → `tense`; action `skirmish`, `war` or `boss` → `combat`). A track may sit in several buckets. Tracks with no usable tags are excluded.
+- **Tag mapping:** a hand-maintained `config/tag-map.json` maps Tabletop Audio's metadata onto our setting and intensity values:
+  - **Scope:** a track is in scope if it has an included genre (`fantasy`, `historical`, `horror`, `nature`) and no excluded one (`scifi`, `scif`, `modern`). `includeTracks` and `excludeTracks` override this for individual track ids.
+  - **Buckets:** each setting and intensity has a rule listing tag values per facet (`civ`, `biome`, `mood`, `action`) and `words`. A track is in a bucket if it has any listed tag, or any listed word appears as a whole word in its title or keywords. A track may sit in several buckets.
+  - **Unmapped:** in-scope tracks with no setting or no intensity are left out. `maxUnmapped` records how many that currently is.
+  - At the first version (2026-10-09), 358 of 528 tracks are in scope, 307 are mapped and 51 are unmapped.
+  - The library builder (`buildLibrary` in `src/library/tag-map.ts`) is shared by the app and the tests.
+- **Checks on the map:** the test suite fails if any setting and intensity bucket is empty, if the number of unmapped tracks exceeds `maxUnmapped`, or if the map names a tag, genre or track id that doesn't exist in the data (catching typos). So a weekly index update that brings in unmapped tracks fails its tests and opens no pull request until the map is updated.
+- **Tuning:** `bazel run //scripts:library_report` prints the bucket sizes and the unmapped tracks; `bazel run //scripts:library_report -- town/tense` lists one bucket.
 - **Library status:** the UI shows when the index was generated, and the number of tracks in each setting and intensity bucket. It also shows how many tracks were excluded because their tags aren't in the map. Some exclusions are expected (non-fantasy genres).
 
 **Failure handling**

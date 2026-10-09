@@ -1,0 +1,46 @@
+{
+  "genres": {
+    "include": ["fantasy", "historical", "horror", "nature"],
+    "exclude": ["scifi", "scif", "modern"]
+  },
+  "includeTracks": [],
+  "excludeTracks": [],
+  "setting": {
+    "tavern": {
+      "words": ["tavern", "inn", "pub", "alehouse", "saloon"]
+    },
+    "town": {
+      "civ": ["cities", "slums", "public"],
+      "words": ["town", "village", "city", "market", "bazaar", "fair", "festival"]
+    },
+    "wilderness": {
+      "civ": ["outposts"],
+      "biome": ["forest", "desert", "ice", "mountains", "swamp", "weather", "water"],
+      "words": ["forest", "woods", "camp", "wilderness"]
+    },
+    "dungeon": {
+      "civ": ["ruins"],
+      "biome": ["underground"],
+      "words": ["dungeon", "crypt", "tomb", "cave", "cavern", "catacombs", "mine", "sewer", "prison", "jail", "vault"]
+    },
+    "travel": {
+      "civ": ["roads", "transit"],
+      "words": ["road", "journey", "trail", "wagon", "carriage", "ship", "sailing", "voyage", "travel", "caravan"]
+    }
+  },
+  "intensity": {
+    "calm": {
+      "mood": ["peaceful", "optimistic", "fun", "somber"],
+      "action": ["celebrate"]
+    },
+    "tense": {
+      "mood": ["tension", "mysterious"],
+      "action": ["sneak", "chase", "monster"]
+    },
+    "combat": {
+      "action": ["skirmish", "war", "boss"],
+      "words": ["battle", "fight", "combat"]
+    }
+  },
+  "maxUnmapped": 51
+}
