@@ -1,0 +1,33 @@
+{
+  "_comment": "Phrases that make the classifier run at once instead of waiting for its next 30-second check. They never change the scene themselves, so a false match only costs one extra API call. Grouped for readability; all groups behave the same.",
+  "combat starting": [
+    "initiative",
+    "ambush",
+    "roll to hit",
+    "attack roll",
+    "make an attack",
+    "they attack",
+    "it attacks",
+    "draw your weapons",
+    "charges at you"
+  ],
+  "combat ending": [
+    "combat is over",
+    "end of combat",
+    "last one falls",
+    "they flee",
+    "loot the bodies",
+    "short rest",
+    "long rest"
+  ],
+  "moving somewhere": [
+    "you arrive",
+    "you enter",
+    "you step into",
+    "you walk into",
+    "you reach",
+    "you set off",
+    "you set sail",
+    "the next morning"
+  ]
+}

@@ -20,13 +20,21 @@ function Cost() {
 
 function LastRun() {
   const run = lastRun.value;
-  if (!run) return <p class="muted">The classifier runs every 30 seconds while there's new transcript.</p>;
+  if (!run) {
+    return (
+      <p class="muted">
+        The classifier runs every 30 seconds while there's new transcript, or at once on phrases like “roll for
+        initiative”.
+      </p>
+    );
+  }
   const at = run.at.toLocaleTimeString("en-GB");
   if (run.error) return <p class="warning">{`${at}: classifier failed: ${run.error} The scene stays as it is.`}</p>;
   const { classification: c, latencyMs } = run.result!;
   return (
     <p class="muted">
-      {at}: classifier said {c.setting} ({pct(c.settingConfidence)}), {c.intensity} ({pct(c.intensityConfidence)}) in{" "}
+      {at}
+      {run.trigger && ` (asked early: heard “${run.trigger}”)`}: classifier said {c.setting} ({pct(c.settingConfidence)}), {c.intensity} ({pct(c.intensityConfidence)}) in{" "}
       {(latencyMs / 1000).toFixed(1)} s: “{c.reason}”
     </p>
   );

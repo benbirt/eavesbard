@@ -21,6 +21,7 @@ ts_lib(
         "//:node_modules/preact",
         "//config:pricing",
         "//config:tag_map",
+        "//config:triggers",
         "//data:tracks",
         "//src/library",
     ],
