@@ -20,7 +20,7 @@ function Cost() {
 
 function LastRun() {
   const run = lastRun.value;
-  if (!run) return <p class="muted">The classifier runs every minute while there's new transcript.</p>;
+  if (!run) return <p class="muted">The classifier runs every 30 seconds while there's new transcript.</p>;
   const at = run.at.toLocaleTimeString("en-GB");
   if (run.error) return <p class="warning">{`${at}: classifier failed: ${run.error} The scene stays as it is.`}</p>;
   const { classification: c, latencyMs } = run.result!;
@@ -44,8 +44,8 @@ export function Director() {
       </label>
       {auto.value && (
         <p class="muted">
-          While listening, about the last two and a half minutes of transcript are sent to Anthropic once a minute to
-          work out the scene. Let the table know.
+          While listening, the last two and a half minutes of transcript are sent to Anthropic every 30 seconds to work
+          out the scene. Let the table know.
         </p>
       )}
       {notice.value && current && <p class="warning">{notice.value}</p>}

@@ -1,5 +1,5 @@
-// The scene state machine (DESIGN.md 7.6): turns keyword hits and classifier
-// results into scene changes, with hysteresis so the music doesn't flap.
+// The scene state machine (DESIGN.md 7.6): turns classifier results into
+// scene changes, with hysteresis so the music doesn't flap.
 // A pure function of (state, event, options), so it's testable without audio
 // or network.
 
@@ -30,16 +30,14 @@ export const DEFAULT_SCENE_OPTIONS: SceneOptions = {
   minCombatMs: 3 * 60_000,
 };
 
-export type SceneEvent =
-  | { type: "keyword"; phrase: string; at: number }
-  | {
-      type: "classification";
-      setting: Setting | "unknown";
-      settingConfidence: number;
-      intensity: Intensity;
-      intensityConfidence: number;
-      at: number;
-    };
+export interface SceneEvent {
+  type: "classification";
+  setting: Setting | "unknown";
+  settingConfidence: number;
+  intensity: Intensity;
+  intensityConfidence: number;
+  at: number;
+}
 
 interface Streak<T> {
   value: T;
@@ -74,20 +72,6 @@ export interface Transition {
 }
 
 export function nextScene(state: SceneState, event: SceneEvent, options = DEFAULT_SCENE_OPTIONS): Transition {
-  if (event.type === "keyword") {
-    if (state.intensity === "combat") return { state, changed: false };
-    return {
-      state: {
-        ...state,
-        intensity: "combat",
-        intensitySince: event.at,
-        pendingIntensity: undefined,
-        reason: `keyword "${event.phrase}"`,
-      },
-      changed: true,
-    };
-  }
-
   const next: SceneState = { ...state };
   // Reported setting first, then intensity.
   const reasons: { setting?: string; intensity?: string } = {};

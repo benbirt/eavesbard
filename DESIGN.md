@@ -48,7 +48,7 @@ The app is a single page made of the following stages, each a separate module wi
 2. **Mic capture** — getUserMedia, mono, resampled to 16 kHz for Whisper.
 3. **Speech-to-text** — Whisper via transformers.js on WebGPU, with WASM as a fallback. Audio is chunked on voice activity.
 4. **Transcript buffer** — a rolling window of recent transcribed text with timestamps.
-5. **Keyword trigger** — a cheap string matcher on each new transcript chunk, for instant combat detection.
+5. **Keyword trigger** — removed in favour of a faster classifier cadence (see 7.4).
 6. **Classifier** — runs periodically on the transcript window and returns a scene label. The initial implementation is Claude Haiku over the API.
 7. **Scene state machine** — applies hysteresis and dwell times so the music doesn't flap.
 8. **Track selector** — maps the current scene to candidate tracks using the track index and picks one, avoiding recent repeats.
@@ -164,10 +164,11 @@ The file also records when it was generated. Filenames are kept exactly as the s
 
 ### 7.4 Keyword trigger
 
-- Matches phrases like "roll initiative", "roll for initiative" and "initiative order", case-insensitive and tolerant of minor transcription noise.
-- A match sets intensity to `combat` immediately, bypassing the classifier cadence and the dwell times.
-- The phrase list lives in `config/keywords.json`. Matching ignores case and punctuation and tolerates an optional "for" and a trailing "s" on any word. Leaving combat is handled by the classifier, never by keywords.
-- Rules talk such as "how does initiative order work?" will also trigger combat. That's accepted for now; the minimum combat time (7.6) limits the damage.
+**Removed.** A phrase matcher ("roll initiative" → combat at once) was built in M3 and then dropped in favour of keeping every decision with the classifier:
+
+- Its only advantage was speed: with a 60-second classifier cadence, combat could start up to a minute late. Running the classifier every 30 seconds closes most of that gap.
+- It couldn't tell a fight from rules talk ("how does initiative work again?"), and the minimum combat time then made a false alarm stick.
+- If E8 shows combat still starts too late, the next step is an on-demand classification when a combat phrase is heard, with the classifier still deciding, rather than a keyword that switches by itself.
 
 ### 7.5 Classifier
 
@@ -178,10 +179,10 @@ The file also records when it was generated. Filenames are kept exactly as the s
   - Effort `low` with the model's default adaptive thinking, and `max_tokens` 1024 to leave room for thinking before the short answer. Content blocks are read by type, since a response can start with a thinking block.
   - The system prompt (`src/classify/prompt.ts`) holds the label definitions, the table-talk rules and a few short examples, and is marked for prompt caching. Haiku 5.5 caches prompts of 512 tokens or more; the prompt is well over that, and a test keeps it so.
   - The user message holds the current scene, how long it has lasted, and the transcript window.
-- **Cadence:** every 60 seconds by default (configurable), and only if there is new transcript text.
+- **Cadence:** every 30 seconds, and only if there is new transcript text. Each call sends the last two and a half minutes of transcript text (not audio), with each line marked by how long ago it was said; the prompt says the most recent lines matter most. The overlap between calls is deliberate: the setting often depends on something said a few minutes earlier.
 - **Prompt guidance:** the prompt should cover table talk that isn't in-game, such as rules lookups, snacks and real-world chat. In those cases the model should return `unknown` or the current scene.
 - **Cost meter:** record input, output and cached token counts from each response's usage field. Prices per model come from `config/pricing.json`, updated by hand (Haiku 5.5: $0.10 input, $0.50 output, $0.01 cache reads and $0.125 cache writes per million tokens, for prompts of 100K tokens or fewer). Show a running session total in the UI, with the share of input served from cache.
-- **Rough cost:** each call is about 1,000 tokens of input (mostly the cached system prompt) and a few hundred of output including thinking, so roughly $0.0001 to $0.0003. A four-hour session makes at most 240 calls: a few pennies.
+- **Rough cost:** each call is about 1,000 tokens of input (mostly the cached system prompt) and a few hundred of output including thinking, so roughly $0.0001 to $0.0003. A four-hour session makes at most 480 calls: roughly 5 to 15 cents.
 - **Failures:** on an API error or invalid JSON, log the failure and keep the current scene. Never crash playback.
 
 ### 7.6 Scene state machine
@@ -189,15 +190,15 @@ The file also records when it was generated. Filenames are kept exactly as the s
 All parameters are configurable, and the defaults below are starting points to tune.
 
 - **Starting scene:** a configurable default (`tavern`, `calm`), which plays from the moment listening starts.
-- **Entering combat:** immediate, on either a keyword match or a classifier result of `combat` with intensity confidence of at least 0.6.
-- **Leaving combat:** requires two consecutive non-combat classifications, and at least three minutes in combat. The minimum matters after a keyword trigger, when the classifier's window is still mostly pre-combat text.
+- **Entering combat:** immediate, on a classifier result of `combat` with intensity confidence of at least 0.6.
+- **Leaving combat:** requires two consecutive non-combat classifications, and at least three minutes in combat, so a lull between rounds doesn't drop the combat music.
 - **Setting changes:** require two consecutive classifications that agree on the new setting, and at least three minutes on the current setting.
 - **Calm and tense changes:** require two consecutive agreeing classifications.
 - **Low confidence:** each axis is judged on its own confidence. A setting below 0.5 is treated as `unknown`; an intensity below 0.5 is ignored, keeping the current one.
 - **`unknown` and streaks:** an `unknown` result neither counts towards nor resets a streak of agreeing classifications.
 - **Simultaneous changes:** if setting and intensity both change in the same cycle, that is one transition, not two.
 - **Implementation:** a pure function from the current state, a new event and the current time to a new state (`src/scene/state-machine.ts`), unit-tested without audio or network.
-- **Orchestration:** `src/director.ts` runs while listening with automatic music on: transcript lines feed the buffer and the keyword trigger; every 60 seconds, if there's new text and an API key, the classifier runs; scene changes go through the state machine to the track selector and the player.
+- **Orchestration:** `src/director.ts` runs while listening with automatic music on: transcript lines feed the buffer; every 30 seconds, if there's new text and an API key, the classifier runs; scene changes go through the state machine to the track selector and the player.
 
 ### 7.7 Track selector
 
@@ -240,7 +241,7 @@ Each classification cycle writes one record to IndexedDB containing:
 - the scene state before and after;
 - the track playing.
 
-Keyword triggers, scene changes and track starts and ends are logged as events of their own, so a replay keeps their order.
+Scene changes and track starts and ends are logged as events of their own, so a replay keeps their order.
 
 Two buttons export a session or all sessions as JSONL, and a third clears all stored logs. These logs are the dataset for the classifier experiments in E9. Haiku's labels are treated as the reference, not as ground truth.
 
@@ -250,7 +251,7 @@ Two buttons export a session or all sessions as JSONL, and a third clears all st
 - **Main view:**
   - start and stop listening;
   - the Cast button;
-  - the current scene and why it changed (keyword or classifier);
+  - the current scene and why it changed;
   - the current track title;
   - the live transcript;
   - the session cost.
@@ -282,14 +283,14 @@ Two buttons export a session or all sessions as JSONL, and a third clears all st
 Suggested layout:
 
 ```
-/config            tag-map.json, keywords.json, pricing.json, defaults.json
+/config            tag-map.json, pricing.json
 /data              tracks.json (generated; do not edit by hand)
 /src               app entry point (app.tsx), index.html, settings, player.ts (playback state and actions)
 /src/library       index format and validation, tag mapping and index build
 /src/audio         mic capture, VAD
 /src/stt           Whisper (transformers.js) wrapper
 /src/classify      classifier (Anthropic SDK), prompt, cost (later: webllm.ts, embeddings.ts)
-/src/scene         transcript buffer, keyword trigger, state machine, track selector
+/src/scene         transcript buffer, state machine, track selector
 /src/director.ts   automatic music: wires listening, classifier, scene and player together
 /src/playback      adapter interface, cast.ts, local.ts
 /src/log           IndexedDB logger, JSONL export
@@ -362,7 +363,7 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
   Complete E1 to E4 here.
 - **M2 — Listening:** mic capture, VAD and in-browser Whisper with a live transcript view. Complete E5 and E6 here.
 - **M3 — Automation:**
-  - the keyword trigger, Haiku classifier, state machine and track selector are wired end to end;
+  - the Haiku classifier, state machine and track selector are wired end to end;
   - the cost meter is working.
 - **M4 — Instrumentation:** the IndexedDB logger and JSONL export are in place. Run E8 over real sessions, and E10 alongside it.
 - **M5 — Local classifier experiments:** E9, then decide whether the API key remains necessary.

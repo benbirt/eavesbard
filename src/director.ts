@@ -1,21 +1,18 @@
-// Automatic music (M3): transcript → keyword trigger and classifier → scene
-// state machine → track selector → player. See DESIGN.md 7.3–7.7.
+// Automatic music (M3): transcript → classifier → scene state machine →
+// track selector → player. See DESIGN.md 7.3–7.7.
 
 import { effect, signal } from "@preact/signals";
-import keywordsJson from "../config/keywords.json" with { type: "json" };
 import { classify, DEFAULT_MODEL, type ClassifyResult } from "./classify/classifier.js";
 import { library } from "./library-data.js";
 import { onTranscriptLine, state as listenState } from "./listener.js";
 import { nowPlaying, onTrackEnded, play } from "./player.js";
-import { findKeyword } from "./scene/keywords.js";
 import { pickTrack, suits } from "./scene/selector.js";
 import { initialScene, nextScene, type SceneEvent, type SceneState } from "./scene/state-machine.js";
 import { TranscriptBuffer } from "./scene/transcript-buffer.js";
 import { loadApiKey, loadSetting, saveSetting } from "./settings.js";
 
 /** How often the classifier runs while there's new transcript (DESIGN.md 7.5). */
-const CADENCE_MS = 60_000;
-const COMBAT_PHRASES: readonly string[] = keywordsJson.combat;
+const CADENCE_MS = 30_000;
 
 export interface ClassifierRun {
   at: Date;
@@ -67,7 +64,7 @@ function start(): void {
   sessionCost.value = EMPTY_COST;
   lastRun.value = undefined;
   scene.value = initialScene(Date.now());
-  notice.value = loadApiKey() ? "" : "Add an Anthropic API key in Settings for automatic scene changes; until then only the keyword trigger works.";
+  notice.value = loadApiKey() ? "" : "Add an Anthropic API key in Settings for automatic scene changes; until then the starting scene keeps playing.";
   playForScene(true);
   timer = setInterval(() => void tick(), CADENCE_MS);
 }
@@ -81,8 +78,6 @@ function stop(): void {
 onTranscriptLine((line) => {
   if (!timer) return;
   buffer.add({ at: line.time.getTime(), text: line.text });
-  const phrase = findKeyword(line.text, COMBAT_PHRASES);
-  if (phrase) apply({ type: "keyword", phrase, at: Date.now() });
 });
 
 onTrackEnded(() => {

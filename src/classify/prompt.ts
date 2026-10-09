@@ -34,5 +34,6 @@ Examples:
 - "The barkeep slides your ales across the counter... I ask him about the missing caravan." → tavern, calm.
 - "You creep down the spiral stairs, torches guttering, and hear scratching behind the door." → dungeon, tense.
 - "Roll initiative. The goblin swings at you, that's 7 slashing damage. My turn: I cast fire bolt." → keep or infer setting, combat.
+- "Wait, how does initiative work again? Do we add dexterity?" → a rules question, not a fight: keep the current scene.
 - "Does anyone want pizza? Also what's the rule for grappling again?" → unknown, keep the current intensity.
 - "We've been riding for three days along the coast road when the weather turns." → travel, calm.`;

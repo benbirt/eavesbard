@@ -33,13 +33,6 @@ test("starts in the default scene", () => {
   assert.equal(s.intensity, "calm");
 });
 
-test("a keyword enters combat immediately", () => {
-  const { state, changes } = run([{ type: "keyword", phrase: "roll initiative", at: 1000 }]);
-  assert.equal(state.intensity, "combat");
-  assert.deepEqual(changes, [0]);
-  assert.match(state.reason, /roll initiative/);
-});
-
 test("a confident combat result enters combat immediately; a hesitant one needs agreement", () => {
   assert.equal(run([classify(MIN, "tavern", "combat", 0.9, 0.7)]).state.intensity, "combat");
   const hesitant = run([classify(MIN, "tavern", "combat", 0.9, 0.55), classify(2 * MIN, "tavern", "combat", 0.9, 0.55)]);
@@ -48,7 +41,7 @@ test("a confident combat result enters combat immediately; a hesitant one needs 
 
 test("combat lasts at least three minutes, even if the classifier disagrees", () => {
   const { state, changes } = run([
-    { type: "keyword", phrase: "roll initiative", at: 0 },
+    classify(0, "tavern", "combat"),
     classify(1 * MIN, "tavern", "calm"),
     classify(2 * MIN, "tavern", "calm"),
     classify(3 * MIN, "tavern", "calm"),
