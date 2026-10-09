@@ -143,12 +143,15 @@ The file also records when it was generated. Filenames are kept exactly as the s
 
 ### 7.2 Speech-to-text
 
-- transformers.js running a Whisper model on WebGPU. English-only models are fine to start with.
+- transformers.js running a Whisper model on WebGPU, in a Web Worker (`src/stt/worker.ts`) so inference never blocks the page. English-only models are fine to start with.
+- **Capture:** `getUserMedia` into an `AudioContext` running at 16 kHz (Chrome resamples), with an AudioWorklet (`src/audio/capture-worklet.ts`) posting 512-sample (32 ms) frames to the worker.
+- **Models:** Whisper `tiny.en`, `base.en` or `small.en` from `onnx-community`, with a full-precision encoder and 4-bit decoder (one-off downloads of about 120, 205 and 590 MB; cached by the browser afterwards). The default is `base.en` until E5 decides. The page shows a progress bar while models download, then a "preparing" stage while WebGPU compiles shaders on a warm-up run.
+- **ONNX Runtime:** its WebAssembly build (27 MB) is served from our own site (`ort/`), not from transformers.js's default CDN.
 - **WebGPU only:** no WASM fallback. Multithreaded WASM needs COOP/COEP headers, which GitHub Pages can't set, and the service-worker workaround would force CORS onto audio requests, which the audio host refuses (section 4). If WebGPU isn't available, the app says so and doesn't listen.
-- **Voice activity detection:** an in-browser VAD model (Silero) from the start. An energy threshold would trigger constantly once ambience is playing in the room.
-- **Hallucination filter:** Whisper invents text from noise and music ("Thanks for watching", repeated phrases). Drop chunks that match known hallucination phrases or mostly repeat themselves, so they never reach the transcript buffer.
+- **Voice activity detection:** an in-browser VAD model (Silero, `onnx-community/silero-vad`, run through transformers.js so there's one ONNX Runtime) from the start. An energy threshold would trigger constantly once ambience is playing in the room.
+- **Segmenting:** `src/stt/segmenter.ts` turns per-frame speech probabilities into segments: speech starts at probability 0.5 and continues while above 0.35; 600 ms of silence ends a segment; segments under 250 ms of speech are dropped; segments are cut at 15 s; 300 ms of audio before speech is kept so first words aren't clipped. All are starting points for E5.
+- **Hallucination filter:** Whisper invents text from noise and music ("Thanks for watching", repeated phrases). `src/stt/hallucination.ts` drops segments that are empty, only annotations such as "[Music]", known hallucination phrases, or mostly one phrase repeated, so they never reach the transcript buffer. The page can show dropped lines, struck through, for tuning.
 - **Mic settings:** the `getUserMedia` choices for echo cancellation, noise suppression and automatic gain are settled in E6. Chrome's echo cancellation can help with local playback but does nothing for audio played through Cast.
-- **Chunking:** chunks of roughly 5 to 15 seconds, cut at pauses.
 - **Output:** text chunks with start and end timestamps, appended to the transcript buffer.
 - **Scope:** no speaker diarisation. We don't need to know who said what.
 - **Model choice:** a trade-off of latency against accuracy (see experiment E5). Start with the smallest English model that keeps up in real time.
@@ -249,7 +252,7 @@ Two buttons export a session or all sessions as JSONL, and a third clears all st
   - the session cost.
 - **Attribution footer:** "Ambiences by Tabletop Audio (tabletopaudio.com), CC BY-NC-ND 4.0", with links. The current track's title, shown in the main view, completes the per-work attribution.
 - **Privacy notice:** a short note, so the table knows, that transcript snippets are sent to Anthropic and that transcripts are stored in this browser until cleared and can be exported.
-- **API key risk:** any script running on the page could read the key from localStorage. To keep that surface small, all dependencies are bundled; the only third-party script loaded at runtime is the Google Cast SDK, which Google requires to be loaded from gstatic.com.
+- **API key risk:** any script running on the page could read the key from localStorage. To keep that surface small, all dependencies are bundled and ONNX Runtime is self-hosted; the only third-party script loaded at runtime is the Google Cast SDK, which Google requires to be loaded from gstatic.com. Model weights are data downloaded from Hugging Face, not code.
 - **Wake lock:** hold a Screen Wake Lock (`navigator.wakeLock.request("screen")`) while listening. In Chrome this stops the display sleeping and the screensaver starting, and with them the operating system's automatic lock (on macOS, auto-lock follows the screensaver or display sleep).
   - Chrome releases the lock whenever the tab is hidden (another tab selected, window minimised). Re-request it on `visibilitychange` when the page becomes visible again.
   - Show the lock's state in the main view, with a clear warning while listening without it, so whoever is running the game notices and brings the tab back.
@@ -265,7 +268,8 @@ Two buttons export a session or all sessions as JSONL, and a third clears all st
   - `bazel_lib` (`copy_to_directory`) for assembling the static site.
 - **Language:** TypeScript in strict mode.
 - **UI:** Preact with Preact Signals. JSX is compiled by TypeScript (`jsxImportSource: preact`), so no extra build tooling is needed. State that changes outside the UI (playback, Cast, and later the audio worker and classifier) lives in signals in plain modules such as `src/player.ts`; components in `src/ui/` read them and stay thin.
-- **Packages:** pnpm. No dependency may run install scripts (`allowBuilds` in `pnpm-workspace.yaml`).
+- **Packages:** pnpm. No dependency may run install scripts (`allowBuilds` in `pnpm-workspace.yaml`). `pnpm-workspace.yaml` also removes transformers.js's Node-only dependencies (`onnxruntime-node`, about 300 MB, and `sharp`), and declares `onnxruntime-common`, which transformers.js imports without listing.
+- **Cache busting:** the build adds a hash of all the page's scripts to the bundle URL (`main.js?v=<hash>`), and the page passes the same query to its worker and worklet, so a browser never mixes cached old scripts with a new page.
 - **Tests:** Node's built-in test runner (`node:test`), each test file run as a Bazel `js_test`. Priorities are the state machine, track selector and tag mapping. The library loader should be tested against a fixture `tracks.json`, and the generator's parser against saved fixture pages.
 - **Targets:** `bazel test //...` type-checks, builds and tests everything; `//src:site` is the deployable site; `bazel run //tools:serve` serves it on localhost.
 - **CI and deployment:** one GitHub Actions workflow runs the tests on every push and pull request, and deploys `//src:site` to GitHub Pages from `main`. All asset paths are relative, so the site works under the `/eavesbard/` path without configuration.

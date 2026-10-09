@@ -21,3 +21,21 @@ export function saveApiKey(key: string): boolean {
     return false;
   }
 }
+
+/** Reads a stored preference. Returns undefined if unset or storage is blocked. */
+export function loadSetting(name: string): string | undefined {
+  try {
+    return localStorage.getItem(`eavesbard.${name}`) ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Stores a preference, ignoring blocked storage. */
+export function saveSetting(name: string, value: string): void {
+  try {
+    localStorage.setItem(`eavesbard.${name}`, value);
+  } catch {
+    // Preferences are a convenience; carry on without them.
+  }
+}

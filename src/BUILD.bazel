@@ -15,6 +15,7 @@ ts_lib(
         exclude = TESTS,
     ),
     deps = [
+        "//:node_modules/@huggingface/transformers",
         "//:node_modules/@preact/signals",
         "//:node_modules/preact",
         "//config:tag_map",
@@ -34,20 +35,54 @@ esbuild(
     target = "chrome120",
 )
 
-# index.html with a content hash on the bundle's URL, to defeat stale caches.
+# Speech-to-text worker (transformers.js), loaded by the page on demand.
+esbuild(
+    name = "stt_worker",
+    srcs = [":app"],
+    entry_point = "stt/worker.js",
+    format = "esm",
+    minify = True,
+    output = "stt-worker.js",
+    sourcemap = "linked",
+    target = "chrome120",
+)
+
+esbuild(
+    name = "capture_worklet",
+    srcs = [":app"],
+    entry_point = "audio/capture-worklet.js",
+    format = "esm",
+    minify = True,
+    output = "capture-worklet.js",
+    target = "chrome120",
+)
+
+SCRIPTS = [
+    "main.js",
+    "stt-worker.js",
+    "capture-worklet.js",
+]
+
+# index.html with a version hash on the bundle's URL, to defeat stale caches.
 js_run_binary(
     name = "stamped_html",
-    srcs = [
-        "index.html",
-        "main.js",
-    ],
+    srcs = ["index.html"] + SCRIPTS,
     outs = ["stamped/index.html"],
     args = [
         "$(rootpath index.html)",
-        "$(rootpath main.js)",
         "$(rootpath stamped/index.html)",
-    ],
+    ] + ["$(rootpath %s)" % s for s in SCRIPTS],
     tool = "//tools:stamp_html",
+)
+
+# ONNX Runtime's WebAssembly build, served from our site rather than a CDN
+# (the worker points transformers.js at ./ort/).
+copy_to_directory(
+    name = "ort",
+    srcs = ["//:node_modules/onnxruntime-web/dir"],
+    include_srcs_patterns = ["**/dist/ort-wasm-simd-threaded.asyncify.*"],
+    out = "ort",
+    replace_prefixes = {"**/dist/": ""},
 )
 
 # The deployable static site: everything GitHub Pages serves.
@@ -55,7 +90,10 @@ copy_to_directory(
     name = "site",
     srcs = [
         ":bundle",
+        ":capture_worklet",
+        ":ort",
         ":stamped_html",
+        ":stt_worker",
     ],
     replace_prefixes = {"stamped/": ""},
     visibility = ["//visibility:public"],

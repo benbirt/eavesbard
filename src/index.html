@@ -44,6 +44,7 @@
       .row {
         display: flex;
         flex-wrap: wrap;
+        align-items: baseline;
         gap: 0 1.5rem;
       }
       select {
@@ -64,6 +65,42 @@
       .warning {
         color: var(--error);
         font-size: 0.875rem;
+      }
+      label.inline {
+        display: inline;
+      }
+      .progress {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.25rem 0.75rem;
+        margin: 0.5rem 0;
+      }
+      .progress progress {
+        flex: 1 1 12rem;
+        max-width: 24rem;
+      }
+      .dot {
+        display: inline-block;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 50%;
+        background: var(--border);
+        vertical-align: middle;
+      }
+      .dot.speaking {
+        background: var(--ok);
+      }
+      .transcript {
+        list-style: none;
+        padding: 0;
+      }
+      .transcript li {
+        margin: 0.25rem 0;
+      }
+      .transcript .dropped {
+        text-decoration: line-through;
+        opacity: 0.6;
       }
       .event-log {
         font: 0.8125rem/1.4 ui-monospace, monospace;

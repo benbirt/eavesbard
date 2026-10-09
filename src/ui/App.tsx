@@ -1,4 +1,5 @@
 import { EventLog } from "./EventLog.js";
+import { Listening } from "./Listening.js";
 import { OutputChooser, Transport } from "./Playback.js";
 import { Settings } from "./Settings.js";
 import { TrackPicker } from "./TrackPicker.js";
@@ -8,6 +9,7 @@ export function App() {
     <>
       <h1>Eavesbard</h1>
       <Settings />
+      <Listening />
       <fieldset>
         <legend>Track picker</legend>
         <TrackPicker />

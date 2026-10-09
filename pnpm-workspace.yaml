@@ -1,2 +1,15 @@
 # No dependency is allowed to run install scripts.
 allowBuilds: {}
+
+overrides:
+  # Node-only dependencies of @huggingface/transformers. The browser build
+  # never loads them, and onnxruntime-node alone is ~300 MB.
+  onnxruntime-node: "-"
+  sharp: "-"
+
+packageExtensions:
+  # transformers.web.js imports onnxruntime-common directly but only declares
+  # onnxruntime-web (which depends on it), so pnpm's strict layout hides it.
+  "@huggingface/transformers":
+    dependencies:
+      onnxruntime-common: 1.31.0-dev.20260911-2a43ec07e
