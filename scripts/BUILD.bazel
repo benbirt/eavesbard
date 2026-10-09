@@ -13,6 +13,7 @@ ts_lib(
     deps = [
         "//:node_modules/@types/node",
         "//:node_modules/acorn",
+        "//src:app",
         "//src/library",
     ],
 )
@@ -39,4 +40,11 @@ js_binary(
     name = "library_report",
     data = [":scripts"],
     entry_point = "library-report.js",
+)
+
+# Runs scripted transcripts through the real classifier; needs ANTHROPIC_API_KEY.
+js_binary(
+    name = "classifier_check",
+    data = [":scripts"],
+    entry_point = "classifier-check.js",
 )

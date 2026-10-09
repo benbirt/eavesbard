@@ -13,6 +13,7 @@ bazel test //...                   # type-check, build and run the tests
 bazel build //src:site             # the deployable site, in bazel-bin/src/site
 bazel run //tools:serve -- 8080    # serve it at http://localhost:8080/
 bazel run //scripts:build_index    # regenerate data/tracks.json from tabletopaudio.com
+ANTHROPIC_API_KEY=... bazel run //scripts:classifier_check   # try the classifier on scripted transcripts
 ```
 
 `data/tracks.json` is generated: don't edit it by hand. The *Update track index* workflow regenerates it weekly and opens a pull request when it changes.

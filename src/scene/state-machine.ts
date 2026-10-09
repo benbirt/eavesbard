@@ -10,6 +10,8 @@ export interface SceneOptions {
   startIntensity: Intensity;
   /** Classifier confidence needed to enter combat immediately. */
   combatEntryConfidence: number;
+  /** Confidence in a non-combat intensity needed to leave combat on one result. */
+  combatExitConfidence: number;
   /** Results on an axis below this confidence are ignored on that axis. */
   minConfidence: number;
   /** Consecutive agreeing results needed for a change (other than entering combat). */
@@ -24,10 +26,11 @@ export const DEFAULT_SCENE_OPTIONS: SceneOptions = {
   startSetting: "tavern",
   startIntensity: "calm",
   combatEntryConfidence: 0.6,
+  combatExitConfidence: 0.8,
   minConfidence: 0.5,
   agreeingResults: 2,
   minSettingMs: 3 * 60_000,
-  minCombatMs: 3 * 60_000,
+  minCombatMs: 60_000,
 };
 
 export interface SceneEvent {
@@ -86,10 +89,17 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
       reasons.intensity = `classifier: combat (${pct(event.intensityConfidence)})`;
     } else {
       const streak = bump(state.pendingIntensity, value);
-      const combatHeld = state.intensity === "combat" && event.at - state.intensitySince < options.minCombatMs;
-      if (streak.count >= options.agreeingResults && !combatHeld) {
+      const leavingCombat = state.intensity === "combat";
+      const combatHeld = leavingCombat && event.at - state.intensitySince < options.minCombatMs;
+      const agreed =
+        streak.count >= options.agreeingResults ||
+        (leavingCombat && event.intensityConfidence >= options.combatExitConfidence);
+      if (agreed && !combatHeld) {
         Object.assign(next, { intensity: value, intensitySince: event.at, pendingIntensity: undefined });
-        reasons.intensity = `classifier: ${value} (${streak.count} results agree)`;
+        reasons.intensity =
+          streak.count >= options.agreeingResults
+            ? `classifier: ${value} (${streak.count} results agree)`
+            : `classifier: ${value} (${pct(event.intensityConfidence)}), combat over`;
       } else {
         next.pendingIntensity = streak;
       }

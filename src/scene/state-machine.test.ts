@@ -39,15 +39,32 @@ test("a confident combat result enters combat immediately; a hesitant one needs 
   assert.deepEqual(hesitant.changes, [1]);
 });
 
-test("combat lasts at least three minutes, even if the classifier disagrees", () => {
-  const { state, changes } = run([
-    classify(0, "tavern", "combat"),
-    classify(1 * MIN, "tavern", "calm"),
-    classify(2 * MIN, "tavern", "calm"),
-    classify(3 * MIN, "tavern", "calm"),
-  ]);
-  assert.deepEqual(changes, [0, 3]);
+const SEC = 1000;
+
+test("combat lasts at least a minute, even if the classifier is sure it's over", () => {
+  const held = run([classify(0, "tavern", "combat"), classify(30 * SEC, "tavern", "calm", 0.9, 0.95)]);
+  assert.equal(held.state.intensity, "combat");
+});
+
+test("one confident non-combat result ends combat after the minimum", () => {
+  const { state, changes } = run([classify(0, "tavern", "combat"), classify(60 * SEC, "tavern", "calm", 0.9, 0.95)]);
+  assert.deepEqual(changes, [0, 1]);
   assert.equal(state.intensity, "calm");
+  assert.match(state.reason, /calm \(95%\), combat over/);
+});
+
+test("leaving combat on hesitant results needs two in a row", () => {
+  const { changes } = run([
+    classify(0, "tavern", "combat"),
+    classify(90 * SEC, "tavern", "calm", 0.9, 0.6),
+    classify(120 * SEC, "tavern", "calm", 0.9, 0.6),
+  ]);
+  assert.deepEqual(changes, [0, 2]);
+});
+
+test("a confident non-combat result doesn't skip agreement outside combat", () => {
+  const { changes } = run([classify(MIN, "tavern", "tense", 0.9, 0.95)]);
+  assert.deepEqual(changes, []);
 });
 
 test("calm and tense changes need two agreeing results in a row", () => {

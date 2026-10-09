@@ -179,6 +179,8 @@ The file also records when it was generated. Filenames are kept exactly as the s
   - The system prompt (`src/classify/prompt.ts`) holds the label definitions, the table-talk rules and a few short examples, and is marked for prompt caching. Haiku 5.5 caches prompts of 512 tokens or more; the prompt is well over that, and a test keeps it so.
   - The user message holds the current scene, how long it has lasted, and the transcript window.
 - **Cadence:** every 30 seconds, or at once on a trigger phrase (7.4), and only if there is new transcript text. Each call sends the last two and a half minutes of transcript text (not audio), with each line marked by how long ago it was said; the prompt says the most recent lines matter most. The overlap between calls is deliberate: the setting often depends on something said a few minutes earlier.
+- **End of combat:** the transcript window still holds the fight after it ends, so the prompt says the most recent lines decide: enemies dead or fled, looting, healing, resting or calm talk mean the fight is over, however much combat came before.
+- **Checking against the real model:** `ANTHROPIC_API_KEY=... bazel run //scripts:classifier_check` runs scripted transcripts (fights in progress, fights just ended, rules talk) through the same classifier code and prompt, and reports where Haiku's answers differ from what's expected. Under a cent per run.
 - **Prompt guidance:** the prompt should cover table talk that isn't in-game, such as rules lookups, snacks and real-world chat. In those cases the model should return `unknown` or the current scene.
 - **Cost meter:** record input, output and cached token counts from each response's usage field. Prices per model come from `config/pricing.json`, updated by hand (Haiku 5.5: $0.10 input, $0.50 output, $0.01 cache reads and $0.125 cache writes per million tokens, for prompts of 100K tokens or fewer). Show a running session total in the UI, with the share of input served from cache.
 - **Rough cost:** each call is about 1,000 tokens of input (mostly the cached system prompt) and a few hundred of output including thinking, so roughly $0.0001 to $0.0003. A four-hour session makes about 480 regular calls plus a few triggered ones: roughly 5 to 15 cents.
@@ -190,7 +192,7 @@ All parameters are configurable, and the defaults below are starting points to t
 
 - **Starting scene:** a configurable default (`tavern`, `calm`), which plays from the moment listening starts.
 - **Entering combat:** immediate, on a classifier result of `combat` with intensity confidence of at least 0.6.
-- **Leaving combat:** requires two consecutive non-combat classifications, and at least three minutes in combat, so a lull between rounds doesn't drop the combat music.
+- **Leaving combat:** at least one minute in combat, so a lull between rounds doesn't drop the combat music; then either one non-combat classification with intensity confidence of at least 0.8, or two consecutive non-combat classifications. (Was three minutes and always two results: a simulation showed combat music outlasting a short fight by over two minutes even when the classifier saw at once that it had ended.)
 - **Setting changes:** require two consecutive classifications that agree on the new setting, and at least three minutes on the current setting.
 - **Calm and tense changes:** require two consecutive agreeing classifications.
 - **Low confidence:** each axis is judged on its own confidence. A setting below 0.5 is treated as `unknown`; an intensity below 0.5 is ignored, keeping the current one.

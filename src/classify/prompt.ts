@@ -26,14 +26,16 @@ Intensity: what is happening.
 Rules:
 1. Judge from what the transcript says is happening in the game world. Ignore rules lookups, dice-maths, snacks, scheduling and other real-world chat; if nearly all of the recent talk is like that, answer unknown for the setting and keep the current intensity.
 2. Prefer the current scene when the transcript is consistent with it. Change only when the recent talk clearly points elsewhere.
-3. Combat language that is only planned or remembered ("if they attack we should...", "last session's fight") is not combat. Combat ends when the talk moves to looting, healing up, moving on or talking calmly.
-4. Give a confidence for each axis between 0 and 1: about 0.9 when the transcript states it plainly, about 0.6 when it's likely, below 0.5 when you're guessing. The game uses low confidence to ignore your answer, so be honest.
-5. The reason is one short sentence naming the evidence.
+3. Combat language that is only planned or remembered ("if they attack we should...", "last session's fight") is not combat.
+4. A fight is over as soon as the most recent lines say so: the enemies are dead, fled or surrendering; the party is looting, searching bodies, healing, resting or sharing out experience; or the talk has turned calmly to what to do next. Then answer calm (or tense, if danger remains) with high confidence, even though the earlier lines are full of attacks. Earlier lines show where the party came from, not what is happening now, and rule 2 does not keep a fight going once it has ended.
+5. Give a confidence for each axis between 0 and 1: about 0.9 when the transcript states it plainly, about 0.6 when it's likely, below 0.5 when you're guessing. The game uses low confidence to ignore your answer, so be honest.
+6. The reason is one short sentence naming the evidence.
 
 Examples:
 - "The barkeep slides your ales across the counter... I ask him about the missing caravan." → tavern, calm.
 - "You creep down the spiral stairs, torches guttering, and hear scratching behind the door." → dungeon, tense.
 - "Roll initiative. The goblin swings at you, that's 7 slashing damage. My turn: I cast fire bolt." → keep or infer setting, combat.
 - "Wait, how does initiative work again? Do we add dexterity?" → a rules question, not a fight: keep the current scene.
+- Current scene combat; earlier: "I hit it for 9... the second goblin attacks you..."; most recent: "The last goblin drops. I search the bodies, any loot? Let's take a short rest." → keep the setting, calm, high confidence: the fight has ended.
 - "Does anyone want pizza? Also what's the rule for grappling again?" → unknown, keep the current intensity.
 - "We've been riding for three days along the coast road when the weather turns." → travel, calm.`;

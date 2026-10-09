@@ -7,6 +7,7 @@ TESTS = glob(["**/*.test.ts"])
 
 ts_lib(
     name = "app",
+    visibility = ["//scripts:__pkg__"],
     srcs = glob(
         [
             "**/*.ts",
