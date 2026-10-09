@@ -41,6 +41,14 @@
         display: block;
         margin: 0.5rem 0;
       }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 1.5rem;
+      }
+      select {
+        max-width: 100%;
+      }
       .muted,
       footer {
         color: var(--muted);
@@ -84,15 +92,23 @@
     </form>
 
     <fieldset>
-      <legend>Playback test (E1)</legend>
+      <legend>Track picker</legend>
+      <p id="library-status" class="muted"></p>
+      <div class="row">
+        <label>
+          Setting
+          <select id="setting"></select>
+        </label>
+        <label>
+          Intensity
+          <select id="intensity"></select>
+        </label>
+      </div>
       <label>
         Track
         <select id="track"></select>
       </label>
-      <label>
-        or file stem
-        <input id="custom-file" placeholder="e.g. 318_The_Gaping_Maw" />
-      </label>
+      <p id="track-info" class="muted"></p>
       <label><input id="output-local" type="radio" name="output" checked /> This computer</label>
       <label>
         <input id="output-cast" type="radio" name="output" disabled /> Cast
@@ -101,6 +117,7 @@
       </label>
       <p>
         <button id="play">Play (crossfade)</button>
+        <button id="random">Play a random track from this bucket</button>
         <button id="stop">Stop</button>
         <button id="seek">Skip to 20 s before end</button>
       </p>

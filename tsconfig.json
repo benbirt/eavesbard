@@ -9,6 +9,7 @@
     "noUncheckedIndexedAccess": true,
     "isolatedModules": true,
     "sourceMap": true,
-    "declaration": true
+    "declaration": true,
+    "resolveJsonModule": true
   }
 }

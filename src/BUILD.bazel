@@ -10,7 +10,11 @@ ts_lib(
         ["**/*.ts"],
         exclude = TESTS,
     ),
-    deps = ["//src/library"],
+    deps = [
+        "//config:tag_map",
+        "//data:tracks",
+        "//src/library",
+    ],
 )
 
 esbuild(

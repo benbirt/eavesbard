@@ -9,6 +9,7 @@ def ts_lib(name, srcs, deps = [], tsconfig = "//:tsconfig", **kwargs):
         name = name,
         srcs = srcs,
         declaration = True,
+        resolve_json_module = True,
         source_map = True,
         tsconfig = tsconfig,
         deps = deps,
