@@ -1,4 +1,5 @@
 load("@aspect_rules_esbuild//esbuild:defs.bzl", "esbuild")
+load("@aspect_rules_js//js:defs.bzl", "js_run_binary")
 load("@bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("//tools:ts.bzl", "ts_lib", "ts_tests")
 
@@ -28,13 +29,30 @@ esbuild(
     target = "chrome120",
 )
 
+# index.html with a content hash on the bundle's URL, to defeat stale caches.
+js_run_binary(
+    name = "stamped_html",
+    srcs = [
+        "index.html",
+        "main.js",
+    ],
+    outs = ["stamped/index.html"],
+    args = [
+        "$(rootpath index.html)",
+        "$(rootpath main.js)",
+        "$(rootpath stamped/index.html)",
+    ],
+    tool = "//tools:stamp_html",
+)
+
 # The deployable static site: everything GitHub Pages serves.
 copy_to_directory(
     name = "site",
     srcs = [
-        "index.html",
         ":bundle",
+        ":stamped_html",
     ],
+    replace_prefixes = {"stamped/": ""},
     visibility = ["//visibility:public"],
 )
 

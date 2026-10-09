@@ -6,3 +6,9 @@ js_binary(
     data = ["//src:site"],
     entry_point = "serve.mjs",
 )
+
+js_binary(
+    name = "stamp_html",
+    entry_point = "stamp-html.mjs",
+    visibility = ["//visibility:public"],
+)
