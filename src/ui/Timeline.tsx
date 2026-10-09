@@ -37,7 +37,15 @@ function Body({ entry }: { entry: TimelineEntry }) {
         <div>
           {e.error ? (
             <span class="warning">
-              {e.purpose === "opening" ? "Opening scene" : "Scene"} check failed: {e.error}
+              {e.purpose === "opening" ? "Opening scene" : e.purpose === "pick" ? "Track pick" : "Scene"} check failed:{" "}
+              {e.error}
+            </span>
+          ) : e.pick ? (
+            <span>
+              Claude picks <strong>{e.pick.title}</strong> “{e.pick.reason}”{" "}
+              <span class="muted">
+                {((e.latencyMs ?? 0) / 1000).toFixed(1)} s{e.costUsd !== undefined && `, $${e.costUsd.toFixed(5)}`}
+              </span>
             </span>
           ) : (
             e.result && (
@@ -54,10 +62,12 @@ function Body({ entry }: { entry: TimelineEntry }) {
               </span>
             )
           )}
-          <details>
-            <summary class="muted">What was sent</summary>
-            <pre>{e.userText}</pre>
-          </details>
+          {e.userText && (
+            <details>
+              <summary class="muted">What was sent</summary>
+              <pre>{e.userText}</pre>
+            </details>
+          )}
         </div>
       );
     case "decision":
@@ -75,7 +85,7 @@ function Body({ entry }: { entry: TimelineEntry }) {
         </div>
       );
     case "music":
-      return <span>{e.text}</span>;
+      return <span class={e.comparison ? "muted" : undefined}>{e.text}</span>;
     case "error":
       return <span class="warning">{e.text}</span>;
   }

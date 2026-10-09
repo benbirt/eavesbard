@@ -1,5 +1,7 @@
 import { useState } from "preact/hooks";
-import { auto, setAuto } from "../director.js";
+import { auto, chooser, compareChoosers, setAuto, setChooser, setCompareChoosers } from "../director.js";
+import { EMBEDDING_DOWNLOAD_MB } from "../pick/embed-protocol.js";
+import type { TrackChooser } from "../timeline.js";
 import { loadApiKey, saveApiKey } from "../settings.js";
 import { SpeechModelChooser } from "./Listening.js";
 
@@ -46,6 +48,18 @@ export function Settings() {
           While a session runs, the last two and a half minutes of transcript are sent to Anthropic every 15 seconds to
           work out the scene. Let the table know.
         </p>
+        <label>
+          Who picks the tracks{" "}
+          <select value={chooser.value} onChange={(e) => setChooser(e.currentTarget.value as TrackChooser)}>
+            <option value="claude">Claude, reading the whole track list (needs the API key)</option>
+            <option value="local">Local search on this computer (downloads about {EMBEDDING_DOWNLOAD_MB} MB once)</option>
+            <option value="random">Random pick from the scene's tracks</option>
+          </select>
+        </label>
+        <label>
+          <input type="checkbox" checked={compareChoosers.value} onChange={(e) => setCompareChoosers(e.currentTarget.checked)} />{" "}
+          Also show what the other chooser (Claude or local search) would have picked, for comparison
+        </label>
         <SpeechModelChooser />
       </fieldset>
     </form>

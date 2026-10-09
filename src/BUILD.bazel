@@ -50,6 +50,18 @@ esbuild(
     target = "chrome120",
 )
 
+# Local track search (embeddings), loaded on demand.
+esbuild(
+    name = "embed_worker",
+    srcs = [":app"],
+    entry_point = "pick/embed-worker.js",
+    format = "esm",
+    minify = True,
+    output = "embed-worker.js",
+    sourcemap = "linked",
+    target = "chrome120",
+)
+
 esbuild(
     name = "capture_worklet",
     srcs = [":app"],
@@ -63,6 +75,7 @@ esbuild(
 SCRIPTS = [
     "main.js",
     "stt-worker.js",
+    "embed-worker.js",
     "capture-worklet.js",
 ]
 
@@ -94,6 +107,7 @@ copy_to_directory(
     srcs = [
         ":bundle",
         ":capture_worklet",
+        ":embed_worker",
         ":ort",
         ":stamped_html",
         ":stt_worker",

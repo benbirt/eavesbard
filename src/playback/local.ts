@@ -40,7 +40,13 @@ export class LocalAdapter implements PlaybackAdapter {
 
     incoming.src = url;
     incoming.volume = 0;
-    await incoming.play();
+    try {
+      await incoming.play();
+    } catch (err) {
+      // Stopped or replaced before it started: not an error.
+      if (err instanceof DOMException && err.name === "AbortError") return;
+      throw err;
+    }
     await this.fade(fadeMs, (p) => {
       const g = crossfadeGains(p);
       outgoing.volume = g.out * this.level;

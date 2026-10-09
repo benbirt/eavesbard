@@ -16,6 +16,7 @@ import {
 import { pendingChanges } from "../scene/state-machine.js";
 import { nowPlaying, playbackPosition } from "../player.js";
 import { loadApiKey } from "../settings.js";
+import { localSearch } from "../pick/local-picker.js";
 import { ListeningStatus } from "./Listening.js";
 import { OutputChooser } from "./Playback.js";
 
@@ -115,6 +116,13 @@ function NowStrip() {
       )}
       <p class="status">
         <ListeningStatus />
+        {localSearch.value.phase === "loading" && (
+          <span class="muted">
+            {" "}
+            · Loading local search ({Math.round(localSearch.value.loaded / 1e6)} MB)
+          </span>
+        )}
+        {localSearch.value.phase === "error" && <span class="warning"> · {localSearch.value.message}</span>}
         {cost.calls > 0 && (
           <span class="muted">
             {" "}

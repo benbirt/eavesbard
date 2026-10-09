@@ -203,13 +203,22 @@ All parameters are configurable, and the defaults below are starting points to t
 
 ### 7.7 Track selector
 
-- Picks a random track from the bucket matching the current setting and intensity, excluding the last few tracks played. In a bucket with too few tracks for that, it excludes only the track just played.
-- **Empty buckets:** fall back first to the same intensity with any setting, then to the same setting with any intensity.
-- **Recent repeats:** the last five tracks are avoided; in a bucket of five or fewer, only the track just played.
-- **Track end:** when a track finishes (each is ten minutes long), pick another from the same bucket.
-- **Scene change mid-track:** if the scene changes partway through a track, transition immediately.
-  - **Intensity changes always switch track**, preferring tracks not also tagged with the intensity being left, so calm to combat sounds different: first from the scene's bucket, then from the same intensity in any setting, and only then any track in the bucket. (A test showed a track tagged both `celebrate` and `skirmish` carrying on into combat; it's also the only tavern combat track, so a tavern fight now borrows combat music from another setting.)
-  - **Setting-only changes** keep the current track if it's also in the new bucket.
+**Which tracks are allowed** (`src/scene/selector.ts`):
+
+- The bucket matching the current setting and intensity. **Empty buckets** fall back first to the same intensity with any setting, then to the same setting with any intensity.
+- **Recent repeats:** the last five tracks are avoided; in a pool of five or fewer, only the track just played.
+- **Intensity changes always switch track**, preferring tracks not also tagged with the intensity being left, so calm to combat sounds different: first from the scene's bucket, then from the same intensity in any setting, and only then any track in the bucket.
+- **Setting-only changes** keep the current track if it's also in the new bucket.
+- **Track end:** when a track finishes (each is ten minutes long), another is chosen for the same scene.
+
+**Who picks the track** (a setting; the first version picked at random within the bucket, which gave "Bubbling Pools", tagged `underground` among desert and swamp tags, for "underground caverns, exploring"):
+
+- **Claude** (the default; `src/pick/claude-picker.ts`): Haiku reads the whole list of tracks in use (about 330 lines of id, title, settings, intensities, tags and description, roughly 17,000 tokens) in a cached system prompt, and the description or recent transcript in the request, and picks one track with a short reason. It's asked only when a track is needed (opening, scene change, track end), not on every scene check. The answer must be a listed id that suits the current intensity, or it counts as a failure. Cost per pick is roughly $0.0003 with the cache warm, about $0.003 when the cache has to be written.
+- **Local search** (`src/pick/local-picker.ts`, `src/pick/embed-worker.ts`): a small sentence-embedding model (`Xenova/bge-small-en-v1.5`, 8-bit, about 34 MB, run on the CPU through transformers.js in its own worker) embeds each track's title, description, tags and keywords once per session, then ranks the allowed tracks by similarity to "setting, intensity, description or latest transcript". Milliseconds per pick, no API key, no cost. This is a first implementation of experiment E9b, applied to choosing tracks rather than classifying scenes.
+- **Random** within the allowed tracks, as before.
+- **Fallbacks:** if the chosen picker fails, local search, then random. Local search never holds up the music for its download: if it isn't ready within a few seconds, another picker is used that time.
+- **Comparison:** by default the other picker (Claude or local search) also picks, in the background, and its choice is recorded on the timeline ("Local search agrees", or "would have picked…"), so real sessions compare the two.
+- A small local language model with the whole list as context was considered and rejected for now: 17,000 tokens of context takes tens of seconds to read on a laptop GPU, and small models choose poorly from long lists.
 
 ### 7.8 Playback adapters
 
@@ -256,7 +265,7 @@ Entries are written to IndexedDB as they happen. Buttons export the current sess
   - listening status (model download progress, hearing speech), wake lock, and the session's classifier calls and cost;
   - Stop session.
 - **Timeline** (7.9), newest first, with tick boxes to show or hide speech, Claude calls, decisions and music, plus dropped speech. Each call can be expanded to show exactly what was sent.
-- **Setup** (collapsed): API key, automatic music on or off with the privacy note, and the Whisper model.
+- **Setup** (collapsed): API key, automatic music on or off with the privacy note, who picks the tracks (Claude, local search or random) and whether to record the other's pick for comparison, and the Whisper model.
 - **Pick tracks yourself** (collapsed): the manual track picker, transport controls and the raw playback log.
 - **Attribution footer:** "Ambiences by Tabletop Audio (tabletopaudio.com), CC BY-NC-ND 4.0", with links, and a link to the source code. The current track's title, shown in the Now strip, completes the per-work attribution.
 - **Wake lock:** held while listening, re-requested when the tab becomes visible again, with a warning when lost (7.2, section 4).
@@ -289,6 +298,7 @@ Suggested layout:
 /src/stt           Whisper (transformers.js) wrapper
 /src/classify      classifier (Anthropic SDK), prompt, cost (later: webllm.ts, embeddings.ts)
 /src/scene         transcript buffer, state machine, track selector
+/src/pick          track choosers: Claude (whole track list), local embedding search (worker)
 /src/director.ts   automatic music: wires listening, classifier, scene and player together
 /src/playback      adapter interface, cast.ts, local.ts
 /src/log           IndexedDB logger, JSONL export
@@ -339,7 +349,7 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 
 **E9 — Local classifiers.** Replay logged transcript windows offline and measure agreement with Haiku's labels, per axis and overall, along with latency and one-off download size.
 - **E9a — WebLLM:** small instruction models (around 1 to 3B parameters) with JSON-constrained output.
-- **E9b — Embeddings:** a small sentence-embedding model via transformers.js, comparing the transcript window against embedded label descriptions. No generative model is involved.
+- **E9b — Embeddings:** a small sentence-embedding model via transformers.js, comparing the transcript window against embedded label descriptions. No generative model is involved. Already used for choosing tracks (7.7); the timeline's comparisons with Claude's picks are its first data.
 - **E9c — Chrome's built-in Prompt API (Gemini Nano):** only if it is available to ordinary web pages at the time of testing.
 
 **E10 — Browser behaviour over a full session.** On a Mac with default power and lock settings, left untouched, check:

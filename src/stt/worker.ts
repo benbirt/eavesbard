@@ -1,18 +1,12 @@
 // Speech-to-text worker: Silero VAD finds speech in the incoming audio, and
 // Whisper (WebGPU) transcribes each segment. See DESIGN.md 7.2.
 
-import { AutoModel, env, pipeline, Tensor } from "@huggingface/transformers";
+import "../ml-env.js";
+import { AutoModel, pipeline, Tensor } from "@huggingface/transformers";
 import type { AutomaticSpeechRecognitionPipeline, PreTrainedModel } from "@huggingface/transformers";
 import { hallucinationReason } from "./hallucination.js";
 import type { FromWorker, ToWorker, WhisperModel } from "./protocol.js";
 import { SAMPLE_RATE, Segmenter, type Segment } from "./segmenter.js";
-
-// Serve ONNX Runtime's WebAssembly from our own site, not a CDN.
-env.backends.onnx.wasm!.wasmPaths = {
-  mjs: new URL("./ort/ort-wasm-simd-threaded.asyncify.mjs", self.location.href).href,
-  wasm: new URL("./ort/ort-wasm-simd-threaded.asyncify.wasm", self.location.href).href,
-};
-env.allowLocalModels = false;
 
 const post = (message: FromWorker) => self.postMessage(message);
 

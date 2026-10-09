@@ -15,7 +15,7 @@ export type TimelineEvent =
   | { kind: "speech"; text: string; durationS: number; latencyMs?: number; dropped?: string }
   | {
       kind: "call";
-      purpose: "opening" | "scene";
+      purpose: "opening" | "scene" | "pick";
       model: string;
       userText: string;
       result?: {
@@ -25,16 +25,28 @@ export type TimelineEvent =
         intensityConfidence: number;
         reason: string;
       };
+      /** For purpose "pick": the track Claude chose. */
+      pick?: { trackId: number; title: string; reason: string };
       latencyMs?: number;
       costUsd?: number;
       usage?: { input_tokens: number; output_tokens: number; cache_read_input_tokens?: number | null; cache_creation_input_tokens?: number | null };
       error?: string;
     }
   | { kind: "decision"; changed: boolean; from: Scene; to: Scene; notes: { setting: string; intensity: string } }
-  | { kind: "music"; text: string; trackId?: number }
+  | {
+      kind: "music";
+      text: string;
+      trackId?: number;
+      /** Which chooser picked it, when a track was chosen. */
+      chooser?: TrackChooser;
+      /** Another chooser's pick, recorded for comparison only. */
+      comparison?: boolean;
+    }
   | { kind: "error"; text: string };
 
 export type TimelineKind = TimelineEvent["kind"];
+
+export type TrackChooser = "claude" | "local" | "random";
 
 export interface TimelineEntry {
   sessionId: string;
