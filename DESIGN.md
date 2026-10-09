@@ -28,6 +28,7 @@ A static web app that listens to a tabletop RPG session, works out what kind of 
 ## 4. Constraints and assumptions
 
 - **Host:** a laptop at the table running desktop Chrome. The Cast Web Sender SDK supports Chrome on desktop and Android, but not Chrome on iOS.
+- **The host stays awake:** we assume nobody locks the laptop or closes its lid during a session. The app's job is to stop it locking, sleeping or starting its screensaver on its own (see the wake lock in 7.10).
 - **HTTPS:** the Cast SDK requires a secure origin. GitHub Pages provides HTTPS by default, and localhost is fine for development.
 - **API key:** the user pastes their own Anthropic API key into the settings screen. It is stored in localStorage and never committed to the repo.
 - **Direct browser calls:** the Anthropic API is called directly from the browser, which requires the `anthropic-dangerous-direct-browser-access: true` request header.
@@ -230,7 +231,10 @@ Two buttons export a session or all sessions as JSONL, and a third clears all st
 - **Attribution footer:** "Ambiences by Tabletop Audio (tabletopaudio.com), CC BY-NC-ND 4.0", with links. The current track's title, shown in the main view, completes the per-work attribution.
 - **Privacy notice:** a short note, so the table knows, that transcript snippets are sent to Anthropic and that transcripts are stored in this browser until cleared and can be exported.
 - **API key risk:** any script running on the page could read the key from localStorage. To keep that surface small, all dependencies are bundled; the only third-party script loaded at runtime is the Google Cast SDK, which Google requires to be loaded from gstatic.com.
-- **Wake lock:** use the Screen Wake Lock API while listening.
+- **Wake lock:** hold a Screen Wake Lock (`navigator.wakeLock.request("screen")`) while listening. In Chrome this stops the display sleeping and the screensaver starting, and with them the operating system's automatic lock (on macOS, auto-lock follows the screensaver or display sleep).
+  - Chrome releases the lock whenever the tab is hidden (another tab selected, window minimised). Re-request it on `visibilitychange` when the page becomes visible again.
+  - Show the lock's state in the main view, with a clear warning while listening without it, so whoever is running the game notices and brings the tab back.
+  - The request can fail (for example in low-power modes). Treat that the same way: warn, and carry on listening.
 
 ## 8. Tech stack and repo layout
 
@@ -312,8 +316,9 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 - **E9b — Embeddings:** a small sentence-embedding model via transformers.js, comparing the transcript window against embedded label descriptions. No generative model is involved.
 - **E9c — Chrome's built-in Prompt API (Gemini Nano):** only if it is available to ordinary web pages at the time of testing.
 
-**E10 — Browser behaviour over a full session.** Check:
-- that the wake lock holds;
+**E10 — Browser behaviour over a full session.** On a Mac with default power and lock settings, left untouched, check:
+- that the wake lock holds, and the display, screensaver and auto-lock never kick in, with both local and Cast output;
+- that the wake lock is re-acquired after switching tabs and back;
 - the mic stays live;
 - timers keep running;
 - the Cast session survives four hours;
