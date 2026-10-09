@@ -38,6 +38,24 @@ const outputLocal = $<HTMLInputElement>("output-local");
 const outputCast = $<HTMLInputElement>("output-cast");
 const castStatus = $("cast-status");
 const castConnect = $<HTMLButtonElement>("cast-connect");
+const castHint = $("cast-hint");
+
+// How long to let discovery run before suggesting why it found nothing.
+const CAST_HINT_DELAY_MS = 8000;
+
+/**
+ * Web pages can't see the operating system permissions that Cast discovery
+ * needs, so when nothing is found we can only say what to check.
+ */
+function noDevicesHint(): string {
+  const ua = navigator.userAgent;
+  const where = /Android/.test(ua)
+    ? "On Android, Chrome needs the Nearby devices permission: Settings → Apps → Chrome → Permissions."
+    : /Macintosh/.test(ua)
+      ? "On macOS, Chrome needs Local Network access: System Settings → Privacy & Security → Local Network."
+      : "Check that Chrome is allowed to find devices on your local network.";
+  return `No Cast devices found. ${where} Also check you're on the same Wi-Fi as the Cast device, with no VPN running.`;
+}
 const log = $("event-log");
 
 $("library-status").textContent =
@@ -99,7 +117,14 @@ loadCastSdk().then((available) => {
   }
   const adapter = new CastAdapter();
   castAdapter = adapter;
-  const showState = () => (castStatus.textContent = `Cast SDK loaded: ${adapter.castState()}.`);
+  const loadedAt = performance.now();
+  const showState = () => {
+    castStatus.textContent = `Cast SDK loaded: ${adapter.castState()}.`;
+    const noDevices = adapter.hasNoDevices();
+    castHint.hidden = !noDevices || performance.now() - loadedAt < CAST_HINT_DELAY_MS;
+    if (!castHint.hidden) castHint.textContent = noDevicesHint();
+  };
+  setTimeout(showState, CAST_HINT_DELAY_MS);
   adapter.onEvent((e) => {
     logEvent("cast", e);
     showState();

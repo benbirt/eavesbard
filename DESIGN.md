@@ -212,6 +212,7 @@ Both adapters implement one interface: play a track with a given fade duration, 
 - **Transitions:** fade-and-swap. Ramp the receiver volume down, load the next track, then ramp back up to the user's chosen level. A true crossfade isn't possible with the Default Media Receiver.
 - **Volume caveat:** this changes the device volume. Remember the user's level and always restore it, including on errors.
 - The Cast session must be started by a user gesture on the Cast button, once per session.
+- **Discovery needs operating system permissions** that web pages can't see: on Android, Chrome's Nearby devices permission; on recent macOS, Local Network access for Chrome. Without them the SDK simply finds no devices and the Cast icon never appears (seen in E1). When no devices are found after a few seconds, the page says what to check for the current platform.
 - **Lost sessions:** if the Cast session ends unexpectedly (for example the receiver times out), show a clear warning and ask the user to reconnect. Reconnecting needs a user gesture, so it can't be automatic.
 
 **LocalAdapter**

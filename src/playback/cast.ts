@@ -60,6 +60,11 @@ export class CastAdapter implements PlaybackAdapter {
     return describeCastState(cast.framework.CastContext.getInstance().getCastState());
   }
 
+  /** Whether discovery has found no Cast devices at all. */
+  hasNoDevices(): boolean {
+    return cast.framework.CastContext.getInstance().getCastState() === "NO_DEVICES_AVAILABLE";
+  }
+
   /** Opens the browser's device chooser directly, without the Cast icon. */
   async connect(): Promise<void> {
     try {
