@@ -1,9 +1,7 @@
 // Automatic music (M3): transcript → classifier → scene state machine →
-// track selector → player. See DESIGN.md 7.3–7.7. The classifier runs every
-// 30 seconds, or at once when a trigger phrase is heard.
+// track selector → player. See DESIGN.md 7.3–7.7.
 
 import { effect, signal } from "@preact/signals";
-import triggersJson from "../config/triggers.json" with { type: "json" };
 import { classify, DEFAULT_MODEL, type ClassifyResult } from "./classify/classifier.js";
 import { library } from "./library-data.js";
 import { onTranscriptLine, state as listenState } from "./listener.js";
@@ -12,19 +10,13 @@ import { pickTrack, suits } from "./scene/selector.js";
 import type { Intensity } from "./library/scenes.js";
 import { initialScene, nextScene, type SceneEvent, type SceneState } from "./scene/state-machine.js";
 import { TranscriptBuffer } from "./scene/transcript-buffer.js";
-import { findTrigger, triggerPhrases } from "./scene/triggers.js";
 import { loadApiKey, loadSetting, saveSetting } from "./settings.js";
 
 /** How often the classifier runs while there's new transcript (DESIGN.md 7.5). */
-const CADENCE_MS = 30_000;
-/** Triggered runs come at most this often. */
-const MIN_TRIGGER_GAP_MS = 5_000;
-const TRIGGERS = triggerPhrases(triggersJson);
+const CADENCE_MS = 15_000;
 
 export interface ClassifierRun {
   at: Date;
-  /** The phrase that made this run happen early, if any. */
-  trigger?: string;
   result?: ClassifyResult;
   error?: string;
 }
@@ -53,10 +45,6 @@ export const notice = signal("");
 const buffer = new TranscriptBuffer();
 let timer: ReturnType<typeof setInterval> | undefined;
 let classifying = false;
-let lastStarted = 0;
-/** A trigger heard while a run was in progress or too soon after one. */
-let pendingTrigger: string | undefined;
-let triggerTimer: ReturnType<typeof setTimeout> | undefined;
 /** Recently played track ids, newest first. */
 let recent: number[] = [];
 
@@ -84,34 +72,14 @@ function start(): void {
 
 function stop(): void {
   clearInterval(timer);
-  clearTimeout(triggerTimer);
   timer = undefined;
-  triggerTimer = undefined;
-  pendingTrigger = undefined;
   scene.value = undefined;
 }
 
 onTranscriptLine((line) => {
   if (!timer) return;
   buffer.add({ at: line.time.getTime(), text: line.text });
-  const phrase = findTrigger(line.text, TRIGGERS);
-  if (phrase) trigger(phrase);
 });
-
-/** Runs the classifier as soon as allowed, because `phrase` was heard. */
-function trigger(phrase: string): void {
-  pendingTrigger = phrase;
-  if (classifying || triggerTimer) return; // Picked up when the current run or wait ends.
-  const wait = lastStarted + MIN_TRIGGER_GAP_MS - Date.now();
-  if (wait <= 0) {
-    void tick();
-  } else {
-    triggerTimer = setTimeout(() => {
-      triggerTimer = undefined;
-      void tick();
-    }, wait);
-  }
-}
 
 onTrackEnded(() => {
   if (timer) playForScene(true);
@@ -119,20 +87,12 @@ onTrackEnded(() => {
 
 async function tick(): Promise<void> {
   const current = scene.value;
-  if (!current || classifying) return;
-  if (!buffer.hasNewText) {
-    // Any trigger's line was already covered by the run that just finished.
-    pendingTrigger = undefined;
-    return;
-  }
+  if (!current || classifying || !buffer.hasNewText) return;
   const apiKey = loadApiKey();
   if (!apiKey) return;
   classifying = true;
   buffer.markRead();
   const now = Date.now();
-  lastStarted = now;
-  const triggeredBy = pendingTrigger;
-  pendingTrigger = undefined;
   try {
     const result = await classify({
       apiKey,
@@ -142,7 +102,7 @@ async function tick(): Promise<void> {
       entries: buffer.window(now),
       now,
     });
-    lastRun.value = { at: new Date(), trigger: triggeredBy, result };
+    lastRun.value = { at: new Date(), result };
     addCost(result);
     const c = result.classification;
     apply({
@@ -155,11 +115,9 @@ async function tick(): Promise<void> {
     });
   } catch (err) {
     // A failed call keeps the current scene; playback carries on (DESIGN.md 7.5).
-    lastRun.value = { at: new Date(), trigger: triggeredBy, error: err instanceof Error ? err.message : String(err) };
+    lastRun.value = { at: new Date(), error: err instanceof Error ? err.message : String(err) };
   } finally {
     classifying = false;
-    // A trigger heard during this run gets its own run.
-    if (pendingTrigger && timer) trigger(pendingTrigger);
   }
 }
 

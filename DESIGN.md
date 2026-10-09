@@ -48,7 +48,7 @@ The app is a single page made of the following stages, each a separate module wi
 2. **Mic capture** — getUserMedia, mono, resampled to 16 kHz for Whisper.
 3. **Speech-to-text** — Whisper via transformers.js on WebGPU, with WASM as a fallback. Audio is chunked on voice activity.
 4. **Transcript buffer** — a rolling window of recent transcribed text with timestamps.
-5. **Trigger phrases** — phrases such as "roll for initiative" make the classifier run at once (see 7.4).
+5. **Keyword trigger** — removed; the classifier runs often instead (see 7.4).
 6. **Classifier** — runs periodically on the transcript window and returns a scene label. The initial implementation is Claude Haiku over the API.
 7. **Scene state machine** — applies hysteresis and dwell times so the music doesn't flap.
 8. **Track selector** — maps the current scene to candidate tracks using the track index and picks one, avoiding recent repeats.
@@ -162,12 +162,12 @@ The file also records when it was generated. Filenames are kept exactly as the s
 - Keeps the most recent two to three minutes of text. The size is configurable.
 - Tracks whether there is new text since the last classification, so that calls are skipped during silence.
 
-### 7.4 Trigger phrases
+### 7.4 Keyword triggers (removed)
 
-- Phrases in `config/triggers.json` make the classifier run at once instead of waiting for its next 30-second check. They never change the scene themselves: the classifier still decides, so "how does initiative work again?" costs one extra call, not a false combat.
-- Three groups, all behaving the same: combat starting ("initiative", "ambush", "roll to hit"…), combat ending ("combat is over", "short rest", "loot the bodies"…) and moving somewhere ("you arrive", "you enter", "you set off"…). Matching is on whole words, ignoring case and punctuation. False matches are cheap, so the list can be generous.
-- Triggered runs come at most every 5 seconds. A trigger heard while a run is in progress gets a run of its own as soon as that one finishes.
-- History: M3 first had keywords that switched straight to combat. They were dropped because they couldn't tell a fight from rules talk, and the minimum combat time made false alarms stick; then brought back in this form to keep combat quick to start.
+Two kinds of keyword trigger were tried and dropped; the classifier now simply runs every 15 seconds (7.5).
+
+- **Keywords that switched the scene** ("roll initiative" → combat at once) couldn't tell a fight from rules talk ("how does initiative work again?"), and the minimum combat time made false alarms stick.
+- **Keywords that made the classifier run at once** (combat starting, combat ending, arrivals) didn't work well in real use, and with a 15-second cadence they would save little time anyway.
 
 ### 7.5 Classifier
 
@@ -178,12 +178,12 @@ The file also records when it was generated. Filenames are kept exactly as the s
   - Effort `low` with the model's default adaptive thinking, and `max_tokens` 1024 to leave room for thinking before the short answer. Content blocks are read by type, since a response can start with a thinking block.
   - The system prompt (`src/classify/prompt.ts`) holds the label definitions, the table-talk rules and a few short examples, and is marked for prompt caching. Haiku 5.5 caches prompts of 512 tokens or more; the prompt is well over that, and a test keeps it so.
   - The user message holds the current scene, how long it has lasted, and the transcript window.
-- **Cadence:** every 30 seconds, or at once on a trigger phrase (7.4), and only if there is new transcript text. Each call sends the last two and a half minutes of transcript text (not audio), with each line marked by how long ago it was said; the prompt says the most recent lines matter most. The overlap between calls is deliberate: the setting often depends on something said a few minutes earlier.
+- **Cadence:** every 15 seconds, and only if there is new transcript text. Each call sends the last two and a half minutes of transcript text (not audio), with each line marked by how long ago it was said; the prompt says the most recent lines matter most. The overlap between calls is deliberate: the setting often depends on something said a few minutes earlier.
 - **End of combat:** the transcript window still holds the fight after it ends, so the prompt says the most recent lines decide: enemies dead or fled, looting, healing, resting or calm talk mean the fight is over, however much combat came before.
 - **Checking against the real model:** `ANTHROPIC_API_KEY=... bazel run //scripts:classifier_check` runs scripted transcripts (fights in progress, fights just ended, rules talk) through the same classifier code and prompt, and reports where Haiku's answers differ from what's expected. Under a cent per run.
 - **Prompt guidance:** the prompt should cover table talk that isn't in-game, such as rules lookups, snacks and real-world chat. In those cases the model should return `unknown` or the current scene.
 - **Cost meter:** record input, output and cached token counts from each response's usage field. Prices per model come from `config/pricing.json`, updated by hand (Haiku 5.5: $0.10 input, $0.50 output, $0.01 cache reads and $0.125 cache writes per million tokens, for prompts of 100K tokens or fewer). Show a running session total in the UI, with the share of input served from cache.
-- **Rough cost:** each call is about 1,000 tokens of input (mostly the cached system prompt) and a few hundred of output including thinking, so roughly $0.0001 to $0.0003. A four-hour session makes about 480 regular calls plus a few triggered ones: roughly 5 to 15 cents.
+- **Rough cost:** each call is about 1,000 tokens of input (mostly the cached system prompt) and a few hundred of output including thinking, so roughly $0.0001 to $0.0003. A four-hour session makes at most about 960 calls: roughly 10 to 30 cents.
 - **Failures:** on an API error or invalid JSON, log the failure and keep the current scene. Never crash playback.
 
 ### 7.6 Scene state machine
@@ -199,7 +199,7 @@ All parameters are configurable, and the defaults below are starting points to t
 - **`unknown` and streaks:** an `unknown` result neither counts towards nor resets a streak of agreeing classifications.
 - **Simultaneous changes:** if setting and intensity both change in the same cycle, that is one transition, not two.
 - **Implementation:** a pure function from the current state, a new event and the current time to a new state (`src/scene/state-machine.ts`), unit-tested without audio or network.
-- **Orchestration:** `src/director.ts` runs while listening with automatic music on: transcript lines feed the buffer and are checked for trigger phrases; every 30 seconds (or at once on a trigger), if there's new text and an API key, the classifier runs; scene changes go through the state machine to the track selector and the player.
+- **Orchestration:** `src/director.ts` runs while listening with automatic music on: transcript lines feed the buffer; every 15 seconds, if there's new text and an API key, the classifier runs; scene changes go through the state machine to the track selector and the player.
 
 ### 7.7 Track selector
 
@@ -286,14 +286,14 @@ Two buttons export a session or all sessions as JSONL, and a third clears all st
 Suggested layout:
 
 ```
-/config            tag-map.json, pricing.json, triggers.json
+/config            tag-map.json, pricing.json
 /data              tracks.json (generated; do not edit by hand)
 /src               app entry point (app.tsx), index.html, settings, player.ts (playback state and actions)
 /src/library       index format and validation, tag mapping and index build
 /src/audio         mic capture, VAD
 /src/stt           Whisper (transformers.js) wrapper
 /src/classify      classifier (Anthropic SDK), prompt, cost (later: webllm.ts, embeddings.ts)
-/src/scene         transcript buffer, trigger phrases, state machine, track selector
+/src/scene         transcript buffer, state machine, track selector
 /src/director.ts   automatic music: wires listening, classifier, scene and player together
 /src/playback      adapter interface, cast.ts, local.ts
 /src/log           IndexedDB logger, JSONL export

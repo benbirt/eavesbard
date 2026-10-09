@@ -11,9 +11,3 @@ js_library(
     srcs = ["pricing.json"],
     visibility = ["//visibility:public"],
 )
-
-js_library(
-    name = "triggers",
-    srcs = ["triggers.json"],
-    visibility = ["//visibility:public"],
-)
