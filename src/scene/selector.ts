@@ -27,14 +27,26 @@ export function candidates(library: Library, scene: Scene): LibraryTrack[] {
  * Picks a random candidate, avoiding the recently played tracks (newest
  * first in `recent`). In a small bucket only the track just played is
  * avoided; a bucket of one plays that track again.
+ *
+ * `leavingIntensity`, on an intensity change, prefers tracks not also tagged
+ * with the intensity being left, so the change is audible: first from the
+ * scene's own candidates, then from the same intensity in any setting, and
+ * only then any candidate.
  */
 export function pickTrack(
   library: Library,
   scene: Scene,
   recent: readonly number[],
   random: () => number = Math.random,
+  leavingIntensity?: Intensity,
 ): LibraryTrack | undefined {
-  const pool = candidates(library, scene);
+  const all = candidates(library, scene);
+  let pool = all;
+  if (leavingIntensity) {
+    const distinct = (tracks: LibraryTrack[]) => tracks.filter((t) => !t.intensities.includes(leavingIntensity));
+    const sameIntensity = library.tracks.filter((t) => t.intensities.includes(scene.intensity));
+    pool = [distinct(all), distinct(sameIntensity), all].find((p) => p.length > 0) ?? all;
+  }
   const avoid = new Set(pool.length > RECENT_LIMIT ? recent.slice(0, RECENT_LIMIT) : recent.slice(0, 1));
   const fresh = pool.filter((t) => !avoid.has(t.track.id));
   const choices = fresh.length > 0 ? fresh : pool;

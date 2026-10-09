@@ -7,6 +7,7 @@ import { library } from "./library-data.js";
 import { onTranscriptLine, state as listenState } from "./listener.js";
 import { nowPlaying, onTrackEnded, play } from "./player.js";
 import { pickTrack, suits } from "./scene/selector.js";
+import type { Intensity } from "./library/scenes.js";
 import { initialScene, nextScene, type SceneEvent, type SceneState } from "./scene/state-machine.js";
 import { TranscriptBuffer } from "./scene/transcript-buffer.js";
 import { loadApiKey, loadSetting, saveSetting } from "./settings.js";
@@ -137,19 +138,25 @@ function apply(event: SceneEvent): void {
   if (!current) return;
   const { state, changed } = nextScene(current, event);
   scene.value = state;
-  if (changed) playForScene(false);
+  if (!changed) return;
+  if (state.intensity !== current.intensity) {
+    // Always switch on an intensity change, to something that sounds different.
+    playForScene(true, current.intensity);
+  } else {
+    playForScene(false);
+  }
 }
 
 /**
- * Plays a track for the current scene. On a scene change the playing track
- * carries on if it suits the new scene too; `fresh` always picks a new one.
+ * Plays a track for the current scene. Unless `fresh`, the playing track
+ * carries on if it suits the scene (used when only the setting changed).
  */
-function playForScene(fresh: boolean): void {
+function playForScene(fresh: boolean, leavingIntensity?: Intensity): void {
   const current = scene.value;
   if (!current) return;
   const playing = nowPlaying.value;
   if (!fresh && playing && suits(playing, current)) return;
-  const entry = pickTrack(library, current, recent);
+  const entry = pickTrack(library, current, recent, Math.random, leavingIntensity);
   if (!entry) return;
   recent = [entry.track.id, ...recent.filter((id) => id !== entry.track.id)].slice(0, 20);
   void play(entry);

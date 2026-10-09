@@ -28,13 +28,16 @@ const library: Library = {
     entry(10, ["tavern"], ["calm"]),
     entry(11, ["tavern"], ["calm"]),
     entry(20, ["dungeon"], ["combat"]),
+    entry(30, ["travel"], ["calm", "combat"]),
+    entry(31, ["travel"], ["combat"]),
+    entry(40, ["tavern"], ["calm", "combat"]),
   ],
   outOfScope: [],
   unmapped: [],
 };
 
 test("empty buckets fall back to the same intensity, then the same setting", () => {
-  assert.deepEqual(candidates(library, { setting: "wilderness", intensity: "combat" }).map((t) => t.track.id), [20]);
+  assert.deepEqual(candidates(library, { setting: "wilderness", intensity: "combat" }).map((t) => t.track.id), [20, 30, 31, 40]);
   assert.deepEqual(candidates(library, { setting: "dungeon", intensity: "tense" }).map((t) => t.track.id), [20]);
 });
 
@@ -47,11 +50,26 @@ test("recently played tracks are avoided", () => {
 });
 
 test("in a small bucket only the last track is avoided", () => {
+  // Tavern calm has three tracks; only 10, the last played, is avoided.
   for (let i = 0; i < 10; i++) {
-    assert.equal(pickTrack(library, { setting: "tavern", intensity: "calm" }, [10, 11], () => i / 10)?.track.id, 11);
+    const id = pickTrack(library, { setting: "tavern", intensity: "calm" }, [10, 11], () => i / 10)?.track.id;
+    assert.ok([11, 40].includes(id!), String(id));
   }
   // A bucket of one repeats its track.
   assert.equal(pickTrack(library, { setting: "dungeon", intensity: "combat" }, [20])?.track.id, 20);
+});
+
+test("on an intensity change, tracks also tagged with the old intensity are avoided", () => {
+  for (let i = 0; i < 10; i++) {
+    assert.equal(pickTrack(library, { setting: "travel", intensity: "combat" }, [], () => i / 10, "calm")?.track.id, 31);
+  }
+  // A bucket with nothing distinct borrows from the same intensity elsewhere...
+  for (let i = 0; i < 10; i++) {
+    const id = pickTrack(library, { setting: "tavern", intensity: "combat" }, [], () => i / 10, "calm")?.track.id;
+    assert.ok([20, 31].includes(id!), String(id));
+  }
+  // ...and settles for any candidate only when nothing else fits.
+  assert.equal(pickTrack(library, { setting: "dungeon", intensity: "combat" }, [], () => 0, "combat")?.track.id, 20);
 });
 
 test("suits checks both axes", () => {

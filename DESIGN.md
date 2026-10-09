@@ -206,7 +206,9 @@ All parameters are configurable, and the defaults below are starting points to t
 - **Empty buckets:** fall back first to the same intensity with any setting, then to the same setting with any intensity.
 - **Recent repeats:** the last five tracks are avoided; in a bucket of five or fewer, only the track just played.
 - **Track end:** when a track finishes (each is ten minutes long), pick another from the same bucket.
-- **Scene change mid-track:** if the scene changes partway through a track, transition immediately, unless the current track is also in the new bucket, in which case it keeps playing.
+- **Scene change mid-track:** if the scene changes partway through a track, transition immediately.
+  - **Intensity changes always switch track**, preferring tracks not also tagged with the intensity being left, so calm to combat sounds different: first from the scene's bucket, then from the same intensity in any setting, and only then any track in the bucket. (A test showed a track tagged both `celebrate` and `skirmish` carrying on into combat; it's also the only tavern combat track, so a tavern fight now borrows combat music from another setting.)
+  - **Setting-only changes** keep the current track if it's also in the new bucket.
 
 ### 7.8 Playback adapters
 
