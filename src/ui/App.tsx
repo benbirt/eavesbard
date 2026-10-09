@@ -25,7 +25,8 @@ export function App() {
       </fieldset>
       <footer>
         Ambiences by <a href="https://tabletopaudio.com/">Tabletop Audio</a>, licensed{" "}
-        <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+        <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>. Source code on{" "}
+        <a href="https://github.com/benbirt/eavesbard">GitHub</a>.
       </footer>
     </>
   );
