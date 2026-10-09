@@ -15,9 +15,12 @@ ts_lib(
         exclude = TESTS,
     ),
     deps = [
+        "//:node_modules/@anthropic-ai/sdk",
         "//:node_modules/@huggingface/transformers",
         "//:node_modules/@preact/signals",
         "//:node_modules/preact",
+        "//config:keywords",
+        "//config:pricing",
         "//config:tag_map",
         "//data:tracks",
         "//src/library",

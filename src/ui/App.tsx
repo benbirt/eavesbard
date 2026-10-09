@@ -1,3 +1,4 @@
+import { Director } from "./Director.js";
 import { EventLog } from "./EventLog.js";
 import { Listening } from "./Listening.js";
 import { OutputChooser, Transport } from "./Playback.js";
@@ -10,6 +11,7 @@ export function App() {
       <h1>Eavesbard</h1>
       <Settings />
       <Listening />
+      <Director />
       <fieldset>
         <legend>Track picker</legend>
         <TrackPicker />

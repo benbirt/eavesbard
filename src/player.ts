@@ -32,13 +32,24 @@ export interface CastStatus {
 }
 
 export const output = signal<Output>("local");
+/** The track most recently started, whichever output it's on. */
+export const nowPlaying = signal<LibraryTrack | undefined>(undefined);
 export const castStatus = signal<CastStatus>({ available: undefined, state: "", hint: "" });
 /** Newest first. */
 export const events = signal<LogEntry[]>([]);
 
 let nextId = 0;
+const endedListeners: (() => void)[] = [];
+
 function log(source: Output, event: PlaybackEvent): void {
   events.value = [{ id: nextId++, time: new Date(), source, event }, ...events.value];
+  // Only the active output's track ending matters.
+  if (event.type === "ended" && source === output.value) for (const listener of endedListeners) listener();
+}
+
+/** Calls `listener` whenever the playing track reaches its end. */
+export function onTrackEnded(listener: () => void): void {
+  endedListeners.push(listener);
 }
 
 const local = new LocalAdapter();
@@ -109,11 +120,16 @@ export function play(entry: LibraryTrack | undefined): Promise<void> {
     if (!entry) throw new Error("No track selected");
     const url = audioUrl(entry.track.file);
     log(output.value, { type: "info", detail: `requesting ${entry.track.title} (${url})` });
+    nowPlaying.value = entry;
     return adapter().play(url, entry.track.title, FADE_MS);
   });
 }
 
-export const stop = () => run(output.value, () => adapter().stop(FADE_MS));
+export const stop = () =>
+  run(output.value, () => {
+    nowPlaying.value = undefined;
+    return adapter().stop(FADE_MS);
+  });
 export const seekNearEnd = () => run(output.value, () => adapter().seekNearEnd(20));
 export const setVolume = (level: number) => run(output.value, () => adapter().setVolume(level));
 export const connectCast = () => run("cast", () => cast?.connect());

@@ -5,3 +5,15 @@ js_library(
     srcs = ["tag-map.json"],
     visibility = ["//visibility:public"],
 )
+
+js_library(
+    name = "keywords",
+    srcs = ["keywords.json"],
+    visibility = ["//visibility:public"],
+)
+
+js_library(
+    name = "pricing",
+    srcs = ["pricing.json"],
+    visibility = ["//visibility:public"],
+)

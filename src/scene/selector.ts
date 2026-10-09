@@ -1,0 +1,47 @@
+// Picks tracks for a scene (DESIGN.md 7.7).
+
+import type { Intensity, Setting } from "../library/scenes.js";
+import { bucket, type Library, type LibraryTrack } from "../library/tag-map.js";
+
+export interface Scene {
+  setting: Setting;
+  intensity: Intensity;
+}
+
+/** How many recently played tracks to avoid repeating. */
+export const RECENT_LIMIT = 5;
+
+/**
+ * The tracks to choose from for a scene. Empty buckets fall back first to the
+ * same intensity in any setting, then to the same setting at any intensity.
+ */
+export function candidates(library: Library, scene: Scene): LibraryTrack[] {
+  const exact = bucket(library, scene.setting, scene.intensity);
+  if (exact.length > 0) return exact;
+  const sameIntensity = library.tracks.filter((t) => t.intensities.includes(scene.intensity));
+  if (sameIntensity.length > 0) return sameIntensity;
+  return library.tracks.filter((t) => t.settings.includes(scene.setting));
+}
+
+/**
+ * Picks a random candidate, avoiding the recently played tracks (newest
+ * first in `recent`). In a small bucket only the track just played is
+ * avoided; a bucket of one plays that track again.
+ */
+export function pickTrack(
+  library: Library,
+  scene: Scene,
+  recent: readonly number[],
+  random: () => number = Math.random,
+): LibraryTrack | undefined {
+  const pool = candidates(library, scene);
+  const avoid = new Set(pool.length > RECENT_LIMIT ? recent.slice(0, RECENT_LIMIT) : recent.slice(0, 1));
+  const fresh = pool.filter((t) => !avoid.has(t.track.id));
+  const choices = fresh.length > 0 ? fresh : pool;
+  return choices[Math.floor(random() * choices.length)];
+}
+
+/** Whether a playing track also suits a new scene, so it can carry on. */
+export function suits(track: LibraryTrack, scene: Scene): boolean {
+  return track.settings.includes(scene.setting) && track.intensities.includes(scene.intensity);
+}

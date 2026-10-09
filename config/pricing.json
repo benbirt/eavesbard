@@ -1,0 +1,4 @@
+{
+  "_comment": "US dollars per million tokens, Claude API, prompts of 100K tokens or fewer. Update by hand when prices change.",
+  "claude-haiku-5-5": { "input": 0.1, "output": 0.5, "cacheRead": 0.01, "cacheWrite": 0.125 }
+}

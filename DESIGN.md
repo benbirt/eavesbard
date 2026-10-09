@@ -31,7 +31,7 @@ A static web app that listens to a tabletop RPG session, works out what kind of 
 - **The host stays awake:** we assume nobody locks the laptop or closes its lid during a session. The app's job is to stop it locking, sleeping or starting its screensaver on its own (see the wake lock in 7.10).
 - **HTTPS:** the Cast SDK requires a secure origin. GitHub Pages provides HTTPS by default, and localhost is fine for development.
 - **API key:** the user pastes their own Anthropic API key into the settings screen. It is stored in localStorage and never committed to the repo.
-- **Direct browser calls:** the Anthropic API is called directly from the browser, which requires the `anthropic-dangerous-direct-browser-access: true` request header.
+- **Direct browser calls:** the Anthropic API is called directly from the browser through the official TypeScript SDK (`@anthropic-ai/sdk` with `dangerouslyAllowBrowser: true`, which sends the `anthropic-dangerous-direct-browser-access: true` header).
 - **Licence:** Tabletop Audio's ten-minute ambiences are licensed CC BY-NC-ND 4.0. Our use is non-commercial and plays the files unmodified (fading volume during playback is not a derivative work). Attribution must be visible in the UI.
 - **Audio host:** tracks are served from `https://sounds.tabletopaudio.com/<file>.mp3` (S3 behind Cloudflare). Observed on 2026-10-09:
   - Requests with no `Origin` header succeed (206, `audio/mp3`, range requests supported), whatever the `Referer` or user agent.
@@ -166,20 +166,22 @@ The file also records when it was generated. Filenames are kept exactly as the s
 
 - Matches phrases like "roll initiative", "roll for initiative" and "initiative order", case-insensitive and tolerant of minor transcription noise.
 - A match sets intensity to `combat` immediately, bypassing the classifier cadence and the dwell times.
-- The phrase list lives in config. Leaving combat is handled by the classifier, never by keywords.
+- The phrase list lives in `config/keywords.json`. Matching ignores case and punctuation and tolerates an optional "for" and a trailing "s" on any word. Leaving combat is handled by the classifier, never by keywords.
 - Rules talk such as "how does initiative order work?" will also trigger combat. That's accepted for now; the minimum combat time (7.6) limits the damage.
 
 ### 7.5 Classifier
 
 - **Interface:** a function from a transcript window, the current scene and how long it has lasted to a setting and an intensity, each with its own confidence between 0 and 1. A short free-text reason is included in logs only.
-- **Initial implementation:** the Anthropic Messages API, called directly from the browser.
-  - The model is configurable. Default to the current Haiku model (at the time of writing, `claude-haiku-5-5`; check the docs for the current list).
-  - Force structured output via tool use with a strict JSON schema whose enums match section 6.
-  - The system prompt holds the label definitions and a few short examples. Mark it for prompt caching, but check the model's minimum cacheable prompt length: below it, caching silently does nothing. Either add examples until the prompt qualifies, or don't rely on caching in cost estimates.
+- **Initial implementation:** the Anthropic Messages API via the TypeScript SDK, called directly from the browser (`src/classify/classifier.ts`).
+  - The model is `claude-haiku-5-5`.
+  - Structured outputs (`output_config.format` with a JSON schema whose enums come from section 6) rather than a forced tool call, which is the recommended way to get classification JSON from current models. The answer is still parsed and checked.
+  - Effort `low` with the model's default adaptive thinking, and `max_tokens` 1024 to leave room for thinking before the short answer. Content blocks are read by type, since a response can start with a thinking block.
+  - The system prompt (`src/classify/prompt.ts`) holds the label definitions, the table-talk rules and a few short examples, and is marked for prompt caching. Haiku 5.5 caches prompts of 512 tokens or more; the prompt is well over that, and a test keeps it so.
   - The user message holds the current scene, how long it has lasted, and the transcript window.
 - **Cadence:** every 60 seconds by default (configurable), and only if there is new transcript text.
 - **Prompt guidance:** the prompt should cover table talk that isn't in-game, such as rules lookups, snacks and real-world chat. In those cases the model should return `unknown` or the current scene.
-- **Cost meter:** record input, output and cached token counts from each response's usage field. Prices per model come from `config/pricing.json`, updated by hand. Show a running session total in the UI.
+- **Cost meter:** record input, output and cached token counts from each response's usage field. Prices per model come from `config/pricing.json`, updated by hand (Haiku 5.5: $0.10 input, $0.50 output, $0.01 cache reads and $0.125 cache writes per million tokens, for prompts of 100K tokens or fewer). Show a running session total in the UI, with the share of input served from cache.
+- **Rough cost:** each call is about 1,000 tokens of input (mostly the cached system prompt) and a few hundred of output including thinking, so roughly $0.0001 to $0.0003. A four-hour session makes at most 240 calls: a few pennies.
 - **Failures:** on an API error or invalid JSON, log the failure and keep the current scene. Never crash playback.
 
 ### 7.6 Scene state machine
@@ -194,12 +196,14 @@ All parameters are configurable, and the defaults below are starting points to t
 - **Low confidence:** each axis is judged on its own confidence. A setting below 0.5 is treated as `unknown`; an intensity below 0.5 is ignored, keeping the current one.
 - **`unknown` and streaks:** an `unknown` result neither counts towards nor resets a streak of agreeing classifications.
 - **Simultaneous changes:** if setting and intensity both change in the same cycle, that is one transition, not two.
-- **Implementation:** a pure function from the current state, a new event and the current time to a new state. It must be unit-testable without audio or network.
+- **Implementation:** a pure function from the current state, a new event and the current time to a new state (`src/scene/state-machine.ts`), unit-tested without audio or network.
+- **Orchestration:** `src/director.ts` runs while listening with automatic music on: transcript lines feed the buffer and the keyword trigger; every 60 seconds, if there's new text and an API key, the classifier runs; scene changes go through the state machine to the track selector and the player.
 
 ### 7.7 Track selector
 
 - Picks a random track from the bucket matching the current setting and intensity, excluding the last few tracks played. In a bucket with too few tracks for that, it excludes only the track just played.
 - **Empty buckets:** fall back first to the same intensity with any setting, then to the same setting with any intensity.
+- **Recent repeats:** the last five tracks are avoided; in a bucket of five or fewer, only the track just played.
 - **Track end:** when a track finishes (each is ten minutes long), pick another from the same bucket.
 - **Scene change mid-track:** if the scene changes partway through a track, transition immediately, unless the current track is also in the new bucket, in which case it keeps playing.
 
@@ -284,8 +288,9 @@ Suggested layout:
 /src/library       index format and validation, tag mapping and index build
 /src/audio         mic capture, VAD
 /src/stt           Whisper (transformers.js) wrapper
-/src/classify      classifier interface + anthropic.ts (later: webllm.ts, embeddings.ts)
-/src/scene         state machine, track selector
+/src/classify      classifier (Anthropic SDK), prompt, cost (later: webllm.ts, embeddings.ts)
+/src/scene         transcript buffer, keyword trigger, state machine, track selector
+/src/director.ts   automatic music: wires listening, classifier, scene and player together
 /src/playback      adapter interface, cast.ts, local.ts
 /src/log           IndexedDB logger, JSONL export
 /src/ui            Preact components

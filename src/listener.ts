@@ -53,8 +53,17 @@ function send(message: ToWorker, transfer: Transferable[] = []): void {
   worker?.postMessage(message, transfer);
 }
 
+const lineListeners: ((line: TranscriptLine) => void)[] = [];
+
+/** Calls `listener` with each new transcript line the hallucination filter kept. */
+export function onTranscriptLine(listener: (line: TranscriptLine) => void): void {
+  lineListeners.push(listener);
+}
+
 function addLine(line: Omit<TranscriptLine, "id">): void {
-  transcript.value = [...transcript.value, { id: nextId++, ...line }];
+  const full = { id: nextId++, ...line };
+  transcript.value = [...transcript.value, full];
+  if (!full.dropped) for (const listener of lineListeners) listener(full);
 }
 
 function onMessage(message: FromWorker): void {
