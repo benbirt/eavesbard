@@ -3,15 +3,17 @@ load("@npm//:defs.bzl", "npm_link_all_packages")
 
 npm_link_all_packages(name = "node_modules")
 
+# Browser code.
 ts_config(
     name = "tsconfig",
     src = "tsconfig.json",
     visibility = ["//visibility:public"],
 )
 
+# Node code: tests and scripts.
 ts_config(
-    name = "tsconfig_test",
-    src = "tsconfig.test.json",
+    name = "tsconfig_node",
+    src = "tsconfig.node.json",
     visibility = ["//visibility:public"],
     deps = [":tsconfig"],
 )

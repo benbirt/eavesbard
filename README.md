@@ -12,7 +12,10 @@ The build uses [Bazel](https://bazel.build/) via [Bazelisk](https://github.com/b
 bazel test //...                   # type-check, build and run the tests
 bazel build //src:site             # the deployable site, in bazel-bin/src/site
 bazel run //tools:serve -- 8080    # serve it at http://localhost:8080/
+bazel run //scripts:build_index    # regenerate data/tracks.json from tabletopaudio.com
 ```
+
+`data/tracks.json` is generated: don't edit it by hand. The *Update track index* workflow regenerates it weekly and opens a pull request when it changes.
 
 npm dependencies are managed with pnpm. After changing `package.json`, run `pnpm install --lockfile-only` and commit `pnpm-lock.yaml`.
 

@@ -1,0 +1,32 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary")
+load("//tools:ts.bzl", "ts_lib", "ts_tests")
+
+TESTS = glob(["*.test.ts"])
+
+ts_lib(
+    name = "scripts",
+    srcs = glob(
+        ["*.ts"],
+        exclude = TESTS,
+    ),
+    tsconfig = "//:tsconfig_node",
+    deps = [
+        "//:node_modules/@types/node",
+        "//:node_modules/acorn",
+        "//src/library",
+    ],
+)
+
+# Regenerates data/tracks.json from tabletopaudio.com (see the file header).
+js_binary(
+    name = "build_index",
+    data = [":scripts"],
+    entry_point = "build-index.js",
+)
+
+ts_tests(
+    name = "tests",
+    srcs = TESTS,
+    data = ["//data:tracks"],
+    deps = [":scripts"],
+)

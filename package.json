@@ -5,6 +5,7 @@
   "packageManager": "pnpm@10.28.0",
   "devDependencies": {
     "@types/node": "22.20.5",
+    "acorn": "8.19.0",
     "typescript": "7.0.2"
   }
 }

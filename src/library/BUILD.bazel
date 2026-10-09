@@ -1,0 +1,18 @@
+load("//tools:ts.bzl", "ts_lib", "ts_tests")
+
+TESTS = glob(["*.test.ts"])
+
+ts_lib(
+    name = "library",
+    srcs = glob(
+        ["*.ts"],
+        exclude = TESTS,
+    ),
+    visibility = ["//visibility:public"],
+)
+
+ts_tests(
+    name = "tests",
+    srcs = TESTS,
+    deps = [":library"],
+)

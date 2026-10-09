@@ -79,25 +79,35 @@ The setting list is provisional. Finalise it after reviewing Tabletop Audio's ow
   - the homepage HTML has one block per track, giving the numeric id (`song_318`), title, description, genre (as CSS classes such as `fantasy` or `scifi`), type (e.g. `ambience + music`) and the audio file stem (from the `saveAs('318_The_Gaping_Maw')` handler);
   - `bootstrap/js/tags_data.js` gives each track a curated four-facet tag set: `civ` (cities, interiors, ruins, temples, …), `biome` (forest, underground, swamp, …), `mood` (peaceful, tension, dramatic, epic, …) and `action` (explore, sneak, chase, skirmish, war, boss, …);
   - `bootstrap/js/dictionary_a.js` gives free-text search keywords per track (useful later for E9b).
-- On 2026-10-09 the site listed 529 tracks. The community mirror `rsek/tabletop-audio-tracks` stopped at 313 in May 2022 and was maintained by hand, so we don't use it.
+- On 2026-10-09 the site listed 529 tracks, 528 of them downloadable. The community mirror `rsek/tabletop-audio-tracks` stopped at 313 in May 2022 and was maintained by hand, so we don't use it.
+- **Quirks found on the site:**
+  - The newest track can be a Patreon-only "sneak peek" with no download link. Tiles without a file are skipped.
+  - Sixteen partner tiles (e.g. Starforged, Fragged Empire) show promotional text instead of a description; their description is left empty.
+  - Descriptions end with notes such as "[3 Alternate versions available for Patreon Patrons]", which are stripped.
+  - Genre classes include at least one typo (`scif`). The generator keeps the site's values as they are, and `tag-map.json` absorbs typos.
+  - The two data scripts are plain JavaScript, not JSON (comments, unquoted keys, trailing commas, and DOM code after the object). The generator parses them with a JavaScript parser (acorn) and reads only the object literal, never running the script.
 
 **Generated index**
 
 - The generator, `scripts/build-index.ts`, scrapes the sources above and writes `data/tracks.json`. It contains no audio. The file is committed, so changes show up as reviewable diffs.
 - A scheduled GitHub Actions job (weekly) runs the generator. If the output changes, it opens a pull request rather than pushing to the default branch, so the index only moves when we merge.
 - The generator identifies itself with an honest user agent naming the project, and makes only a handful of requests per run.
-- The generator fails, rather than opening a pull request, if:
-  - the page structure no longer parses, or the numbers of tracks found in the HTML, `tags_data.js` and `dictionary_a.js` disagree by more than a small margin;
-  - the track count drops sharply compared with the current `data/tracks.json`.
-- The normal CI on that pull request (and on any change to `config/tag-map.json`) then fails if:
-  - `data/tracks.json` doesn't match its schema;
+- If nothing has changed, the generator leaves the file untouched, including its `generated` time, so unchanged weeks produce no pull request.
+- The generator fails, rather than writing the file, if:
+  - the page yields fewer than 100 tracks (the page structure has probably changed);
+  - more than 5% of tracks have no entry in `tags_data.js` (`dictionary_a.js` is optional per track);
+  - the track count falls by more than 10% compared with the current `data/tracks.json`;
+  - two tracks share a file.
+- Pull requests opened with the workflow's own token don't trigger other workflows, so the update workflow runs the full test suite itself before opening the pull request.
+- The test suite (in that workflow, and in CI on any change to `config/tag-map.json`) fails if:
+  - `data/tracks.json` doesn't match its format (checked by `parseTracksFile` in `src/library/tracks-file.ts`, which the app also uses);
   - any setting and intensity bucket would be empty after applying the tag map;
   - the number of tracks excluded as unmapped has grown.
 - Because these checks run before a merge, a bad scrape or tag map never reaches the deployed app.
 
 **`data/tracks.json` entry**
 
-- `id` (Tabletop Audio's number), `title`, `description`, `genres`, `type`;
+- `id` (Tabletop Audio's number), `title`, `description`, `genres` (the site's genre filters, such as `fantasy` or `scifi`), `hasMusic` (whether the site files it under its "music" filter) and `type` (e.g. `ambience + minimal music`);
 - `tags` with the four facets `civ`, `biome`, `mood` and `action`, plus `keywords`;
 - `file`, the stem used to build the audio URL (`https://sounds.tabletopaudio.com/<file>.mp3`).
 
@@ -257,7 +267,7 @@ Suggested layout:
 /config            tag-map.json, keywords.json, pricing.json, defaults.json
 /data              tracks.json (generated; do not edit by hand)
 /src               app entry point (app.ts), index.html, settings
-/src/library       tag mapping and index build
+/src/library       index format and validation, tag mapping and index build
 /src/audio         mic capture, VAD
 /src/stt           Whisper (transformers.js) wrapper
 /src/classify      classifier interface + anthropic.ts (later: webllm.ts, embeddings.ts)
@@ -265,14 +275,12 @@ Suggested layout:
 /src/playback      adapter interface, cast.ts, local.ts
 /src/log           IndexedDB logger, JSONL export
 /src/ui            views and settings
-/schema            tracks.schema.json (the index format the loader accepts)
-/scripts           build-index.ts (the generator)
-/tools             dev server
-/test/fixtures     synthetic tracks.json and site pages, for loader and generator tests
+/scripts           build-index.ts (the generator) and its parsing code
+/tools             dev server, shared Bazel macros
 /experiments       notes and results per experiment ID
 ```
 
-The repo contains no audio, but `data/tracks.json` is third-party content: its titles, descriptions and tags are Tabletop Audio's. The README should include a "Third-party content" section stating that the ambiences are by Tabletop Audio under CC BY-NC-ND 4.0, that audio is streamed from Tabletop Audio's own servers, that `data/tracks.json` is generated from tabletopaudio.com, and that none of it is covered by this repo's MIT licence. The test fixtures should use invented track entries and pages rather than copied data.
+The repo contains no audio, but `data/tracks.json` is third-party content: its titles, descriptions and tags are Tabletop Audio's. The README should include a "Third-party content" section stating that the ambiences are by Tabletop Audio under CC BY-NC-ND 4.0, that audio is streamed from Tabletop Audio's own servers, that `data/tracks.json` is generated from tabletopaudio.com, and that none of it is covered by this repo's MIT licence. Tests sit next to the code they test (`*.test.ts`), and their fixtures use invented track entries and pages rather than copied data.
 
 ## 9. Experiments and open risks
 

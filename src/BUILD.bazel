@@ -1,19 +1,16 @@
 load("@aspect_rules_esbuild//esbuild:defs.bzl", "esbuild")
-load("@aspect_rules_js//js:defs.bzl", "js_test")
-load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
 load("@bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("//tools:ts.bzl", "ts_lib", "ts_tests")
 
 TESTS = glob(["**/*.test.ts"])
 
-ts_project(
+ts_lib(
     name = "app",
     srcs = glob(
         ["**/*.ts"],
         exclude = TESTS,
     ),
-    declaration = True,
-    source_map = True,
-    tsconfig = "//:tsconfig",
+    deps = ["//src/library"],
 )
 
 esbuild(
@@ -37,24 +34,8 @@ copy_to_directory(
     visibility = ["//visibility:public"],
 )
 
-ts_project(
+ts_tests(
     name = "tests",
     srcs = TESTS,
-    declaration = True,
-    source_map = True,
-    tsconfig = "//:tsconfig_test",
-    deps = [
-        ":app",
-        "//:node_modules/@types/node",
-    ],
+    deps = [":app"],
 )
-
-[
-    js_test(
-        name = t.removesuffix(".ts").replace("/", "_").replace(".", "_"),
-        data = [":tests"],
-        entry_point = t.removesuffix(".ts") + ".js",
-        size = "small",
-    )
-    for t in TESTS
-]
