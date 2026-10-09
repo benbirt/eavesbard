@@ -104,7 +104,7 @@ The file also records when it was generated. Filenames are kept exactly as the s
 
 **Loading**
 
-- `data/tracks.json` is imported by the app and bundled by Vite, so there is no runtime fetch, no GitHub API call and nothing to cache or fall back from.
+- `data/tracks.json` is imported by the app and bundled by esbuild, so there is no runtime fetch, no GitHub API call and nothing to cache or fall back from.
 - At startup, the library loader applies `config/tag-map.json` to build the in-memory index. Each entry holds:
   - the track id and title;
   - the original tags;
@@ -125,11 +125,15 @@ The file also records when it was generated. Filenames are kept exactly as the s
 ### 7.2 Speech-to-text
 
 - transformers.js running a Whisper model on WebGPU. English-only models are fine to start with.
-- **Voice activity detection:** start with a simple energy threshold. Upgrade to an in-browser VAD model if needed.
+- **WebGPU only:** no WASM fallback. Multithreaded WASM needs COOP/COEP headers, which GitHub Pages can't set, and the service-worker workaround would force CORS onto audio requests, which the audio host refuses (section 4). If WebGPU isn't available, the app says so and doesn't listen.
+- **Voice activity detection:** an in-browser VAD model (Silero) from the start. An energy threshold would trigger constantly once ambience is playing in the room.
+- **Hallucination filter:** Whisper invents text from noise and music ("Thanks for watching", repeated phrases). Drop chunks that match known hallucination phrases or mostly repeat themselves, so they never reach the transcript buffer.
+- **Mic settings:** the `getUserMedia` choices for echo cancellation, noise suppression and automatic gain are settled in E6. Chrome's echo cancellation can help with local playback but does nothing for audio played through Cast.
 - **Chunking:** chunks of roughly 5 to 15 seconds, cut at pauses.
 - **Output:** text chunks with start and end timestamps, appended to the transcript buffer.
 - **Scope:** no speaker diarisation. We don't need to know who said what.
 - **Model choice:** a trade-off of latency against accuracy (see experiment E5). Start with the smallest English model that keeps up in real time.
+- **Visible tab:** for now the app requires its tab to stay visible while listening, because Chrome throttles timers in hidden tabs. E10 checks whether that is enough.
 
 ### 7.3 Transcript buffer
 
@@ -141,37 +145,41 @@ The file also records when it was generated. Filenames are kept exactly as the s
 - Matches phrases like "roll initiative", "roll for initiative" and "initiative order", case-insensitive and tolerant of minor transcription noise.
 - A match sets intensity to `combat` immediately, bypassing the classifier cadence and the dwell times.
 - The phrase list lives in config. Leaving combat is handled by the classifier, never by keywords.
+- Rules talk such as "how does initiative order work?" will also trigger combat. That's accepted for now; the minimum combat time (7.6) limits the damage.
 
 ### 7.5 Classifier
 
-- **Interface:** a function from a transcript window plus the current scene to a setting, an intensity and a confidence between 0 and 1. A short free-text reason is included in logs only.
+- **Interface:** a function from a transcript window, the current scene and how long it has lasted to a setting and an intensity, each with its own confidence between 0 and 1. A short free-text reason is included in logs only.
 - **Initial implementation:** the Anthropic Messages API, called directly from the browser.
   - The model is configurable. Default to the current Haiku model (at the time of writing, `claude-haiku-5-5`; check the docs for the current list).
   - Force structured output via tool use with a strict JSON schema whose enums match section 6.
-  - The system prompt holds the label definitions and a few short examples. Mark it for prompt caching.
-  - The user message holds the current scene plus the transcript window.
+  - The system prompt holds the label definitions and a few short examples. Mark it for prompt caching, but check the model's minimum cacheable prompt length: below it, caching silently does nothing. Either add examples until the prompt qualifies, or don't rely on caching in cost estimates.
+  - The user message holds the current scene, how long it has lasted, and the transcript window.
 - **Cadence:** every 60 seconds by default (configurable), and only if there is new transcript text.
 - **Prompt guidance:** the prompt should cover table talk that isn't in-game, such as rules lookups, snacks and real-world chat. In those cases the model should return `unknown` or the current scene.
-- **Cost meter:** record input, output and cached token counts from each response's usage field. Show a running session total in the UI.
+- **Cost meter:** record input, output and cached token counts from each response's usage field. Prices per model come from `config/pricing.json`, updated by hand. Show a running session total in the UI.
 - **Failures:** on an API error or invalid JSON, log the failure and keep the current scene. Never crash playback.
 
 ### 7.6 Scene state machine
 
 All parameters are configurable, and the defaults below are starting points to tune.
 
-- **Entering combat:** immediate, on either a keyword match or a classifier result of `combat` with confidence of at least 0.6.
-- **Leaving combat:** requires two consecutive non-combat classifications.
+- **Starting scene:** a configurable default (`tavern`, `calm`), which plays from the moment listening starts.
+- **Entering combat:** immediate, on either a keyword match or a classifier result of `combat` with intensity confidence of at least 0.6.
+- **Leaving combat:** requires two consecutive non-combat classifications, and at least three minutes in combat. The minimum matters after a keyword trigger, when the classifier's window is still mostly pre-combat text.
 - **Setting changes:** require two consecutive classifications that agree on the new setting, and at least three minutes on the current setting.
 - **Calm and tense changes:** require two consecutive agreeing classifications.
-- **Low confidence:** results below 0.5 confidence are treated as `unknown`.
+- **Low confidence:** each axis is judged on its own confidence. A setting below 0.5 is treated as `unknown`; an intensity below 0.5 is ignored, keeping the current one.
+- **`unknown` and streaks:** an `unknown` result neither counts towards nor resets a streak of agreeing classifications.
+- **Simultaneous changes:** if setting and intensity both change in the same cycle, that is one transition, not two.
 - **Implementation:** a pure function from the current state, a new event and the current time to a new state. It must be unit-testable without audio or network.
 
 ### 7.7 Track selector
 
-- Picks a random track from the bucket matching the current setting and intensity, excluding the last few tracks played.
+- Picks a random track from the bucket matching the current setting and intensity, excluding the last few tracks played. In a bucket with too few tracks for that, it excludes only the track just played.
 - **Empty buckets:** fall back first to the same intensity with any setting, then to the same setting with any intensity.
 - **Track end:** when a track finishes (each is ten minutes long), pick another from the same bucket.
-- **Scene change mid-track:** if the scene changes partway through a track, transition immediately.
+- **Scene change mid-track:** if the scene changes partway through a track, transition immediately, unless the current track is also in the new bucket, in which case it keeps playing.
 
 ### 7.8 Playback adapters
 
@@ -185,6 +193,7 @@ Both adapters implement one interface: play a track with a given fade duration, 
 - **Transitions:** fade-and-swap. Ramp the receiver volume down, load the next track, then ramp back up to the user's chosen level. A true crossfade isn't possible with the Default Media Receiver.
 - **Volume caveat:** this changes the device volume. Remember the user's level and always restore it, including on errors.
 - The Cast session must be started by a user gesture on the Cast button, once per session.
+- **Lost sessions:** if the Cast session ends unexpectedly (for example the receiver times out), show a clear warning and ask the user to reconnect. Reconnecting needs a user gesture, so it can't be automatic.
 
 **LocalAdapter**
 
@@ -202,10 +211,11 @@ Each classification cycle writes one record to IndexedDB containing:
 - the raw response, the parsed result and the latency;
 - the token usage;
 - the scene state before and after;
-- any keyword trigger hits since the last cycle;
 - the track playing.
 
-Two buttons export a session or all sessions as JSONL. These logs are the dataset for the classifier experiments in E9. Haiku's labels are treated as the reference, not as ground truth.
+Keyword triggers, scene changes and track starts and ends are logged as events of their own, so a replay keeps their order.
+
+Two buttons export a session or all sessions as JSONL, and a third clears all stored logs. These logs are the dataset for the classifier experiments in E9. Haiku's labels are treated as the reference, not as ground truth.
 
 ### 7.10 UI
 
@@ -218,21 +228,31 @@ Two buttons export a session or all sessions as JSONL. These logs are the datase
   - the live transcript;
   - the session cost.
 - **Attribution footer:** "Ambiences by Tabletop Audio (tabletopaudio.com), CC BY-NC-ND 4.0", with links. The current track's title, shown in the main view, completes the per-work attribution.
-- **Privacy notice:** a short note that transcript snippets are sent to Anthropic, so the table knows.
+- **Privacy notice:** a short note, so the table knows, that transcript snippets are sent to Anthropic and that transcripts are stored in this browser until cleared and can be exported.
+- **API key risk:** any script running on the page could read the key from localStorage. To keep that surface small, all dependencies are bundled; the only third-party script loaded at runtime is the Google Cast SDK, which Google requires to be loaded from gstatic.com.
 - **Wake lock:** use the Screen Wake Lock API while listening.
 
 ## 8. Tech stack and repo layout
 
-- TypeScript and Vite. Keep the framework minimal: vanilla TypeScript or Preact.
-- Deploy to GitHub Pages via GitHub Actions. Set Vite's base path to the repo name.
-- Vitest for unit tests, especially the state machine, track selector and tag mapping. The library loader should be tested against a fixture `tracks.json`, and the generator's parser against saved fixture pages.
+- **Build:** Bazel (version pinned in `.bazelversion`, run via Bazelisk) with Bzlmod and the standard JavaScript rule sets from the Bazel Central Registry:
+  - `rules_nodejs` for the Node toolchain;
+  - `aspect_rules_js` for npm packages (from `pnpm-lock.yaml`) and for running Node programs and tests;
+  - `aspect_rules_ts` for type-checking and compiling TypeScript (`ts_project`);
+  - `aspect_rules_esbuild` for bundling;
+  - `bazel_lib` (`copy_to_directory`) for assembling the static site.
+- **Language:** TypeScript in strict mode. Vanilla DOM code, no UI framework.
+- **Packages:** pnpm. No dependency may run install scripts (`allowBuilds` in `pnpm-workspace.yaml`).
+- **Tests:** Node's built-in test runner (`node:test`), each test file run as a Bazel `js_test`. Priorities are the state machine, track selector and tag mapping. The library loader should be tested against a fixture `tracks.json`, and the generator's parser against saved fixture pages.
+- **Targets:** `bazel test //...` type-checks, builds and tests everything; `//src:site` is the deployable site; `bazel run //tools:serve` serves it on localhost.
+- **CI and deployment:** one GitHub Actions workflow runs the tests on every push and pull request, and deploys `//src:site` to GitHub Pages from `main`. All asset paths are relative, so the site works under the `/eavesbard/` path without configuration.
 - A scheduled GitHub Actions workflow runs the generator and opens pull requests (7.1).
 
 Suggested layout:
 
 ```
-/config            tag-map.json, keywords.json, defaults.json
+/config            tag-map.json, keywords.json, pricing.json, defaults.json
 /data              tracks.json (generated; do not edit by hand)
+/src               app entry point (app.ts), index.html, settings
 /src/library       tag mapping and index build
 /src/audio         mic capture, VAD
 /src/stt           Whisper (transformers.js) wrapper
@@ -243,6 +263,7 @@ Suggested layout:
 /src/ui            views and settings
 /schema            tracks.schema.json (the index format the loader accepts)
 /scripts           build-index.ts (the generator)
+/tools             dev server
 /test/fixtures     synthetic tracks.json and site pages, for loader and generator tests
 /experiments       notes and results per experiment ID
 ```
@@ -271,13 +292,13 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 - Check that the generator works from GitHub Actions runners. Cloudflare may treat datacentre IP addresses differently from the requests tested so far.
 
 **E5 — In-browser Whisper.**
-- Compare model sizes on WebGPU against WASM on the actual laptop.
+- Compare model sizes on WebGPU on the actual laptop.
 - Measure real-time factor, end-to-end latency and transcript quality on real table audio: crosstalk, distance from the mic, background music bleeding in.
 - Pick the default model.
 
 **E6 — Microphone.** Compare the laptop's built-in mic with a USB conference or boundary mic at the centre of the table. Check whether music playing through local speakers degrades transcription.
 
-**E7 — Transition feel.** Fade-and-swap over Cast versus true crossfade locally. Decide whether Cast transitions are acceptable, or whether a custom receiver is worth building later.
+**E7 — Transition feel.** Fade-and-swap over Cast versus crossfade locally. For Cast, check whether the media stream's own volume can be faded instead of the device volume, which would avoid fighting the speaker's own volume controls. Decide whether Cast transitions are acceptable, or whether a custom receiver is worth building later.
 
 **E8 — Haiku baseline.**
 - Run real sessions with the Haiku classifier.
@@ -300,7 +321,7 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 
 ## 10. Milestones
 
-- **M0 — Skeleton:** Vite and TypeScript app deployed to GitHub Pages via Actions, with the settings screen and the API key in localStorage.
+- **M0 — Skeleton:** Bazel-built TypeScript app deployed to GitHub Pages via Actions, with the settings screen, the API key in localStorage, and a manual playback test page for E1.
 - **M1 — Library and playback:**
   - the generator and its scheduled job are running, and `data/tracks.json` is committed;
   - the library loader builds the index from it;

@@ -1,0 +1,60 @@
+load("@aspect_rules_esbuild//esbuild:defs.bzl", "esbuild")
+load("@aspect_rules_js//js:defs.bzl", "js_test")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
+load("@bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+
+TESTS = glob(["**/*.test.ts"])
+
+ts_project(
+    name = "app",
+    srcs = glob(
+        ["**/*.ts"],
+        exclude = TESTS,
+    ),
+    declaration = True,
+    source_map = True,
+    tsconfig = "//:tsconfig",
+)
+
+esbuild(
+    name = "bundle",
+    srcs = [":app"],
+    entry_point = "app.js",
+    format = "esm",
+    minify = True,
+    output = "main.js",
+    sourcemap = "linked",
+    target = "chrome120",
+)
+
+# The deployable static site: everything GitHub Pages serves.
+copy_to_directory(
+    name = "site",
+    srcs = [
+        "index.html",
+        ":bundle",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+ts_project(
+    name = "tests",
+    srcs = TESTS,
+    declaration = True,
+    source_map = True,
+    tsconfig = "//:tsconfig_test",
+    deps = [
+        ":app",
+        "//:node_modules/@types/node",
+    ],
+)
+
+[
+    js_test(
+        name = t.removesuffix(".ts").replace("/", "_").replace(".", "_"),
+        data = [":tests"],
+        entry_point = t.removesuffix(".ts") + ".js",
+        size = "small",
+    )
+    for t in TESTS
+]

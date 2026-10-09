@@ -1,0 +1,8 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary")
+
+js_binary(
+    name = "serve",
+    args = ["src/site"],
+    data = ["//src:site"],
+    entry_point = "serve.mjs",
+)

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Eavesbard</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --fg: #1d1d1f;
+        --bg: #fafaf7;
+        --muted: #6b6b70;
+        --border: #d8d8d2;
+        --error: #b3261e;
+        --ok: #1e7a3c;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --fg: #ececea;
+          --bg: #18181a;
+          --muted: #a0a0a6;
+          --border: #3a3a3e;
+          --error: #f2b8b5;
+          --ok: #8fd6a4;
+        }
+      }
+      body {
+        margin: 0 auto;
+        max-width: 48rem;
+        padding: 1rem;
+        font: 16px/1.5 system-ui, sans-serif;
+        color: var(--fg);
+        background: var(--bg);
+      }
+      fieldset {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        margin: 0 0 1rem;
+      }
+      label {
+        display: block;
+        margin: 0.5rem 0;
+      }
+      .muted,
+      footer {
+        color: var(--muted);
+        font-size: 0.875rem;
+      }
+      google-cast-launcher {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        vertical-align: middle;
+        cursor: pointer;
+      }
+      #event-log {
+        font: 0.8125rem/1.4 ui-monospace, monospace;
+        padding-left: 1.25rem;
+        overflow-wrap: anywhere;
+      }
+      #event-log .error {
+        color: var(--error);
+      }
+      #event-log .playing,
+      #event-log .ended {
+        color: var(--ok);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Eavesbard</h1>
+
+    <form id="settings-form">
+      <fieldset>
+        <legend>Settings</legend>
+        <label>
+          Anthropic API key
+          <input id="api-key" type="password" autocomplete="off" size="40" />
+        </label>
+        <button type="submit">Save</button>
+        <span id="api-key-status" class="muted" role="status"></span>
+        <p class="muted">Stored only in this browser's local storage.</p>
+      </fieldset>
+    </form>
+
+    <fieldset>
+      <legend>Playback test (E1)</legend>
+      <label>
+        Track
+        <select id="track"></select>
+      </label>
+      <label>
+        or file stem
+        <input id="custom-file" placeholder="e.g. 318_The_Gaping_Maw" />
+      </label>
+      <label><input id="output-local" type="radio" name="output" checked /> This computer</label>
+      <label>
+        <input id="output-cast" type="radio" name="output" disabled /> Cast
+        <google-cast-launcher></google-cast-launcher>
+        <span id="cast-status" class="muted">Loading Cast support…</span>
+      </label>
+      <p>
+        <button id="play">Play (crossfade)</button>
+        <button id="stop">Stop</button>
+        <button id="seek">Skip to 20 s before end</button>
+      </p>
+      <label>
+        Volume
+        <input id="volume" type="range" min="0" max="1" step="0.05" value="1" />
+      </label>
+      <p class="muted">
+        Check in dev tools (Network) that audio requests carry no <code>Origin</code> header: the audio host refuses
+        them with 403 if they do.
+      </p>
+      <ol id="event-log" reversed></ol>
+    </fieldset>
+
+    <footer>
+      Ambiences by <a href="https://tabletopaudio.com/">Tabletop Audio</a>, licensed
+      <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>.
+    </footer>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
