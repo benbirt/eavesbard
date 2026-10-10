@@ -391,7 +391,9 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
   - the Haiku classifier, state machine and track selector are wired end to end;
   - the cost meter is working.
 - **M4 — Instrumentation:** the timeline (7.9) doubles as the IndexedDB session log with JSONL export, and the page is reorganised around it (7.10). Done; next, run E8 over real sessions, and E10 alongside it.
-- **M5 — Local classifier experiments:** E9, then decide whether the API key remains necessary.
+- **M5 — Local classifier experiments:** E9, then decide whether the API key remains necessary. Done: local models are the default, with Gemma 4 E2B (7.5).
+
+Agreed next steps (cleanup, more model experiments, Gemma 4 for speech, UI) are in [BACKLOG.md](BACKLOG.md).
 
 ## 11. Later and out of scope
 
