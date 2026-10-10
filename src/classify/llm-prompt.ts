@@ -57,6 +57,27 @@ export function llmQuestions(input: LlmInput): [LlmQuestion, LlmQuestion] {
   ];
 }
 
+/** Asked as well during a fight: the embeddings read "combat over" as combat. */
+export const FIGHT_OVER_LABELS = {
+  ongoing: "the fight is still going on: attacks, spells, enemies still standing",
+  over: "the fight has ended: enemies dead, fled or surrendered; looting, healing, resting, talking, moving on",
+};
+
+/** "Is the fight still going on?", from the latest lines alone. */
+export function fightOverQuestion(lines: string[]): LlmQuestion {
+  const menu = Object.entries(FIGHT_OVER_LABELS)
+    .map(([label, meaning]) => `- ${label}: ${meaning}`)
+    .join("\n");
+  return {
+    axis: "intensity",
+    content:
+      "You are following a tabletop role-playing game (like D&D) from a speech transcript. A fight was going on.\n\n" +
+      `The last few lines of the transcript (speech recognition, may contain errors):\n"${lastWords(lines, INTENSITY_WORDS)}"\n\n` +
+      `Is the fight still going on right now?\n${menu}\n\nAnswer with one word from the list.`,
+    labels: Object.keys(FIGHT_OVER_LABELS),
+  };
+}
+
 function question(
   axis: LlmQuestion["axis"],
   context: string,

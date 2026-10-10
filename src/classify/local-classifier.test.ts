@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { classifyFromScores, labelKey, lastWords, latest, scoreAxis } from "./local-classifier.js";
+import { classifyFromScores, labelKey, lastWords, latest, scoreAxis, soften } from "./local-classifier.js";
 
 const scores = (entries: [string, number][]) => new Map(entries.map(([label, s]) => [labelKey(label, 0), s]));
 
@@ -61,6 +61,26 @@ test("with an LLM, a weak setting match isn't unknown, and off-topic still keeps
   assert.equal(c.setting, "dungeon");
   assert.equal(c.intensity, "tense");
   assert.equal(c.intensityConfidence, 0);
+});
+
+test("an LLM's 'fight over' ends combat even when the embeddings still hear a fight", () => {
+  // The real case: "you killed the last enemy. Combat over." reads as combat to the embeddings.
+  const embeddings = [scores([["tavern", 0.6]]), scores([["calm", 0.5], ["tense", 0.52], ["combat", 0.7]])] as const;
+  const over = classifyFromScores(...embeddings, { intensity: "combat" }, { ...llm("tavern", "combat"), fightOver: 0.98 });
+  assert.equal(over.intensity, "tense");
+  assert.equal(over.intensityConfidence, 0.98);
+  assert.match(over.reason, /fight over \(98%\)/);
+  const ongoing = classifyFromScores(...embeddings, { intensity: "combat" }, { ...llm("tavern", "combat"), fightOver: 0.1 });
+  assert.equal(ongoing.intensity, "combat");
+  // Only during a fight.
+  const calm = classifyFromScores(...embeddings, { intensity: "calm" }, { ...llm("tavern", "calm"), fightOver: 0.98 });
+  assert.equal(calm.intensity, "combat");
+});
+
+test("soften flattens near-certain answers but keeps their order", () => {
+  const s = soften({ a: 0.999, b: 0.001 }, 3);
+  assert.ok(s.a > s.b && s.a < 0.95);
+  assert.ok(Math.abs(s.a + s.b - 1) < 1e-9);
 });
 
 test("lastWords and latest keep the end of the transcript", () => {

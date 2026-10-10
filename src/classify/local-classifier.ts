@@ -128,6 +128,8 @@ export interface LlmAnswer {
   model: string;
   setting: Record<Setting, number>;
   intensity: Record<Intensity, number>;
+  /** Asked only during a fight: the probability that it's over. */
+  fightOver?: number;
 }
 
 /**
@@ -136,6 +138,21 @@ export interface LlmAnswer {
  * settings, the embeddings at spotting a fight.
  */
 export const LLM_WEIGHT = { setting: 0.5, intensity: 0.25 };
+/** LLM answers are nearly always 0% or 100%; this softens them before blending. */
+export const LLM_TEMPERATURE = 3;
+/**
+ * During a fight, the LLM's "is it over?" answer ends it on its own at this
+ * probability. It never ended a fight that was still going in the test sets,
+ * whereas the embeddings read "combat over" as combat.
+ */
+export const FIGHT_OVER_THRESHOLD = 0.5;
+
+/** Raises probabilities to the power 1/T and renormalises. */
+export function soften<L extends string>(probs: Record<L, number>, temperature: number): Record<L, number> {
+  const raised = (Object.entries(probs) as [L, number][]).map(([l, p]) => [l, Math.pow(Math.max(p, 1e-12), 1 / temperature)] as const);
+  const total = raised.reduce((sum, [, p]) => sum + p, 0);
+  return Object.fromEntries(raised.map(([l, p]) => [l, p / total])) as Record<L, number>;
+}
 
 /**
  * Combines the two axes' scores into a classification, blended with an
@@ -171,15 +188,31 @@ function blend(
   current: { intensity: Intensity },
   offtopic: boolean,
 ): Classification {
-  const mix = <L extends string>(labels: readonly L[], a: Record<L, number>, b: Record<L, number>, w: number) =>
-    labels
-      .map((label) => ({ label, p: (1 - w) * a[label] + w * b[label] }))
-      .reduce((x, y) => (y.p > x.p ? y : x));
+  const mix = <L extends string>(labels: readonly L[], a: Record<L, number>, b: Record<L, number>, w: number) => {
+    const soft = soften(b, LLM_TEMPERATURE);
+    return labels.map((label) => ({ label, p: (1 - w) * a[label] + w * soft[label] }));
+  };
+  const best = <L extends string>(xs: { label: L; p: number }[]) => xs.reduce((x, y) => (y.p > x.p ? y : x));
   // No "unknown" setting here: the LLM is told the current scene and keeps it when nothing changed.
-  const setting = mix(SETTINGS, s.probs, llm.setting, LLM_WEIGHT.setting);
-  const intensity = mix(INTENSITIES, i.probs, llm.intensity, LLM_WEIGHT.intensity);
+  const setting = best(mix(SETTINGS, s.probs, llm.setting, LLM_WEIGHT.setting));
+  const intensities = mix(INTENSITIES, i.probs, llm.intensity, LLM_WEIGHT.intensity);
+  const intensity = best(intensities);
   const top = <L extends string>(d: Record<L, number>) =>
     (Object.entries(d) as [L, number][]).reduce((x, y) => (y[1] > x[1] ? y : x))[0];
+  const llmSaid = `${llm.model}: ${top(llm.setting)}, ${top(llm.intensity)}`;
+
+  if (current.intensity === "combat" && llm.fightOver !== undefined && llm.fightOver >= FIGHT_OVER_THRESHOLD) {
+    const after = best(intensities.filter((x) => x.label !== "combat"));
+    return {
+      setting: setting.label,
+      settingConfidence: setting.p,
+      intensity: after.label,
+      intensityConfidence: llm.fightOver,
+      reason:
+        `embeddings: ${s.label}, ${i.label}; ${llmSaid}, fight over (${Math.round(llm.fightOver * 100)}%); ` +
+        `blended: ${setting.label}, ${after.label}`,
+    };
+  }
   return {
     setting: setting.label,
     settingConfidence: setting.p,
@@ -187,7 +220,8 @@ function blend(
     intensity: offtopic ? current.intensity : intensity.label,
     intensityConfidence: offtopic ? 0 : intensity.p,
     reason:
-      `embeddings: ${s.label}, ${i.label}; ${llm.model}: ${top(llm.setting)}, ${top(llm.intensity)}; ` +
+      `embeddings: ${s.label}, ${i.label}; ${llmSaid}` +
+      `${llm.fightOver !== undefined ? `, fight over (${Math.round(llm.fightOver * 100)}%)` : ""}; ` +
       `blended: ${setting.label}, ${offtopic ? "off-topic" : intensity.label}`,
   };
 }

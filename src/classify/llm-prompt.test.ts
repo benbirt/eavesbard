@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { labelProbabilities, llmQuestions } from "./llm-prompt.js";
+import { fightOverQuestion, labelProbabilities, llmQuestions } from "./llm-prompt.js";
 
 test("an opening description is asked about on both axes", () => {
   const [setting, intensity] = llmQuestions({ description: "deep caverns, exploring" });
@@ -23,4 +23,10 @@ test("label probabilities add up spellings and sum to 1", () => {
   const p = labelProbabilities([[Math.log(0.2), Math.log(0.2)], [Math.log(0.1)]]);
   assert.ok(Math.abs(p[0]! - 0.8) < 1e-9);
   assert.ok(Math.abs(p[1]! - 0.2) < 1e-9);
+});
+
+test("the fight-over question offers ongoing or over, with the latest lines", () => {
+  const q = fightOverQuestion(["Roll for initiative.", "you killed the last enemy.", "Combat over."]);
+  assert.deepEqual(q.labels, ["ongoing", "over"]);
+  assert.match(q.content, /Combat over\."/);
 });

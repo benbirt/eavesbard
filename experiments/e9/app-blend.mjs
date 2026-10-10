@@ -41,10 +41,12 @@ async function classify(s) {
   const input = "description" in s.input ? { description: s.input.description } : { lines: ls, current: current(s) };
   const [qs, qi] = P.llmQuestions(input);
   const llm = { model: "llm", setting: obj(qs.labels, await ask(qs)), intensity: obj(qi.labels, await ask(qi)) };
+  // As in src/llm/scene-llm.ts: during a fight, also ask whether it's over.
+  if ("lines" in input && input.current.intensity === "combat") llm.fightOver = (await ask(P.fightOverQuestion(input.lines)))[1];
   const st = "description" in s.input ? s.input.description : LC.lastWords(ls, 150);
   const it = "description" in s.input ? s.input.description : LC.latest(ls);
   return LC.classifyFromScores(await scores(st), await scores(it), { intensity: current(s)?.intensity ?? "calm" }, llm);
 }
-await evaluate(`app blend with ${repo} — DEV`, DEV, classify);
-await evaluate(`app blend with ${repo} — TEST`, TEST, classify);
+await evaluate(`app blend with ${repo} — DEV`, DEV, classify, { verbose: true });
+await evaluate(`app blend with ${repo} — TEST`, TEST, classify, { verbose: process.argv.includes("-v") });
 console.log("slow-path questions:", slow);

@@ -91,4 +91,19 @@ export const SCENARIOS: Scenario[] = [
     settings: ["tavern", "unknown"],
     intensities: ["calm"],
   },
+  // From a real session log (2026-10-10): the embeddings read "combat over" as combat.
+  {
+    name: "real: last enemy killed",
+    category: "combat ends",
+    input: { scene: { setting: "tavern", intensity: "combat" }, lines: [[95, "Roll for initiative."], [5, "you killed the last enemy."]] },
+    settings: ["tavern", "unknown"],
+    intensities: ["calm", "tense"],
+  },
+  {
+    name: "real: combat over",
+    category: "combat ends",
+    input: { scene: { setting: "tavern", intensity: "combat" }, lines: [[125, "Roll for initiative."], [35, "you killed the last enemy."], [5, "Combat over."]] },
+    settings: ["tavern", "unknown"],
+    intensities: ["calm", "tense"],
+  },
 ];

@@ -4,7 +4,7 @@
 import { signal } from "@preact/signals";
 import { assetUrl } from "../assets.js";
 import type { LlmAnswer } from "../classify/local-classifier.js";
-import { llmQuestions, type LlmInput } from "../classify/llm-prompt.js";
+import { fightOverQuestion, llmQuestions, type LlmInput } from "../classify/llm-prompt.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
 import { loadSetting, saveSetting } from "../settings.js";
 import { SCENE_LLMS, SCENE_LLM_IDS, type FromLlmWorker, type SceneLlm, type ToLlmWorker } from "./llm-protocol.js";
@@ -128,5 +128,15 @@ export async function askSceneLlm(input: LlmInput): Promise<LlmAnswer | undefine
   const intensity = await ask(intensityQ.content, intensityQ.labels);
   const record = <L extends string>(labels: readonly L[], probs: number[]) =>
     Object.fromEntries(labels.map((l, i) => [l, probs[i] ?? 0])) as Record<L, number>;
-  return { model: SCENE_LLMS[choice].name, setting: record(SETTINGS, setting), intensity: record(INTENSITIES, intensity) };
+  let fightOver: number | undefined;
+  if ("lines" in input && input.current.intensity === "combat") {
+    const q = fightOverQuestion(input.lines);
+    fightOver = (await ask(q.content, q.labels))[1];
+  }
+  return {
+    model: SCENE_LLMS[choice].name,
+    setting: record(SETTINGS, setting),
+    intensity: record(INTENSITIES, intensity),
+    fightOver,
+  };
 }
