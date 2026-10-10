@@ -17,7 +17,7 @@ Setup currently has two model choices: Models (Local or Claude, for scene checks
 ## 3. Gemma 4 instead of Whisper (E11)
 
 Done, not adopted: Gemma 4 E2B transcribes worse than Whisper (21% word errors on clean test clips, against 11% for Whisper base and 7% for Whisper small) and is no faster. See experiments/E11.md. Follow-ups:
-- Consider Whisper small as the default on capable machines: the most accurate by far, especially with music playing (590 MB download).
+- Whisper small is now the default. Check it keeps up on Android; if not, pick base there.
 - Test with real table recordings rather than text-to-speech.
 
 ## 4. UI cleanup, and make it pretty

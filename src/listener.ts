@@ -31,7 +31,7 @@ export type WakeLockState = "off" | "held" | "lost" | "unsupported";
 
 const savedModel = loadSetting("whisperModel");
 export const model = signal<SpeechModel>(
-  (SPEECH_MODELS as readonly string[]).includes(savedModel ?? "") ? (savedModel as SpeechModel) : "base.en",
+  (SPEECH_MODELS as readonly string[]).includes(savedModel ?? "") ? (savedModel as SpeechModel) : "small.en",
 );
 export const state = signal<ListenState>({ phase: "idle" });
 export const speaking = signal(false);
