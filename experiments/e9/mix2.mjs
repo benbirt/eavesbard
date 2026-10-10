@@ -24,12 +24,12 @@ function classify(s, wn, wc) {
 }
 function score(set, wn, wc) {
   let b = 0; const cats = {};
-  for (const sc of set) {
+  for (const sc of set.filter((s) => L[s.name])) {
     const e = effective(sc, classify(sc, wn, wc));
     const ok = (sc.settings.includes(e.setting) || (e.setting === current(sc)?.setting && sc.settings.includes("unknown"))) && sc.intensities.includes(e.intensity);
     b += ok; const c = (cats[sc.category ?? "dev"] ??= [0, 0]); c[0] += ok; c[1]++;
   }
-  return { both: Math.round((100 * b) / set.length), cats: Object.entries(cats).map(([k, [o, n]]) => `${k} ${Math.round((100 * o) / n)}%`).join(", ") };
+  return { both: Math.round((100 * b) / set.filter((s) => L[s.name]).length), cats: Object.entries(cats).map(([k, [o, n]]) => `${k} ${Math.round((100 * o) / n)}%`).join(", ") };
 }
 for (const wn of [0, 0.25, 0.5]) for (const wc of [0.25, 0.5, 0.75, 1]) {
   const d = score(DEV, wn, wc), t = score(TEST, wn, wc);

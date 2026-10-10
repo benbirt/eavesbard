@@ -14,7 +14,7 @@ import type { LibraryTrack } from "./library/tag-map.js";
 import { onTranscriptLine, start as startListening, stop as stopListening } from "./listener.js";
 import { LOCAL_MODEL_NAME, localClassify, localModel, prepareLocalModels } from "./local-models.js";
 import { SCENE_LLMS } from "./llm/llm-protocol.js";
-import { prepareSceneLlm, sceneLlmChoice } from "./llm/scene-llm.js";
+import { hasWebGpu, prepareSceneLlm, sceneLlmChoice } from "./llm/scene-llm.js";
 import { claudePick } from "./pick/claude-picker.js";
 import { localPick } from "./pick/local-picker.js";
 import type { PickRequest } from "./pick/request.js";
@@ -82,13 +82,12 @@ if (auto.value && (effectiveEngine() === "local" || compare.value)) {
 /** Starts the local models downloading: embeddings, and the helper LLM if chosen. */
 function prepareLocal(): void {
   prepareLocalModels().catch(() => undefined);
-  if (sceneLlmChoice.value !== "none") {
-    prepareSceneLlm().catch((err: unknown) => {
-      if (sessionActive.value) {
-        record({ kind: "error", text: `The scene LLM couldn't load, so the embeddings decide alone: ${err instanceof Error ? err.message : String(err)}` });
-      }
-    });
-  }
+  if (!hasWebGpu) return;
+  prepareSceneLlm().catch((err: unknown) => {
+    if (sessionActive.value) {
+      record({ kind: "error", text: `The scene LLM couldn't load, so the embeddings decide alone: ${err instanceof Error ? err.message : String(err)}` });
+    }
+  });
 }
 
 const buffer = new TranscriptBuffer();
@@ -157,14 +156,12 @@ async function startAuto(opening: string): Promise<void> {
   });
   if (primary === "local" || other === "local") {
     prepareLocal();
-    const llm = sceneLlmChoice.value;
-    record({
-      kind: "session",
-      text:
-        llm === "none"
-          ? "Local scene checks use the embedding model alone."
-          : `Local scene checks blend the embedding model with ${SCENE_LLMS[llm].name}, once it has downloaded.`,
-    });
+    const llm = SCENE_LLMS[sceneLlmChoice.value].name;
+    record(
+      hasWebGpu
+        ? { kind: "session", text: `Local scene checks blend the embedding model with ${llm}, once it has downloaded.` }
+        : { kind: "error", text: `This browser has no WebGPU, so ${llm} can't run: local scene checks use the embedding model alone, which often misses fights ending.` },
+    );
   }
 
   // The opening scene: from the description if there is one, else the default.

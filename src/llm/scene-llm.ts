@@ -9,8 +9,6 @@ import { INTENSITIES, SETTINGS } from "../library/scenes.js";
 import { loadSetting, saveSetting } from "../settings.js";
 import { SCENE_LLMS, SCENE_LLM_IDS, type FromLlmWorker, type SceneLlm, type ToLlmWorker } from "./llm-protocol.js";
 
-export type SceneLlmChoice = SceneLlm | "none";
-
 export type SceneLlmState =
   | { phase: "off" }
   | { phase: "loading"; loaded: number; total: number; preparing: boolean }
@@ -19,18 +17,14 @@ export type SceneLlmState =
 
 /** Whether this browser can run the LLM at all. */
 export const hasWebGpu = "gpu" in navigator;
-/** Reported memory in GB (capped at 8; Chrome only). */
-const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
 
-function initialChoice(): SceneLlmChoice {
+function initialChoice(): SceneLlm {
   const saved = loadSetting("sceneLlm");
-  if (saved === "none" || (SCENE_LLM_IDS as string[]).includes(saved ?? "")) return saved as SceneLlmChoice;
-  // A 3 GB model alongside Whisper is too much for phones and small laptops.
-  return hasWebGpu && (deviceMemory ?? 8) >= 8 ? "gemma-3-4b" : "none";
+  return (SCENE_LLM_IDS as string[]).includes(saved ?? "") ? (saved as SceneLlm) : SCENE_LLM_IDS[0]!;
 }
 
-/** The chosen helper LLM for local scene checks. */
-export const sceneLlmChoice = signal<SceneLlmChoice>(initialChoice());
+/** The LLM blended with the embeddings for local scene checks. */
+export const sceneLlmChoice = signal<SceneLlm>(initialChoice());
 export const sceneLlm = signal<SceneLlmState>({ phase: "off" });
 
 let worker: Worker | undefined;
@@ -39,7 +33,7 @@ let loaded: Promise<void> | undefined;
 let nextRequest = 0;
 const waiting = new Map<number, { resolve: (probs: number[]) => void; reject: (e: Error) => void }>();
 
-export function setSceneLlm(next: SceneLlmChoice): void {
+export function setSceneLlm(next: SceneLlm): void {
   sceneLlmChoice.value = next;
   saveSetting("sceneLlm", next);
   if (next !== workerModel) unload();
@@ -58,7 +52,6 @@ function unload(): void {
 /** Starts downloading the chosen model, once. Resolves when it's ready. */
 export function prepareSceneLlm(): Promise<void> {
   const choice = sceneLlmChoice.value;
-  if (choice === "none") return Promise.reject(new Error("no LLM chosen"));
   if (!hasWebGpu) return Promise.reject(new Error("this browser has no WebGPU"));
   loaded ??= new Promise<void>((resolve, reject) => {
     sceneLlm.value = { phase: "loading", loaded: 0, total: 0, preparing: false };
@@ -117,12 +110,12 @@ function ask(content: string, labels: string[]): Promise<number[]> {
 }
 
 /**
- * Asks the LLM about a scene, if it's chosen and ready; undefined otherwise
+ * Asks the LLM about a scene, if it's ready; undefined otherwise
  * (the embeddings then decide alone). Never waits for a download.
  */
 export async function askSceneLlm(input: LlmInput): Promise<LlmAnswer | undefined> {
   const choice = sceneLlmChoice.value;
-  if (choice === "none" || sceneLlm.value.phase !== "ready") return undefined;
+  if (sceneLlm.value.phase !== "ready") return undefined;
   const [settingQ, intensityQ] = llmQuestions(input);
   const setting = await ask(settingQ.content, settingQ.labels);
   const intensity = await ask(intensityQ.content, intensityQ.labels);
