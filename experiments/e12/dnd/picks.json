@@ -28,30 +28,37 @@
   "verdict": "up"
  },
  "town/tense": {
-  "subject": "Traffic in a Waterdeep street",
-  "book": "Waterdeep: Dragon Heist (Wizards of the Coast, 2018)",
+  "subject": "Arriving in Phandalin",
+  "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
   "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep_traffic-5e.jpg",
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Phandalin-welcome.webp",
+  "verdict": null,
+  "unseen": true
+ },
+ "town/tense (option 2)": {
+  "subject": "A Waterdeep alley",
+  "book": "Source not confirmed: check its page",
+  "artist": null,
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep-alley.jpg",
   "verdict": null,
   "unseen": true,
-  "note": "A busy street; may read as lively rather than tense."
+  "note": "Only use it if its page names a Wizards book."
  },
  "town/combat": {
   "subject": "A fireball goes off in Trollskull Alley",
   "book": "Waterdeep: Dragon Heist (Wizards of the Coast, 2018)",
   "artist": null,
   "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep-fireball-5e.jpg",
-  "verdict": null,
-  "unseen": true
+  "verdict": "up"
  },
  "interior/calm": {
-  "subject": "Inside the great library of Candlekeep",
+  "subject": "A sage deep in research at Candlekeep",
   "book": "Candlekeep Mysteries (Wizards of the Coast, 2021)",
-  "artist": "Vincent Proce",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Candlekeep_interior-5e.jpg",
+  "artist": null,
+  "page": "https://forgottenrealms.fandom.com/wiki/Candlekeep",
   "verdict": null,
   "unseen": true,
-  "note": "The wiki also files this under Images by Vincent Proce; confirm the book on its page."
+  "note": "Search didn't give its file name: the link opens the Candlekeep article; the image is in its gallery."
  },
  "interior/tense": {
   "subject": "Still needed",
@@ -60,7 +67,7 @@
   "page": null,
   "verdict": null,
   "gap": true,
-  "note": "Web search didn't turn up a specific image. Good books to look in: Keys from the Golden Vault (heists), Waterdeep: Dragon Heist."
+  "note": "Still no specific image after two rounds of search. Options: reuse the dungeon · tense image, or leave a gap for now."
  },
  "interior/combat": {
   "subject": "The bronze dragon Runara presenting her true form before Hank, and Presto, along with a third individual",
@@ -131,5 +138,22 @@
   "artist": "Alejandro Pacheco",
   "page": "https://forgottenrealms.fandom.com/wiki/File:Roc_5point5e.jpg",
   "verdict": "up"
+ },
+ "travel/overland": {
+  "subject": "The Triboar Trail",
+  "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
+  "artist": "Klaus Pillon",
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Triboar_trail_-_Klaus_Pillon.png",
+  "verdict": null,
+  "unseen": true,
+  "note": "An extra: overland travel, alongside the sea images."
+ },
+ "travel/overland (option 2)": {
+  "subject": "The road to Phandalin",
+  "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
+  "artist": null,
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Road_to_phandalin.webp",
+  "verdict": null,
+  "unseen": true
  }
 }
