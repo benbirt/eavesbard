@@ -2,12 +2,12 @@
 // download state, and asking it about a scene.
 
 import { signal } from "@preact/signals";
-import { assetUrl } from "../assets.js";
 import type { LlmAnswer } from "../classify/local-classifier.js";
-import { fightOverQuestion, llmQuestions, type LlmInput } from "../classify/llm-prompt.js";
+import { ANSWER_PREFIX, fightOverQuestion, llmQuestions, type LlmInput } from "../classify/llm-prompt.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
 import { loadSetting, saveSetting } from "../settings.js";
-import { SCENE_LLMS, SCENE_LLM_IDS, type FromLlmWorker, type SceneLlm, type ToLlmWorker } from "./llm-protocol.js";
+import { LlmClient } from "./llm-client.js";
+import { SCENE_LLMS, SCENE_LLM_IDS, type SceneLlm } from "./llm-protocol.js";
 
 export type SceneLlmState =
   | { phase: "off" }
@@ -27,25 +27,21 @@ function initialChoice(): SceneLlm {
 export const sceneLlmChoice = signal<SceneLlm>(initialChoice());
 export const sceneLlm = signal<SceneLlmState>({ phase: "off" });
 
-let worker: Worker | undefined;
-let workerModel: SceneLlm | undefined;
+let client: LlmClient | undefined;
+let clientModel: SceneLlm | undefined;
 let loaded: Promise<void> | undefined;
-let nextRequest = 0;
-const waiting = new Map<number, { resolve: (probs: number[]) => void; reject: (e: Error) => void }>();
 
 export function setSceneLlm(next: SceneLlm): void {
   sceneLlmChoice.value = next;
   saveSetting("sceneLlm", next);
-  if (next !== workerModel) unload();
+  if (next !== clientModel) unload();
 }
 
 function unload(): void {
-  worker?.terminate();
-  worker = undefined;
-  workerModel = undefined;
+  client?.terminate();
+  client = undefined;
+  clientModel = undefined;
   loaded = undefined;
-  for (const w of waiting.values()) w.reject(new Error("the model was switched off"));
-  waiting.clear();
   sceneLlm.value = { phase: "off" };
 }
 
@@ -53,60 +49,31 @@ function unload(): void {
 export function prepareSceneLlm(): Promise<void> {
   const choice = sceneLlmChoice.value;
   if (!hasWebGpu) return Promise.reject(new Error("this browser has no WebGPU"));
-  loaded ??= new Promise<void>((resolve, reject) => {
+  loaded ??= (async () => {
     sceneLlm.value = { phase: "loading", loaded: 0, total: 0, preparing: false };
-    worker = new Worker(assetUrl("llm-worker.js"), { type: "module" });
-    workerModel = choice;
-    const fail = (message: string) => {
+    client = new LlmClient();
+    clientModel = choice;
+    const { repo, emptyThought } = SCENE_LLMS[choice];
+    try {
+      await client.load({ repo, emptyThought }, (p) => {
+        if (sceneLlm.value.phase !== "loading") return;
+        sceneLlm.value = p.preparing ? { ...sceneLlm.value, preparing: true } : { phase: "loading", ...p };
+      });
+      sceneLlm.value = { phase: "ready" };
+    } catch (err) {
+      const message = `${SCENE_LLMS[choice].name}: ${err instanceof Error ? err.message : String(err)}`;
       unload();
       sceneLlm.value = { phase: "error", message };
-      reject(new Error(message));
-    };
-    worker.onerror = (e) => fail(e.message || "The LLM worker failed to start");
-    worker.onmessage = (e: MessageEvent<FromLlmWorker>) => {
-      const m = e.data;
-      const s = sceneLlm.value;
-      switch (m.type) {
-        case "progress":
-          // "preparing" can come between files; more progress means it's still downloading.
-          if (s.phase === "loading") sceneLlm.value = { ...s, loaded: m.loaded, total: m.total, preparing: false };
-          break;
-        case "preparing":
-          if (s.phase === "loading") sceneLlm.value = { ...s, preparing: true };
-          break;
-        case "ready":
-          sceneLlm.value = { phase: "ready" };
-          resolve();
-          break;
-        case "answer":
-          waiting.get(m.requestId)?.resolve(m.probs);
-          waiting.delete(m.requestId);
-          break;
-        case "error":
-          if (m.requestId !== undefined) {
-            waiting.get(m.requestId)?.reject(new Error(m.message));
-            waiting.delete(m.requestId);
-          } else {
-            fail(`${SCENE_LLMS[choice].name}: ${m.message}`);
-          }
-          break;
-      }
-    };
-    send({ type: "load", model: choice });
-  });
+      throw new Error(message);
+    }
+  })();
   return loaded;
 }
 
-function send(message: ToLlmWorker): void {
-  worker!.postMessage(message);
-}
-
-function ask(content: string, labels: string[]): Promise<number[]> {
-  const requestId = nextRequest++;
-  return new Promise((resolve, reject) => {
-    waiting.set(requestId, { resolve, reject });
-    send({ type: "ask", requestId, content, labels });
-  });
+/** The app's question format: the answer starts "Answer:", then " label" or " Label". */
+function ask(q: { content: string; labels: string[] }): Promise<number[]> {
+  const spellings = q.labels.map((l) => [` ${l}`, ` ${l[0]!.toUpperCase()}${l.slice(1)}`]);
+  return client!.ask(q.content, ANSWER_PREFIX, spellings);
 }
 
 /**
@@ -117,14 +84,13 @@ export async function askSceneLlm(input: LlmInput): Promise<LlmAnswer | undefine
   const choice = sceneLlmChoice.value;
   if (sceneLlm.value.phase !== "ready") return undefined;
   const [settingQ, intensityQ] = llmQuestions(input);
-  const setting = await ask(settingQ.content, settingQ.labels);
-  const intensity = await ask(intensityQ.content, intensityQ.labels);
+  const setting = await ask(settingQ);
+  const intensity = await ask(intensityQ);
   const record = <L extends string>(labels: readonly L[], probs: number[]) =>
     Object.fromEntries(labels.map((l, i) => [l, probs[i] ?? 0])) as Record<L, number>;
   let fightOver: number | undefined;
   if ("lines" in input && input.current.intensity === "combat") {
-    const q = fightOverQuestion(input.lines);
-    fightOver = (await ask(q.content, q.labels))[1];
+    fightOver = (await ask(fightOverQuestion(input.lines)))[1];
   }
   return {
     model: SCENE_LLMS[choice].name,

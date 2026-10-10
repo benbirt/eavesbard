@@ -1,7 +1,8 @@
 // The scene LLM (experiment E9, approach C): a small instruction model on
 // WebGPU scores each label as the answer to a question about the scene.
-// Nothing is generated: one forward pass gives the next-token probabilities,
-// read for each label's first token (" dungeon", " Dungeon").
+// Nothing is generated: the answer is prefilled up to the label, and one
+// forward pass gives the next-token probabilities, read for each spelling's
+// first token (" dungeon", " Dungeon").
 
 import "../ml-env.js";
 import {
@@ -11,8 +12,8 @@ import {
   type PreTrainedModel,
   type PreTrainedTokenizer,
 } from "@huggingface/transformers";
-import { ANSWER_PREFIX, labelProbabilities } from "../classify/llm-prompt.js";
-import { SCENE_LLMS, type FromLlmWorker, type SceneLlm, type ToLlmWorker } from "./llm-protocol.js";
+import { labelProbabilities } from "../classify/llm-prompt.js";
+import type { FromLlmWorker, LlmLoad, ToLlmWorker } from "./llm-protocol.js";
 
 const post = (message: FromLlmWorker) => self.postMessage(message);
 
@@ -20,8 +21,7 @@ let tokenizer: PreTrainedTokenizer | undefined;
 let model: PreTrainedModel | undefined;
 let emptyThought = false;
 
-async function load(id: SceneLlm): Promise<void> {
-  const spec = SCENE_LLMS[id];
+async function load(spec: LlmLoad): Promise<void> {
   emptyThought = spec.emptyThought;
   const files = new Map<string, { loaded: number; total: number }>();
   const progress_callback = (info: { status: string; file?: string; loaded?: number; total?: number }) => {
@@ -39,7 +39,7 @@ async function load(id: SceneLlm): Promise<void> {
   model = await AutoModelForCausalLM.from_pretrained(spec.repo, {
     device: "webgpu",
     // 16-bit activations halve the download, but not every GPU can do 16-bit floats.
-    dtype: (await hasShaderF16()) ? "q4f16" : "q4",
+    dtype: (spec.dtype ?? ((await hasShaderF16()) ? "q4f16" : "q4")) as "q4",
     progress_callback: (info: { status: string; file?: string; loaded?: number; total?: number }) => {
       progress_callback(info);
       if (info.status === "done" && info.file?.includes("onnx")) post({ type: "preparing" });
@@ -77,19 +77,21 @@ async function forward(text: string, lastOnly: boolean): Promise<{ rows: number;
   return { rows, vocab, data: logits.to("float32").data as Float32Array };
 }
 
-async function ask(requestId: number, content: string, labels: string[]): Promise<void> {
-  const started = performance.now();
-  let prompt = tokenizer!.apply_chat_template([{ role: "user", content }], {
+function chatPrompt(content: string): string {
+  const prompt = tokenizer!.apply_chat_template([{ role: "user", content }], {
     tokenize: false,
     add_generation_prompt: true,
   }) as string;
-  if (emptyThought) prompt += "<think>\n\n</think>\n\n";
-  prompt += ANSWER_PREFIX;
+  return emptyThought ? `${prompt}<think>\n\n</think>\n\n` : prompt;
+}
+
+async function ask(requestId: number, content: string, prefill: string, spellings: string[][]): Promise<void> {
+  const started = performance.now();
+  const prompt = chatPrompt(content) + prefill;
   const base = encode(prompt).length;
-  const capitalised = (l: string) => l[0]!.toUpperCase() + l.slice(1);
 
   // Fast path: one pass, when every spelling of every label starts with its own token.
-  const firsts = labels.map((l) => [...new Set([` ${l}`, ` ${capitalised(l)}`].map((w) => encode(prompt + w)[base]!))]);
+  const firsts = spellings.map((ss) => [...new Set(ss.map((w) => encode(prompt + w)[base]!))]);
   const all = firsts.flat();
   let probs: number[];
   if (new Set(all).size === all.length) {
@@ -98,10 +100,10 @@ async function ask(requestId: number, content: string, labels: string[]): Promis
     const row = data.subarray((rows - 1) * vocab, rows * vocab);
     probs = labelProbabilities(firsts.map((ids) => logProbs(row, ids)));
   } else {
-    // Otherwise score each label's whole spelling, one pass per label.
+    // Otherwise score each label's first spelling in full, one pass per label.
     const scores: number[][] = [];
-    for (const label of labels) {
-      const text = `${prompt} ${label}`;
+    for (const [spelling] of spellings) {
+      const text = prompt + spelling!;
       const ids = encode(text);
       const { vocab, data } = await forward(text, false);
       let total = 0;
@@ -115,17 +117,34 @@ async function ask(requestId: number, content: string, labels: string[]): Promis
   post({ type: "answer", requestId, probs, ms: performance.now() - started });
 }
 
+async function generate(requestId: number, content: string, maxTokens: number): Promise<void> {
+  const started = performance.now();
+  const inputs = tokenizer!(chatPrompt(content), { add_special_tokens: false }) as Record<string, Tensor>;
+  const output = (await model!.generate({ ...inputs, max_new_tokens: maxTokens, do_sample: false })) as Tensor;
+  const ids = Array.from(output.data as BigInt64Array, Number).slice(inputs.input_ids!.dims[1]);
+  post({ type: "text", requestId, text: tokenizer!.decode(ids, { skip_special_tokens: true }), ms: performance.now() - started });
+}
+
 // One request at a time, in order.
 let queue = Promise.resolve();
 self.onmessage = (event: MessageEvent<ToLlmWorker>) => {
   const m = event.data;
   queue = queue
-    .then(() => (m.type === "load" ? load(m.model) : ask(m.requestId, m.content, m.labels)))
+    .then(() => {
+      switch (m.type) {
+        case "load":
+          return load(m.model);
+        case "ask":
+          return ask(m.requestId, m.content, m.prefill, m.spellings);
+        case "generate":
+          return generate(m.requestId, m.content, m.maxTokens);
+      }
+    })
     .catch((err: unknown) =>
       post({
         type: "error",
         message: err instanceof Error ? err.message : String(err),
-        requestId: m.type === "ask" ? m.requestId : undefined,
+        requestId: m.type === "load" ? undefined : m.requestId,
       }),
     );
 };

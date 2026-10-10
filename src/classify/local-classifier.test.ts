@@ -72,6 +72,9 @@ test("an LLM's 'fight over' ends combat even when the embeddings still hear a fi
   assert.match(over.reason, /fight over \(98%\)/);
   const ongoing = classifyFromScores(...embeddings, { intensity: "combat" }, { ...llm("tavern", "combat"), fightOver: 0.1 });
   assert.equal(ongoing.intensity, "combat");
+  // A coin toss isn't an answer.
+  const tie = classifyFromScores(...embeddings, { intensity: "combat" }, { ...llm("tavern", "combat"), fightOver: 0.5 });
+  assert.equal(tie.intensity, "combat");
   // Only during a fight.
   const calm = classifyFromScores(...embeddings, { intensity: "calm" }, { ...llm("tavern", "calm"), fightOver: 0.98 });
   assert.equal(calm.intensity, "combat");

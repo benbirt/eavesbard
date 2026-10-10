@@ -139,6 +139,31 @@ copy_to_directory(
     visibility = ["//visibility:public"],
 )
 
+# The LLM evaluation page (experiment E9), alongside the site; not deployed.
+# Run with experiments/e9/browser-eval.mjs.
+esbuild(
+    name = "llm_eval",
+    srcs = [":app"],
+    entry_point = "eval/llm-eval.js",
+    format = "esm",
+    output = "llm-eval.js",
+    target = "chrome120",
+)
+
+copy_to_directory(
+    name = "eval_site",
+    srcs = [
+        "eval/llm-eval.html",
+        ":capture_worklet",
+        ":embed_worker",
+        ":llm_eval",
+        ":llm_worker",
+        ":ort",
+        ":stt_worker",
+    ],
+    replace_prefixes = {"eval/": ""},
+)
+
 ts_tests(
     name = "tests",
     srcs = TESTS,

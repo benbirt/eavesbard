@@ -141,8 +141,8 @@ export const LLM_WEIGHT = { setting: 0.5, intensity: 0.25 };
 /** LLM answers are nearly always 0% or 100%; this softens them before blending. */
 export const LLM_TEMPERATURE = 3;
 /**
- * During a fight, the LLM's "is it over?" answer ends it on its own at this
- * probability. It never ended a fight that was still going in the test sets,
+ * During a fight, the LLM's "is it over?" answer ends it on its own above
+ * this probability. It never ended a fight that was still going in the test sets,
  * whereas the embeddings read "combat over" as combat.
  */
 export const FIGHT_OVER_THRESHOLD = 0.5;
@@ -201,7 +201,7 @@ function blend(
     (Object.entries(d) as [L, number][]).reduce((x, y) => (y[1] > x[1] ? y : x))[0];
   const llmSaid = `${llm.model}: ${top(llm.setting)}, ${top(llm.intensity)}`;
 
-  if (current.intensity === "combat" && llm.fightOver !== undefined && llm.fightOver >= FIGHT_OVER_THRESHOLD) {
+  if (current.intensity === "combat" && llm.fightOver !== undefined && llm.fightOver > FIGHT_OVER_THRESHOLD) {
     const after = best(intensities.filter((x) => x.label !== "combat"));
     return {
       setting: setting.label,

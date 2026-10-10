@@ -102,7 +102,18 @@ export const ANSWER_PREFIX = "Answer:";
 /** Turns logits for the label alternatives into probabilities that sum to 1. */
 export function labelProbabilities(logProbs: number[][]): number[] {
   // Each label may have several spellings (" dungeon", " Dungeon"): add their probabilities.
-  const mass = logProbs.map((alternatives) => alternatives.reduce((sum, lp) => sum + Math.exp(lp), 0));
+  const perLabel = logProbs.map(logSumExp);
+  // NaN or infinite logits (e.g. 16-bit activations overflowing) mean the
+  // model's answer is meaningless: fail rather than return a tie.
+  if (perLabel.some((x) => !Number.isFinite(x))) throw new Error("the model produced invalid numbers (NaN or infinity)");
+  const top = Math.max(...perLabel);
+  const mass = perLabel.map((x) => Math.exp(x - top));
   const total = mass.reduce((a, b) => a + b, 0);
-  return total > 0 ? mass.map((m) => m / total) : mass.map(() => 1 / mass.length);
+  return mass.map((m) => m / total);
+}
+
+function logSumExp(xs: number[]): number {
+  const top = Math.max(...xs);
+  if (!Number.isFinite(top)) return top;
+  return top + Math.log(xs.reduce((sum, x) => sum + Math.exp(x - top), 0));
 }

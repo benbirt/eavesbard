@@ -1,3 +1,4 @@
 node_modules/
 embed-cache.json
 dists-*.json
+.chrome-profile/
