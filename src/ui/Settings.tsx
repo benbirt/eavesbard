@@ -1,9 +1,9 @@
 import { useState } from "preact/hooks";
 import { auto, compare, engine, setAuto, setCompare, setEngine } from "../director.js";
-import { EMBEDDING_DOWNLOAD_MB } from "../pick/embed-protocol.js";
 import type { Engine } from "../timeline.js";
 import { loadApiKey, saveApiKey } from "../settings.js";
 import { SpeechModelChooser } from "./Listening.js";
+import { SceneLlmChooser } from "./SceneLlm.js";
 
 export function Settings() {
   const [apiKey, setApiKey] = useState(loadApiKey);
@@ -45,16 +45,17 @@ export function Settings() {
           automatically from what's said
         </label>
         <p class="muted">
-          While a session runs, the last two and a half minutes of transcript are sent to Anthropic every 15 seconds to
-          work out the scene. Let the table know.
+          Whenever Claude is used (as the model, or alongside for comparison, with an API key), the last two and a half
+          minutes of transcript are sent to Anthropic every 15 seconds to work out the scene. Let the table know.
         </p>
         <label>
           Models{" "}
           <select value={engine.value} onChange={(e) => setEngine(e.currentTarget.value as Engine)}>
+            <option value="local">Local: models on this computer, no key or cost (downloaded once)</option>
             <option value="claude">Claude: decides scenes and reads the whole track list (needs the API key)</option>
-            <option value="local">Local: a small model on this computer (downloads about {EMBEDDING_DOWNLOAD_MB} MB once)</option>
           </select>
         </label>
+        <SceneLlmChooser />
         <label>
           <input type="checkbox" checked={compare.value} onChange={(e) => setCompare(e.currentTarget.checked)} /> Also run
           the other models and show their answers, for comparison (Claude only with an API key)

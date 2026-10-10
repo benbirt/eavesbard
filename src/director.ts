@@ -13,6 +13,8 @@ import type { Intensity } from "./library/scenes.js";
 import type { LibraryTrack } from "./library/tag-map.js";
 import { onTranscriptLine, start as startListening, stop as stopListening } from "./listener.js";
 import { LOCAL_MODEL_NAME, localClassify, localModel, prepareLocalModels } from "./local-models.js";
+import { SCENE_LLMS } from "./llm/llm-protocol.js";
+import { prepareSceneLlm, sceneLlmChoice } from "./llm/scene-llm.js";
 import { claudePick } from "./pick/claude-picker.js";
 import { localPick } from "./pick/local-picker.js";
 import type { PickRequest } from "./pick/request.js";
@@ -37,8 +39,8 @@ export interface SessionCost {
 
 /** Whether listening drives the music. */
 export const auto = signal(loadSetting("auto") !== "off");
-/** The chosen engine; Claude falls back to local without an API key. */
-export const engine = signal<Engine>(loadSetting("engine") === "local" ? "local" : "claude");
+/** The chosen engine, local by default; Claude falls back to local without an API key. */
+export const engine = signal<Engine>(loadSetting("engine") === "claude" ? "claude" : "local");
 /** Whether the other engine also runs, for comparison (Claude only with an API key). */
 export const compare = signal(loadSetting("compare") !== "off");
 /** The opening-scene description, remembered between visits. */
@@ -74,7 +76,19 @@ export const ENGINE_NAMES: Record<Engine, string> = { claude: "Claude", local: "
 // Start downloading the local model as soon as the page opens if it will be
 // needed, so it's ready by the time a session starts.
 if (auto.value && (effectiveEngine() === "local" || compare.value)) {
-  setTimeout(() => prepareLocalModels().catch(() => undefined), 1000);
+  setTimeout(prepareLocal, 1000);
+}
+
+/** Starts the local models downloading: embeddings, and the helper LLM if chosen. */
+function prepareLocal(): void {
+  prepareLocalModels().catch(() => undefined);
+  if (sceneLlmChoice.value !== "none") {
+    prepareSceneLlm().catch((err: unknown) => {
+      if (sessionActive.value) {
+        record({ kind: "error", text: `The scene LLM couldn't load, so the embeddings decide alone: ${err instanceof Error ? err.message : String(err)}` });
+      }
+    });
+  }
 }
 
 const buffer = new TranscriptBuffer();
@@ -141,7 +155,17 @@ async function startAuto(opening: string): Promise<void> {
       (engine.value === "claude" && primary === "local" ? " (no Anthropic API key, so local models are used)" : "") +
       (other ? `; ${ENGINE_NAMES[other].toLowerCase()} runs alongside for comparison.` : "."),
   });
-  if (primary === "local" || other === "local") prepareLocalModels().catch(() => undefined);
+  if (primary === "local" || other === "local") {
+    prepareLocal();
+    const llm = sceneLlmChoice.value;
+    record({
+      kind: "session",
+      text:
+        llm === "none"
+          ? "Local scene checks use the embedding model alone."
+          : `Local scene checks blend the embedding model with ${SCENE_LLMS[llm].name}, once it has downloaded.`,
+    });
+  }
 
   // The opening scene: from the description if there is one, else the default.
   let start: Parameters<typeof initialScene>[1];
@@ -242,7 +266,7 @@ async function checkScene(
       "description" in input ? input : { lines: input.lines.map((l) => l.text), current: input.scene },
     );
     userText = result.queryText;
-    record({ kind: "call", purpose, model, comparison, userText, result: result.classification, latencyMs: result.latencyMs, costUsd: 0 });
+    record({ kind: "call", purpose, model: result.model, comparison, userText, result: result.classification, latencyMs: result.latencyMs, costUsd: 0 });
     return result.classification;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

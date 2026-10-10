@@ -20,6 +20,7 @@ import { pendingChanges } from "../scene/state-machine.js";
 import { nowPlaying, playbackPosition } from "../player.js";
 import { loadApiKey } from "../settings.js";
 import { localModel } from "../local-models.js";
+import { SceneLlmStatus } from "./SceneLlm.js";
 import { ListeningStatus } from "./Listening.js";
 import { OutputChooser } from "./Playback.js";
 
@@ -136,6 +137,7 @@ function NowStrip() {
           </span>
         )}
       </p>
+      <SceneLlmStatus />
       <button onClick={stopSession}>Stop session</button>
     </div>
   );

@@ -62,6 +62,17 @@ esbuild(
     target = "chrome120",
 )
 
+esbuild(
+    name = "llm_worker",
+    srcs = [":app"],
+    entry_point = "llm/llm-worker.js",
+    format = "esm",
+    minify = True,
+    output = "llm-worker.js",
+    sourcemap = "linked",
+    target = "chrome120",
+)
+
 # The local classifier's scenario evaluation, for tuning; not deployed.
 esbuild(
     name = "local_eval",
@@ -86,6 +97,7 @@ SCRIPTS = [
     "main.js",
     "stt-worker.js",
     "embed-worker.js",
+    "llm-worker.js",
     "capture-worklet.js",
 ]
 
@@ -118,6 +130,7 @@ copy_to_directory(
         ":bundle",
         ":capture_worklet",
         ":embed_worker",
+        ":llm_worker",
         ":ort",
         ":stamped_html",
         ":stt_worker",

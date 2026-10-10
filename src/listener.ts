@@ -5,7 +5,8 @@ import { signal } from "@preact/signals";
 import { assetUrl } from "./assets.js";
 import { startMic, type Mic } from "./audio/mic.js";
 import { loadSetting, saveSetting } from "./settings.js";
-import { WHISPER_MODELS, type FromWorker, type ToWorker, type WhisperModel } from "./stt/protocol.js";
+import { isWebSpeech, SPEECH_MODELS, type FromWorker, type SpeechModel, type ToWorker, type WhisperModel } from "./stt/protocol.js";
+import { startWebSpeech } from "./stt/web-speech.js";
 import { record } from "./timeline.js";
 
 export type ListenState =
@@ -28,8 +29,8 @@ export interface TranscriptLine {
 export type WakeLockState = "off" | "held" | "lost" | "unsupported";
 
 const savedModel = loadSetting("whisperModel");
-export const model = signal<WhisperModel>(
-  (WHISPER_MODELS as readonly string[]).includes(savedModel ?? "") ? (savedModel as WhisperModel) : "base.en",
+export const model = signal<SpeechModel>(
+  (SPEECH_MODELS as readonly string[]).includes(savedModel ?? "") ? (savedModel as SpeechModel) : "base.en",
 );
 export const state = signal<ListenState>({ phase: "idle" });
 export const speaking = signal(false);
@@ -40,12 +41,13 @@ export const wakeLock = signal<WakeLockState>("off");
 let worker: Worker | undefined;
 let workerModel: WhisperModel | undefined;
 let mic: Mic | undefined;
+let webSpeech: { stop(): void } | undefined;
 let startedAt = 0;
 let nextId = 0;
 let ready: (() => void) | undefined;
 let failed: ((err: Error) => void) | undefined;
 
-export function setModel(next: WhisperModel): void {
+export function setModel(next: SpeechModel): void {
   model.value = next;
   saveSetting("whisperModel", next);
 }
@@ -109,11 +111,11 @@ function onMessage(message: FromWorker): void {
 }
 
 /** Starts (or reuses) the worker with the chosen model and waits until it's ready. */
-function loadWorker(): Promise<void> {
-  if (worker && workerModel === model.value) return Promise.resolve();
+function loadWorker(whisper: WhisperModel): Promise<void> {
+  if (worker && workerModel === whisper) return Promise.resolve();
   worker?.terminate();
   worker = new Worker(assetUrl("stt-worker.js"), { type: "module" });
-  workerModel = model.value;
+  workerModel = whisper;
   worker.onmessage = (e: MessageEvent<FromWorker>) => onMessage(e.data);
   worker.onerror = (e) => failed?.(new Error(e.message || "The speech-to-text worker failed to start"));
   const loaded = new Promise<void>((resolve, reject) => {
@@ -124,7 +126,7 @@ function loadWorker(): Promise<void> {
       reject(err);
     };
   });
-  send({ type: "load", model: model.value });
+  send({ type: "load", model: whisper });
   return loaded;
 }
 
@@ -135,16 +137,21 @@ async function hasWebGpu(): Promise<boolean> {
 
 export async function start(): Promise<void> {
   if (state.value.phase === "loading" || state.value.phase === "listening") return;
+  const chosen = model.value;
   try {
-    if (!(await hasWebGpu())) {
-      throw new Error("This browser has no WebGPU, which speech-to-text needs. Use an up-to-date desktop Chrome.");
+    if (isWebSpeech(chosen)) {
+      await startBrowserSpeech(chosen === "webspeech-device");
+    } else {
+      if (!(await hasWebGpu())) {
+        throw new Error("This browser has no WebGPU, which Whisper needs. Use an up-to-date Chrome, or try Web Speech.");
+      }
+      state.value = { phase: "loading", loaded: 0, total: 0, preparing: false };
+      await loadWorker(chosen);
+      startedAt = Date.now();
+      mic = await startMic((frame) => send({ type: "audio", samples: frame }, [frame.buffer]));
+      state.value = { phase: "listening" };
+      record({ kind: "session", text: `Listening (Whisper ${chosen}).` });
     }
-    state.value = { phase: "loading", loaded: 0, total: 0, preparing: false };
-    await loadWorker();
-    startedAt = Date.now();
-    mic = await startMic((frame) => send({ type: "audio", samples: frame }, [frame.buffer]));
-    state.value = { phase: "listening" };
-    record({ kind: "session", text: `Listening (Whisper ${model.value}).` });
     await holdWakeLock();
   } catch (err) {
     mic?.stop();
@@ -154,9 +161,31 @@ export async function start(): Promise<void> {
   }
 }
 
+/** Listens with the browser's Web Speech API instead of Whisper. */
+async function startBrowserSpeech(onDevice: boolean): Promise<void> {
+  state.value = { phase: "loading", loaded: 0, total: 0, preparing: true };
+  webSpeech = await startWebSpeech(onDevice, {
+    onLine: (text, started, ended) => addLine({ time: new Date(started), text, durationS: (ended - started) / 1000 }),
+    onSpeaking: (on) => (speaking.value = on),
+    onInstalling: () => record({ kind: "session", text: "The browser is downloading its on-device speech model…" }),
+    onFatal: (message) => {
+      webSpeech = undefined;
+      speaking.value = false;
+      state.value = { phase: "error", message };
+      record({ kind: "error", text: `Speech-to-text: ${message}` });
+      void releaseWakeLock();
+    },
+  });
+  if (state.value.phase !== "loading") return; // Failed straight away.
+  state.value = { phase: "listening" };
+  record({ kind: "session", text: `Listening (Web Speech, ${onDevice ? "on-device" : "cloud"}).` });
+}
+
 export function stop(): void {
   mic?.stop();
   mic = undefined;
+  webSpeech?.stop();
+  webSpeech = undefined;
   send({ type: "flush" });
   speaking.value = false;
   if (state.value.phase !== "error") state.value = { phase: "idle" };

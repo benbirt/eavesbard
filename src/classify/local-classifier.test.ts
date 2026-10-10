@@ -32,6 +32,37 @@ test("weak similarity to every setting means unknown", () => {
   assert.equal(c.setting, "unknown");
 });
 
+const llm = (setting: string, intensity: string) => ({
+  model: "test llm",
+  setting: { tavern: 0, town: 0, interior: 0, wilderness: 0, dungeon: 0, travel: 0, [setting]: 1 },
+  intensity: { calm: 0, tense: 0, combat: 0, [intensity]: 1 },
+});
+
+test("an LLM answer is blended in: it can settle the setting but not overrule a clear fight", () => {
+  // Embeddings: unsure between tavern and town, sure of combat. LLM: town, calm.
+  const c = classifyFromScores(
+    scores([["tavern", 0.61], ["town", 0.6]]),
+    scores([["calm", 0.5], ["combat", 0.7]]),
+    { intensity: "calm" },
+    llm("town", "calm"),
+  );
+  assert.equal(c.setting, "town");
+  assert.equal(c.intensity, "combat");
+  assert.match(c.reason, /test llm: town, calm/);
+});
+
+test("with an LLM, a weak setting match isn't unknown, and off-topic still keeps the intensity", () => {
+  const c = classifyFromScores(
+    scores([["tavern", 0.3], ["dungeon", 0.29]]),
+    scores([["combat", 0.5], ["offtopic", 0.7]]),
+    { intensity: "tense" },
+    llm("dungeon", "combat"),
+  );
+  assert.equal(c.setting, "dungeon");
+  assert.equal(c.intensity, "tense");
+  assert.equal(c.intensityConfidence, 0);
+});
+
 test("lastWords and latest keep the end of the transcript", () => {
   assert.equal(lastWords(["one two", "three four five"], 3), "three four five");
   assert.equal(latest(["old line", "two", "three"]), "two three");

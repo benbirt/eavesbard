@@ -155,6 +155,7 @@ The file also records when it was generated. Filenames are kept exactly as the s
 - **Output:** text chunks with start and end timestamps, appended to the transcript buffer.
 - **Scope:** no speaker diarisation. We don't need to know who said what.
 - **Model choice:** a trade-off of latency against accuracy (see experiment E5). Start with the smallest English model that keeps up in real time.
+- **Web Speech alternative** (`src/stt/web-speech.ts`): the speech-model menu also offers the browser's own Web Speech API, in two modes. *Cloud* is the API's default; Chrome sends the audio to Google's servers, so the page warns that the table should know. *On-device* sets `processLocally` and, if needed, asks the browser to install its English language pack first (`SpeechRecognition.available()` / `install()`). Both are built for Chrome; the page warns that other browsers may not work. Recognition restarts itself whenever the browser ends it after a silence, and gives up if it keeps ending straight away. There's no download from us and no hallucination filter (Web Speech doesn't invent text from music the way Whisper does). Whisper stays the default: it works the same everywhere WebGPU does, and its segmenting is under our control. Web Speech is there to compare on real devices.
 - **Visible tab:** for now the app requires its tab to stay visible while listening, because Chrome throttles timers in hidden tabs. E10 checks whether that is enough.
 
 ### 7.3 Transcript buffer
@@ -186,8 +187,14 @@ Two kinds of keyword trigger were tried and dropped; the classifier now simply r
 - **Rough cost:** each call is about 1,000 tokens of input (mostly the cached system prompt) and a few hundred of output including thinking, so roughly $0.0001 to $0.0003. A four-hour session makes at most about 960 calls: roughly 10 to 30 cents.
 - **Failures:** on an API error or invalid JSON, log the failure and keep the current scene. Never crash playback.
 - **Local alternative** (`src/classify/local-classifier.ts`, `src/local-models.ts`; a first version of experiment E9b): the embedding model used for local track search (7.7) also scores the transcript against short, table-talk-like descriptions of each setting and intensity, plus an "off-topic" group (rules lookups, food, scheduling). Each label scores its best-matching description, and a softmax over labels gives the confidence. The setting is judged from the last 150 words; the intensity from the last two lines (at most 30 words), since a fight that just ended still fills the earlier lines. Setting similarities below 0.54 mean unknown; an off-topic win makes the intensity ignorable. Milliseconds per check, no key, no cost.
+  - **Helper LLM** (Setup → Local scene model; experiment E9): a small instruction model on WebGPU (`src/llm/`), blended with the embeddings. The choices are none (embeddings only) and Gemma 3 4B. Gemma is a one-off download of about 2.8 GB, or 3.2 GB on GPUs without 16-bit floats, which get the q4 rather than the q4f16 files; it's cached afterwards. It's the default where there's WebGPU and the browser reports at least 8 GB of memory. Qwen3 1.7B scored nearly as well at half the size, but onnx-community's single-file build is too big for ONNX Runtime Web to load; it can be offered once a re-packed copy is hosted (E9).
+    - Each scene check asks two questions (`src/classify/llm-prompt.ts`): where the characters are, and how intense the scene is. Each gives the transcript (150 or 60 words), the current scene with "keep that answer unless the transcript shows it has changed", and the labels with one-line meanings.
+    - Nothing is generated: one forward pass after "Answer:" gives each label's probability (adding " dungeon" and " Dungeon").
+    - The blend averages probabilities: setting half and half, intensity 75% embeddings and 25% LLM. It keeps the embeddings' off-topic rule but not their "unknown setting" rule.
+    - On the held-out test set this gets 74% of scenes fully right with Gemma (70% with Qwen3), against 63% for the embeddings alone.
+    - Until the model has downloaded, or if it fails, the embeddings decide alone; the timeline names the models behind each answer.
   - **Scenario check:** `src/eval/scenarios.ts` holds 17 scripted scenes (openings, tavern chat, travel, sneaking, fights starting and ending, rules talk) shared with `scripts/classifier-check.ts`. `//src:local_eval` runs them through the local classifier in a browser. After tuning the descriptions: 16 of 17 as expected (the miss: "sneaking through the goblin warren" read as combat rather than tense). The set is small and was used for tuning, so real sessions are the real test.
-- **Which engine decides** (Setup → Models): Claude or Local, for both scene checks and track picks. Without an API key, Claude falls back to Local and the timeline says so. By default the other engine also runs on the same input (Claude only with a key) and its answers are recorded as comparisons that change nothing. The local model starts downloading when the page opens if it will be needed.
+- **Which engine decides** (Setup → Models): Local (the default) or Claude, for both scene checks and track picks. Without an API key, Claude falls back to Local and the timeline says so. By default the other engine also runs on the same input (Claude only with a key) and its answers are recorded as comparisons that change nothing. The local model starts downloading when the page opens if it will be needed.
 
 ### 7.6 Scene state machine
 
@@ -265,10 +272,10 @@ Entries are written to IndexedDB as they happen. Buttons export the current sess
   - what's pending ("→ calm (1 of 2)", "combat stays at least 40 s more");
   - a countdown to the next classifier check, or "next check when there's new speech", or "Asking Claude…";
   - the playing track with a progress bar;
-  - listening status (model download progress, hearing speech), wake lock, and the session's classifier calls and cost;
+  - listening status (model download progress, hearing speech), wake lock, the helper LLM's download progress, and the session's classifier calls and cost;
   - Stop session.
 - **Timeline** (7.9), newest first, with tick boxes to show or hide speech, Claude calls, decisions and music, plus dropped speech. Each call can be expanded to show exactly what was sent.
-- **Setup** (collapsed): API key, automatic music on or off with the privacy note, Models (Claude or Local, for scene checks and track picks) and whether to run the other for comparison, and the Whisper model.
+- **Setup** (collapsed): API key, automatic music on or off with the privacy note, Models (Local or Claude, for scene checks and track picks) and whether to run the other for comparison, the local scene model (embeddings alone, or with Gemma 3 4B), and the speech model (Whisper sizes, or Web Speech on-device or cloud).
 - **Pick tracks yourself** (collapsed): the manual track picker, transport controls and the raw playback log.
 - **Attribution footer:** "Ambiences by Tabletop Audio (tabletopaudio.com), CC BY-NC-ND 4.0", with links, and a link to the source code. The current track's title, shown in the Now strip, completes the per-work attribution.
 - **Wake lock:** held while listening, re-requested when the tab becomes visible again, with a warning when lost (7.2, section 4).
@@ -298,7 +305,8 @@ Suggested layout:
 /src               app entry point (app.tsx), index.html, settings, player.ts (playback state and actions)
 /src/library       index format and validation, tag mapping and index build
 /src/audio         mic capture, VAD
-/src/stt           Whisper (transformers.js) wrapper
+/src/stt           Whisper (transformers.js) wrapper; Web Speech alternative
+/src/llm           helper LLM for local scene checks (WebGPU worker)
 /src/classify      Claude classifier (Anthropic SDK), prompt, cost; local (embedding) classifier
 /src/scene         transcript buffer, state machine, track selector
 /src/pick          track choosers: Claude (whole track list), local embedding search (worker)
@@ -355,7 +363,7 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 - **E9a — WebLLM:** small instruction models (around 1 to 3B parameters) with JSON-constrained output.
 - **E9b — Embeddings:** a small sentence-embedding model via transformers.js, comparing the transcript window against embedded label descriptions. No generative model is involved. Already used for choosing tracks (7.7); the timeline's comparisons with Claude's picks are its first data.
 - **E9c — Chrome's built-in Prompt API (Gemini Nano):** only if it is available to ordinary web pages at the time of testing.
-- **First round** ([experiments/E9.md](experiments/E9.md)): scored offline against a held-out set of 108 hand-labelled scenes (`src/eval/test-set.ts`) rather than Haiku logs. The current classifier gets 63% of scenes fully right. Nearest-track voting gets 38%, and zero-shot NLI models up to 51%. Small LLMs under 1B parameters score near chance. Qwen3-1.7B gets 61% and Gemma 3 4B 60%. Blending an LLM with the current classifier reaches 70% (Qwen3-1.7B) to 74% (Gemma 3 4B).
+- **First round** ([experiments/E9.md](experiments/E9.md)): scored offline against a held-out set of 108 hand-labelled scenes (`src/eval/test-set.ts`) rather than Haiku logs. The current classifier gets 63% of scenes fully right. Nearest-track voting gets 38%, and zero-shot NLI models up to 51%. Small LLMs under 1B parameters score near chance. Qwen3-1.7B gets 61% and Gemma 3 4B 60%. Blending an LLM with the current classifier reaches 70% (Qwen3-1.7B) to 74% (Gemma 3 4B). Adopted with Gemma 3 4B as the default helper on capable machines (7.5); Qwen3 1.7B's single-file build doesn't load in the browser yet.
 
 **E10 — Browser behaviour over a full session.** On a Mac with default power and lock settings, left untouched, check:
 - that the wake lock holds, and the display, screensaver and auto-lock never kick in, with both local and Cast output;

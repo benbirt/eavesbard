@@ -1,22 +1,36 @@
 import { model, setModel, speaking, state, wakeLock } from "../listener.js";
-import { WHISPER_DOWNLOAD_MB, WHISPER_MODELS, type WhisperModel } from "../stt/protocol.js";
+import { isWebSpeech, WHISPER_DOWNLOAD_MB, WHISPER_MODELS, type SpeechModel } from "../stt/protocol.js";
+import { hasWebSpeech } from "../stt/web-speech.js";
 
 const MB = 1e6;
 
-/** Chooses the Whisper model (in the setup section). */
+/** Chooses the speech-to-text model (in the setup section). */
 export function SpeechModelChooser() {
   const active = state.value.phase === "loading" || state.value.phase === "listening";
+  const m = model.value;
   return (
     <label>
       Speech model{" "}
-      <select value={model.value} disabled={active} onChange={(e) => setModel(e.currentTarget.value as WhisperModel)}>
-        {WHISPER_MODELS.map((m) => (
-          <option key={m} value={m}>
-            Whisper {m} (about {WHISPER_DOWNLOAD_MB[m]} MB)
+      <select value={m} disabled={active} onChange={(e) => setModel(e.currentTarget.value as SpeechModel)}>
+        {WHISPER_MODELS.map((w) => (
+          <option key={w} value={w}>
+            Whisper {w} (about {WHISPER_DOWNLOAD_MB[w]} MB, on this computer)
           </option>
         ))}
+        <option value="webspeech-device">Web Speech, on-device (built into the browser; Chrome only)</option>
+        <option value="webspeech-cloud">Web Speech, cloud (audio goes to the browser's maker, e.g. Google)</option>
       </select>{" "}
-      <span class="muted">Bigger is more accurate but slower. Downloaded once, then cached.</span>
+      {isWebSpeech(m) ? (
+        <span class="warning">
+          {hasWebSpeech ? "" : "This browser has no Web Speech recognition. "}
+          Web Speech is designed for Chrome; other browsers may not work.
+          {m === "webspeech-cloud"
+            ? " In this mode the browser sends what the microphone hears to its maker's servers: let the table know."
+            : " On-device mode needs a recent Chrome, which may download its own speech model first."}
+        </span>
+      ) : (
+        <span class="muted">Bigger is more accurate but slower. Downloaded once, then cached.</span>
+      )}
     </label>
   );
 }
@@ -24,7 +38,9 @@ export function SpeechModelChooser() {
 function LoadingProgress({ loaded, total, preparing }: { loaded: number; total: number; preparing: boolean }) {
   // Files report their sizes only as each download starts, so until the big
   // ones begin, use the expected size to keep the bar from jumping backwards.
-  const max = Math.max(total, WHISPER_DOWNLOAD_MB[model.value] * MB);
+  const m = model.value;
+  if (isWebSpeech(m)) return <p class="muted">Starting the browser's speech recognition…</p>;
+  const max = Math.max(total, WHISPER_DOWNLOAD_MB[m] * MB);
   return (
     <div class="progress">
       {/* No value: an indeterminate bar while the GPU setup runs. */}

@@ -6,6 +6,13 @@ export type WhisperModel = (typeof WHISPER_MODELS)[number];
 /** Approximate one-off download sizes, for the model chooser. */
 export const WHISPER_DOWNLOAD_MB: Record<WhisperModel, number> = { "tiny.en": 120, "base.en": 205, "small.en": 590 };
 
+/** Speech-to-text choices: Whisper here, or the browser's own Web Speech recognition. */
+export const WEB_SPEECH_MODES = ["webspeech-device", "webspeech-cloud"] as const;
+export type WebSpeechMode = (typeof WEB_SPEECH_MODES)[number];
+export type SpeechModel = WhisperModel | WebSpeechMode;
+export const SPEECH_MODELS: readonly SpeechModel[] = [...WHISPER_MODELS, ...WEB_SPEECH_MODES];
+export const isWebSpeech = (m: SpeechModel): m is WebSpeechMode => (WEB_SPEECH_MODES as readonly string[]).includes(m);
+
 export type ToWorker =
   /** Load the models. Must come first. */
   | { type: "load"; model: WhisperModel }

@@ -109,7 +109,7 @@ const MIN_SETTING_SIMILARITY = 0.54;
 export function scoreAxis<L extends string>(
   labels: readonly L[],
   scores: ReadonlyMap<string, number>,
-): { label: L; confidence: number; similarity: number } {
+): { label: L; confidence: number; similarity: number; probs: Record<L, number> } {
   const best = labels.map((label) => {
     let top = -1;
     for (const [key, score] of scores) if (key.startsWith(`label:${label}:`) && score > top) top = score;
@@ -119,19 +119,39 @@ export function scoreAxis<L extends string>(
   const weights = best.map((b) => Math.exp((b.top - max) / TEMPERATURE));
   const total = weights.reduce((a, b) => a + b, 0);
   const winner = best.reduce((a, b) => (b.top > a.top ? b : a));
-  return { label: winner.label, confidence: Math.exp(0) / total, similarity: winner.top };
+  const probs = Object.fromEntries(best.map((b, i) => [b.label, weights[i]! / total])) as Record<L, number>;
+  return { label: winner.label, confidence: Math.exp(0) / total, similarity: winner.top, probs };
 }
 
-/** Combines the two axes' scores into a classification. */
+/** An LLM's answer probabilities for each axis (see llm-prompt.ts). */
+export interface LlmAnswer {
+  model: string;
+  setting: Record<Setting, number>;
+  intensity: Record<Intensity, number>;
+}
+
+/**
+ * How much the LLM counts in a blend, per axis. Chosen on the DEV scenarios
+ * and checked on the held-out set (experiments/E9.md): the LLM is better at
+ * settings, the embeddings at spotting a fight.
+ */
+export const LLM_WEIGHT = { setting: 0.5, intensity: 0.25 };
+
+/**
+ * Combines the two axes' scores into a classification, blended with an
+ * LLM's answer if there is one.
+ */
 export function classifyFromScores(
   settingScores: ReadonlyMap<string, number>,
   intensityScores: ReadonlyMap<string, number>,
   current: { intensity: Intensity },
+  llm?: LlmAnswer,
 ): Classification {
   const s = scoreAxis(LABEL_GROUPS.setting, settingScores);
   const i = scoreAxis(LABEL_GROUPS.intensity, intensityScores);
-  const settingUnknown = s.similarity < MIN_SETTING_SIMILARITY;
   const offtopic = i.label === "offtopic";
+  if (llm) return blend(s, i, llm, current, offtopic);
+  const settingUnknown = s.similarity < MIN_SETTING_SIMILARITY;
   return {
     setting: settingUnknown ? "unknown" : (s.label as Setting),
     settingConfidence: settingUnknown ? 0 : s.confidence,
@@ -141,6 +161,34 @@ export function classifyFromScores(
     reason:
       `closest descriptions: ${s.label} (similarity ${s.similarity.toFixed(2)}), ` +
       `${i.label} (similarity ${i.similarity.toFixed(2)})`,
+  };
+}
+
+function blend(
+  s: ReturnType<typeof scoreAxis<Setting>>,
+  i: ReturnType<typeof scoreAxis<Intensity | "offtopic">>,
+  llm: LlmAnswer,
+  current: { intensity: Intensity },
+  offtopic: boolean,
+): Classification {
+  const mix = <L extends string>(labels: readonly L[], a: Record<L, number>, b: Record<L, number>, w: number) =>
+    labels
+      .map((label) => ({ label, p: (1 - w) * a[label] + w * b[label] }))
+      .reduce((x, y) => (y.p > x.p ? y : x));
+  // No "unknown" setting here: the LLM is told the current scene and keeps it when nothing changed.
+  const setting = mix(SETTINGS, s.probs, llm.setting, LLM_WEIGHT.setting);
+  const intensity = mix(INTENSITIES, i.probs, llm.intensity, LLM_WEIGHT.intensity);
+  const top = <L extends string>(d: Record<L, number>) =>
+    (Object.entries(d) as [L, number][]).reduce((x, y) => (y[1] > x[1] ? y : x))[0];
+  return {
+    setting: setting.label,
+    settingConfidence: setting.p,
+    // Table talk: keep the current intensity, with a confidence low enough to be ignored.
+    intensity: offtopic ? current.intensity : intensity.label,
+    intensityConfidence: offtopic ? 0 : intensity.p,
+    reason:
+      `embeddings: ${s.label}, ${i.label}; ${llm.model}: ${top(llm.setting)}, ${top(llm.intensity)}; ` +
+      `blended: ${setting.label}, ${offtopic ? "off-topic" : intensity.label}`,
   };
 }
 
