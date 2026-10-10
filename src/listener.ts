@@ -4,6 +4,7 @@
 import { signal } from "@preact/signals";
 import { assetUrl } from "./assets.js";
 import { startMic, type Mic } from "./audio/mic.js";
+import { gpuAdapter } from "./gpu.js";
 import { loadSetting, saveSetting } from "./settings.js";
 import { isWebSpeech, SPEECH_MODELS, type FromWorker, type SpeechModel, type ToWorker, type WhisperModel } from "./stt/protocol.js";
 import { startWebSpeech } from "./stt/web-speech.js";
@@ -130,11 +131,6 @@ function loadWorker(whisper: WhisperModel): Promise<void> {
   return loaded;
 }
 
-async function hasWebGpu(): Promise<boolean> {
-  const gpu = (navigator as Navigator & { gpu?: { requestAdapter(): Promise<unknown> } }).gpu;
-  return Boolean(gpu && (await gpu.requestAdapter().catch(() => null)));
-}
-
 export async function start(): Promise<void> {
   if (state.value.phase === "loading" || state.value.phase === "listening") return;
   const chosen = model.value;
@@ -142,7 +138,7 @@ export async function start(): Promise<void> {
     if (isWebSpeech(chosen)) {
       await startBrowserSpeech(chosen === "webspeech-device");
     } else {
-      if (!(await hasWebGpu())) {
+      if (!(await gpuAdapter())) {
         throw new Error("This browser has no WebGPU, which Whisper needs. Use an up-to-date Chrome, or try Web Speech.");
       }
       state.value = { phase: "loading", loaded: 0, total: 0, preparing: false };

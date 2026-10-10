@@ -13,8 +13,9 @@ import type { Intensity } from "./library/scenes.js";
 import type { LibraryTrack } from "./library/tag-map.js";
 import { onTranscriptLine, start as startListening, stop as stopListening } from "./listener.js";
 import { LOCAL_MODEL_NAME, localClassify, localModel, prepareLocalModels } from "./local-models.js";
-import { SCENE_LLMS } from "./llm/llm-protocol.js";
-import { hasWebGpu, prepareSceneLlm, sceneLlmChoice } from "./llm/scene-llm.js";
+import { hasWebGpu } from "./gpu.js";
+import { SCENE_LLM } from "./llm/llm-protocol.js";
+import { prepareSceneLlm } from "./llm/scene-llm.js";
 import { claudePick } from "./pick/claude-picker.js";
 import { localPick } from "./pick/local-picker.js";
 import type { PickRequest } from "./pick/request.js";
@@ -156,7 +157,7 @@ async function startAuto(opening: string): Promise<void> {
   });
   if (primary === "local" || other === "local") {
     prepareLocal();
-    const llm = SCENE_LLMS[sceneLlmChoice.value].name;
+    const llm = SCENE_LLM.name;
     record(
       hasWebGpu
         ? { kind: "session", text: `Local scene checks blend the embedding model with ${llm}, once it has downloaded.` }

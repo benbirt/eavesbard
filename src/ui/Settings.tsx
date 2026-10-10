@@ -3,7 +3,7 @@ import { auto, compare, engine, setAuto, setCompare, setEngine } from "../direct
 import type { Engine } from "../timeline.js";
 import { loadApiKey, saveApiKey } from "../settings.js";
 import { SpeechModelChooser } from "./Listening.js";
-import { SceneLlmChooser } from "./SceneLlm.js";
+import { SceneLlmInfo } from "./SceneLlm.js";
 
 export function Settings() {
   const [apiKey, setApiKey] = useState(loadApiKey);
@@ -55,7 +55,7 @@ export function Settings() {
             <option value="claude">Claude: decides scenes and reads the whole track list (needs the API key)</option>
           </select>
         </label>
-        <SceneLlmChooser />
+        <SceneLlmInfo />
         <label>
           <input type="checkbox" checked={compare.value} onChange={(e) => setCompare(e.currentTarget.checked)} /> Also run
           the other models and show their answers, for comparison (Claude only with an API key)

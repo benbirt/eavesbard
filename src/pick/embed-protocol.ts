@@ -3,7 +3,6 @@
 // share one index.
 
 export const EMBEDDING_MODEL = "Xenova/bge-small-en-v1.5";
-export const EMBEDDING_DOWNLOAD_MB = 34;
 
 export type ToEmbedWorker =
   | { type: "load" }

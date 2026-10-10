@@ -13,6 +13,7 @@ import {
   type PreTrainedTokenizer,
 } from "@huggingface/transformers";
 import { labelProbabilities } from "../classify/llm-prompt.js";
+import { gpuAdapter } from "../gpu.js";
 import type { FromLlmWorker, LlmLoad, ToLlmWorker } from "./llm-protocol.js";
 
 const post = (message: FromLlmWorker) => self.postMessage(message);
@@ -22,7 +23,7 @@ let model: PreTrainedModel | undefined;
 let emptyThought = false;
 
 async function load(spec: LlmLoad): Promise<void> {
-  emptyThought = spec.emptyThought;
+  emptyThought = spec.emptyThought ?? false;
   const files = new Map<string, { loaded: number; total: number }>();
   const progress_callback = (info: { status: string; file?: string; loaded?: number; total?: number }) => {
     if (info.status !== "progress" || !info.file) return;
@@ -49,8 +50,7 @@ async function load(spec: LlmLoad): Promise<void> {
 }
 
 async function hasShaderF16(): Promise<boolean> {
-  const gpu = (navigator as Navigator & { gpu?: { requestAdapter(): Promise<{ features: Set<string> } | null> } }).gpu;
-  const adapter = await gpu?.requestAdapter().catch(() => null);
+  const adapter = await gpuAdapter();
   if (!adapter) throw new Error("no WebGPU adapter");
   return adapter.features.has("shader-f16");
 }

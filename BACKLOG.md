@@ -4,13 +4,8 @@ Work agreed but not started, roughly in order. Design detail lives in DESIGN.md;
 
 ## 1. Repo cleanup
 
-Remove code and docs that belong to superseded versions. Keep experiment infrastructure (`experiments/`, `src/eval/`, `//src:eval_site`).
-
-- Gemma 3 and Qwen leftovers in app code and comments (`emptyThought` exists only for Qwen3; the model list has one entry, so the `SceneLlmChooser` select branch is dead).
-- The old embeddings-only evaluation page (`src/eval/local-eval.ts`, `//src:local_eval`), superseded by `src/eval/llm-eval.ts`.
-- Duplicated helpers, such as the WebGPU check in `listener.ts` and `llm/scene-llm.ts`, and unused exports such as `EMBEDDING_DOWNLOAD_MB`.
-- DESIGN.md: shorten history that no longer describes the app (7.4 keyword triggers, round-1 E9 details now in `experiments/E9.md`) so it reads as the current design.
-- Re-tune the blend (weights, softening temperature, fight-over threshold) for Gemma 4: they were chosen for Gemma 3.
+Done (Gemma 3 and Qwen leftovers, the old embeddings-only evaluation page, duplicated and unused code, and DESIGN.md trimmed to the current design), except:
+- Re-tune the blend (weights, softening temperature, fight-over threshold) for Gemma 4: they were chosen for Gemma 3. Best done alongside the experiments below.
 
 ## 2. Model experiments (E9, round 3)
 
@@ -39,10 +34,7 @@ Two shapes, in order of preference:
 
 - Tidy the layout and settings now that the options have settled. For example, the setup text still carries rationale and numbers that belong in the docs.
 - A proper visual design, ideally with interesting art: for example, a backdrop that changes with the setting and intensity.
-- Art options:
-  - SVG drawn by the LLM: Gemma 4 can only write text, but SVG is text; quality from a 2B model is uncertain.
-  - Art generated once with Claude (or another image model) and committed, one piece per setting and intensity.
-  - Generated live per scene with Claude when there's an API key.
+- Art: an open-licensed library of fantasy illustrations, one or more per setting and intensity, chosen to match the scene. Check each licence allows reuse in a public web app, and credit the artists (alongside Tabletop Audio's attribution). Generated art (including SVG from the LLM) was considered and set aside.
 
 ## Smaller items
 
@@ -50,5 +42,4 @@ Two shapes, in order of preference:
 - Phones: whether Gemma 4 E2B (3.1 GB) plus Whisper fits and keeps up on Android; if not, a lighter default there.
 - Score Claude Haiku on the held-out set as a reference (needs an API key).
 - Grow the held-out set from real session logs, especially fights starting and ending.
-- Qwen3 1.7B needs a re-packed copy hosted to load in the browser; probably not worth it now that Gemma 4 E2B scores better.
 - Remaining design experiments: Cast from desktop Chrome (E1), Whisper model choice and microphones (E5, E6), a full session's browser behaviour (E10).

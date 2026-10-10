@@ -1,27 +1,19 @@
-// Messages between the page and the scene LLM worker, and the models on offer
-// (experiment E9, approach C).
+// Messages between the page and the LLM worker, and the model the app uses
+// (experiment E9).
 
-export const SCENE_LLMS = {
-  "gemma-4-e2b": {
-    name: "Gemma 4 E2B",
-    repo: "onnx-community/gemma-4-E2B-it-ONNX",
-    /** Text only, 4-bit with 16-bit activations; GPUs without 16-bit floats need about 3.6 GB. */
-    downloadMb: 3110,
-    /** Some models (Qwen3) think aloud unless the answer starts with an empty thought. */
-    emptyThought: false,
-  },
-  // Gemma 3 4B was dropped: with 16-bit activations its numbers overflow
-  // (NaN) on Apple GPUs, and Gemma 4 E2B scores better (experiments/E9.md).
-  // Qwen3 1.7B's single-file build is too big for ONNX Runtime Web to load.
-} as const;
-export type SceneLlm = keyof typeof SCENE_LLMS;
-export const SCENE_LLM_IDS = Object.keys(SCENE_LLMS) as SceneLlm[];
+/** The LLM blended with the embeddings in local scene checks (experiments/E9.md). */
+export const SCENE_LLM = {
+  name: "Gemma 4 E2B",
+  repo: "onnx-community/gemma-4-E2B-it-ONNX",
+  /** Text only, 4-bit with 16-bit activations; GPUs without 16-bit floats need about 3.6 GB. */
+  downloadMb: 3110,
+};
 
 /** What the worker needs to load a model. */
 export interface LlmLoad {
   repo: string;
-  /** Some models (Qwen3) think aloud unless the answer starts with an empty thought. */
-  emptyThought: boolean;
+  /** For models (e.g. Qwen3) that think aloud unless the answer starts with an empty thought. */
+  emptyThought?: boolean;
   /** Overrides the choice between q4f16 and q4 (for experiments). */
   dtype?: string;
 }

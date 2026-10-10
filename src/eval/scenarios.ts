@@ -1,6 +1,6 @@
 // Scripted scenes for checking classifiers (scripts/classifier-check.ts for
-// Claude, src/eval/local-eval.ts for the local model). Each lists the
-// answers we'd accept.
+// Claude, src/eval/llm-eval.ts for the local models). Each lists the answers
+// we'd accept.
 
 import type { Intensity, Setting } from "../library/scenes.js";
 
