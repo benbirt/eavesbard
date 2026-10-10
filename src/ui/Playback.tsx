@@ -1,7 +1,7 @@
 import { castStatus, connectCast, output, seekNearEnd, setOutput, stop } from "../player.js";
 
-/** Where the music plays: this computer or a Cast device. Setup also shows Cast troubleshooting. */
-export function OutputSwitch({ withHint = false }: { withHint?: boolean }) {
+/** Where the music plays: this computer or a Cast device. */
+export function OutputSwitch() {
   const cast = castStatus.value;
   const castTitle =
     cast.available === undefined
@@ -29,7 +29,12 @@ export function OutputSwitch({ withHint = false }: { withHint?: boolean }) {
           Cast…
         </button>
       </div>
-      {withHint && cast.hint && <p class="warning small">{cast.hint}</p>}
+      {cast.hint && (
+        <details class="cast-hint small">
+          <summary>No Cast devices found</summary>
+          {cast.hint}
+        </details>
+      )}
     </>
   );
 }

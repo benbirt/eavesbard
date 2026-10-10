@@ -3,7 +3,7 @@ import { auto, engine, setAuto, setEngine } from "../director.js";
 import { loadApiKey, saveApiKey } from "../settings.js";
 import { EventLog } from "./EventLog.js";
 import { SpeechModelChooser } from "./Listening.js";
-import { OutputSwitch, Transport } from "./Playback.js";
+import { Transport } from "./Playback.js";
 import { ArtCredits } from "./SceneArt.js";
 import { LocalModelsNote } from "./SceneLlm.js";
 import { TrackPicker } from "./TrackPicker.js";
@@ -70,11 +70,6 @@ export function Settings() {
       <section class="section">
         <h3>Listening</h3>
         <SpeechModelChooser />
-      </section>
-
-      <section class="section">
-        <h3>Play on</h3>
-        <OutputSwitch withHint />
       </section>
 
       <section class="section">
