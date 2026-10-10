@@ -22,7 +22,7 @@ import { INTENSITIES, SETTINGS } from "../library/scenes.js";
 import { model, transcript } from "../listener.js";
 import { SCENE_LLM } from "../llm/llm-protocol.js";
 import { sceneLlm } from "../llm/scene-llm.js";
-import { nowPlaying, paused, playbackPosition, setPaused, setVolume, volume } from "../player.js";
+import { nowPlaying, paused, playbackPosition, seekTo, setPaused, setVolume, volume } from "../player.js";
 import { pendingChanges } from "../scene/state-machine.js";
 import { isWebSpeech, WHISPER_DOWNLOAD_MB } from "../stt/protocol.js";
 import { OutputSwitch } from "./Playback.js";
@@ -156,6 +156,34 @@ export function SceneCard() {
   );
 }
 
+/** The track's progress; drag or click anywhere on it to seek. */
+function SeekBar({ currentS, durationS }: { currentS: number; durationS: number }) {
+  // While dragging, show where the thumb is rather than where playback is.
+  const [dragS, setDragS] = useState<number | undefined>(undefined);
+  const shownS = dragS ?? currentS;
+  return (
+    <div class="seek">
+      <div class="bar" aria-hidden="true">
+        <i style={{ width: `${(100 * shownS) / durationS}%`, transition: dragS === undefined ? undefined : "none" }} />
+      </div>
+      <input
+        type="range"
+        min="0"
+        max={durationS}
+        step="1"
+        value={shownS}
+        aria-label="Position in track"
+        aria-valuetext={`${mmss(shownS)} of ${mmss(durationS)}`}
+        onInput={(e) => setDragS(Number(e.currentTarget.value))}
+        onChange={(e) => {
+          void seekTo(Number(e.currentTarget.value));
+          setDragS(undefined);
+        }}
+      />
+    </div>
+  );
+}
+
 /** What's playing, with the controls a GM reaches for mid-session. */
 export function MusicCard() {
   useNow();
@@ -170,9 +198,11 @@ export function MusicCard() {
           <p class="src">
             Tabletop Audio{position && ` · ${mmss(position.currentS)} / ${mmss(position.durationS)}`}
           </p>
-          <div class="bar" aria-hidden="true">
-            <i style={{ width: position ? `${(100 * position.currentS) / position.durationS}%` : "0" }} />
-          </div>
+          {position ? (
+            <SeekBar currentS={position.currentS} durationS={position.durationS} />
+          ) : (
+            <div class="bar" aria-hidden="true" />
+          )}
         </>
       ) : (
         <p class="src">Nothing yet.</p>

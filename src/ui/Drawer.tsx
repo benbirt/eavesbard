@@ -17,6 +17,14 @@ addEventListener("keydown", (e) => {
   if (e.key === "Escape") openDrawer.value = undefined;
 });
 
+/**
+ * Covers the page while a panel is open, so a click anywhere outside the
+ * panel closes it (and does nothing else, so it can't stop the session).
+ */
+export function Scrim() {
+  return openDrawer.value ? <div class="scrim" aria-hidden="true" onClick={() => (openDrawer.value = undefined)} /> : null;
+}
+
 /** A panel that slides over from the right. */
 export function Drawer({ name, title, children }: { name: DrawerName; title: string; children: ComponentChildren }) {
   const open = openDrawer.value === name;

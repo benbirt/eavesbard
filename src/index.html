@@ -321,6 +321,35 @@
         background: var(--accent);
         transition: width 1s linear;
       }
+      /* An invisible range input over the progress bar, for seeking. */
+      .seek {
+        position: relative;
+        margin-top: 6px;
+        padding-block: 6px;
+        margin-block: 0 -6px;
+      }
+      .seek .bar {
+        margin-top: 0;
+      }
+      .seek input[type="range"] {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+      .seek:hover .bar,
+      .seek:has(input:focus-visible) .bar {
+        height: 6px;
+        margin-block: -1px;
+        border-radius: 3px;
+      }
+      .seek:has(input:focus-visible) .bar {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
       .pending {
         margin-top: 8px !important;
         font-size: 13px;
@@ -472,6 +501,12 @@
       }
 
       /* Side panels. */
+      .scrim {
+        position: fixed;
+        inset: 0;
+        z-index: 4;
+        background: rgb(0 0 0 / 0.25);
+      }
       .drawer {
         position: fixed;
         top: 0;
@@ -629,8 +664,25 @@
         color: var(--muted);
         max-width: 70rem;
       }
-      .foot a {
+      .foot p {
+        margin: 0 0 2px;
+      }
+      .foot .notice {
+        margin-top: 6px;
+        font-size: 11px;
+        opacity: 0.8;
+      }
+      .foot a,
+      .foot .link {
         color: var(--muted);
+      }
+      .link {
+        background: none;
+        border: 0;
+        padding: 0;
+        font: inherit;
+        text-decoration: underline;
+        cursor: pointer;
       }
 
       /* Session log. */

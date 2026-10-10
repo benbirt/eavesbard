@@ -21,6 +21,7 @@ import { localPick } from "./pick/local-picker.js";
 import type { PickRequest } from "./pick/request.js";
 import { nowPlaying, onTrackEnded, play, stop as stopMusic } from "./player.js";
 import { choices, suits } from "./scene/selector.js";
+import { callsForInitiative } from "./scene/cues.js";
 import { initialScene, nextScene, type SceneState } from "./scene/state-machine.js";
 import { TranscriptBuffer } from "./scene/transcript-buffer.js";
 import { loadApiKey, loadSetting, saveSetting } from "./settings.js";
@@ -187,6 +188,9 @@ onTranscriptLine((line) => {
   if (!timer) return;
   buffer.add({ at: line.time.getTime(), text: line.text });
   newSpeech.value = true;
+  if (callsForInitiative(line.text) && scene.value?.intensity !== "combat") {
+    forceScene({ intensity: "combat" }, `heard “${line.text}”`);
+  }
 });
 
 onTrackEnded(() => {
@@ -299,6 +303,14 @@ export function differentTrack(): void {
  * usual minimum durations (7.6) stop the classifier undoing it at once.
  */
 export function setSceneYourself(change: { setting?: Setting; intensity?: Intensity }): void {
+  forceScene(change, "set by you");
+}
+
+/**
+ * Changes the scene at once, bypassing the state machine. The change
+ * restarts that axis's clock, so the minimum durations still apply after it.
+ */
+function forceScene(change: { setting?: Setting; intensity?: Intensity }, why: string): void {
   const before = scene.value;
   if (!before) return;
   const now = Date.now();
@@ -313,7 +325,7 @@ export function setSceneYourself(change: { setting?: Setting; intensity?: Intens
     intensitySince: intensity !== before.intensity ? now : before.intensitySince,
     pendingSetting: undefined,
     pendingIntensity: undefined,
-    reason: "set by you",
+    reason: why,
   };
   scene.value = after;
   const sceneOf = (s: SceneState) => ({ setting: s.setting, intensity: s.intensity });
@@ -323,12 +335,13 @@ export function setSceneYourself(change: { setting?: Setting; intensity?: Intens
     from: sceneOf(before),
     to: sceneOf(after),
     notes: {
-      setting: setting !== before.setting ? `${before.setting} → ${setting}, set by you.` : `still ${setting}.`,
-      intensity: intensity !== before.intensity ? `${before.intensity} → ${intensity}, set by you.` : `still ${intensity}.`,
+      setting: setting !== before.setting ? `${before.setting} → ${setting}, ${why}.` : `still ${setting}.`,
+      intensity: intensity !== before.intensity ? `${before.intensity} → ${intensity}, ${why}.` : `still ${intensity}.`,
     },
   });
-  if (intensity !== before.intensity) playForScene(true, `you set the scene to ${intensity}`, before.intensity);
-  else playForScene(false, `you set the scene to ${setting}`);
+  const by = why === "set by you" ? "you set the scene to" : `${why}, so`;
+  if (intensity !== before.intensity) playForScene(true, `${by} ${intensity}`, before.intensity);
+  else playForScene(false, `${by} ${setting}`);
 }
 
 /** Bumped for each track request, so a slow pick can't override a newer one. */

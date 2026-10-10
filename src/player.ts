@@ -147,7 +147,13 @@ export const stop = () =>
     paused.value = false;
     return adapter().stop(FADE_MS);
   });
-export const seekNearEnd = () => run(output.value, () => adapter().seekNearEnd(20));
+export const seekTo = (seconds: number) => run(output.value, () => adapter().seekTo(seconds));
+/** For testing track-end events. */
+export const seekNearEnd = () =>
+  run(output.value, () => {
+    const position = adapter().position();
+    if (position) adapter().seekTo(position.durationS - 20);
+  });
 export const setVolume = (level: number) =>
   run(output.value, () => {
     volume.value = level;

@@ -108,9 +108,9 @@ export class CastAdapter implements PlaybackAdapter {
     if (this.player.isConnected && this.player.isPaused !== paused) this.controller.playOrPause();
   }
 
-  seekNearEnd(secondsBeforeEnd: number): void {
+  seekTo(seconds: number): void {
     if (this.player.duration > 0) {
-      this.player.currentTime = Math.max(0, this.player.duration - secondsBeforeEnd);
+      this.player.currentTime = Math.min(Math.max(0, seconds), this.player.duration);
       this.controller.seek();
     }
   }

@@ -14,8 +14,8 @@ export interface PlaybackAdapter {
   setVolume(level: number): void;
   /** Pause or resume the current track. */
   setPaused(paused: boolean): void;
-  /** Seek to `secondsBeforeEnd` before the end of the current track (for testing track-end events). */
-  seekNearEnd(secondsBeforeEnd: number): void;
+  /** Seek to `seconds` into the current track. */
+  seekTo(seconds: number): void;
   onEvent(listener: PlaybackListener): void;
   /** Where the current track is, in seconds, if known. */
   position(): { currentS: number; durationS: number } | undefined;

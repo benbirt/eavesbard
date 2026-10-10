@@ -9,6 +9,7 @@ import { LlmClient } from "../llm/llm-client.js";
 import type { LlmLoad } from "../llm/llm-protocol.js";
 import { prepareLocalModels } from "../local-models.js";
 import { rank } from "../pick/embeddings.js";
+import { ANSWER_PREFIX, llmQuestions } from "../classify/llm-prompt.js";
 import { SCENARIOS, type Scenario } from "./scenarios.js";
 import { TEST_SET } from "./test-set.js";
 import { jsonPrompt, VARIANTS, type VariantInput } from "./llm-variants.js";
@@ -26,11 +27,22 @@ export interface SceneResult {
   free?: string;
 }
 
+export interface ExplainResult {
+  axis: string;
+  prompt: string;
+  /** Label probabilities, as the app scores them. */
+  scored: Record<string, number>;
+  /** What the model writes when the instruction is appended to the prompt. */
+  written: { instruction: string; text: string }[];
+}
+
 declare global {
   interface Window {
     evalLoad: (model: LlmLoad) => Promise<{ ms: number }>;
     evalRun: (options: { variants: string[]; freeText?: number; sets?: ("dev" | "test")[] }) => Promise<SceneResult[]>;
     evalLog: string[];
+    /** The app's two questions for `input`, scored as the app does, plus free text for each `extra` instruction. */
+    evalExplain: (input: VariantInput, extras: string[]) => Promise<ExplainResult[]>;
   }
 }
 
@@ -97,4 +109,19 @@ window.evalRun = async ({ variants, freeText = 0, sets = ["dev", "test"] }) => {
     if (n % 10 === 0) log(`${n + 1}/${scenes.length} ${s.name}`);
   }
   return results;
+};
+
+window.evalExplain = async (input, extras) => {
+  const out: ExplainResult[] = [];
+  for (const q of llmQuestions(input)) {
+    const spellings = q.labels.map((l) => [` ${l}`, ` ${l[0]!.toUpperCase()}${l.slice(1)}`]);
+    const p = await llm!.ask(q.content, ANSWER_PREFIX, spellings);
+    const written = [];
+    for (const instruction of extras) {
+      const content = q.content.replace("Answer with one word from the list.", instruction);
+      written.push({ instruction, text: await llm!.generate(content, 200) });
+    }
+    out.push({ axis: q.axis, prompt: q.content, scored: Object.fromEntries(q.labels.map((l, i) => [l, p[i]!])), written });
+  }
+  return out;
 };

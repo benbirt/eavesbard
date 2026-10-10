@@ -82,7 +82,7 @@ export function Settings() {
         </details>
       </section>
 
-      <section class="section">
+      <section class="section" id="about">
         <h3>About</h3>
         <p>
           Ambiences by <a href="https://tabletopaudio.com/">Tabletop Audio</a>, licensed{" "}

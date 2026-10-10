@@ -72,9 +72,9 @@ export class LocalAdapter implements PlaybackAdapter {
     else void el.play().catch(() => undefined);
   }
 
-  seekNearEnd(secondsBeforeEnd: number): void {
+  seekTo(seconds: number): void {
     const el = this.elements[this.active]!;
-    if (Number.isFinite(el.duration)) el.currentTime = Math.max(0, el.duration - secondsBeforeEnd);
+    if (Number.isFinite(el.duration)) el.currentTime = Math.min(Math.max(0, seconds), el.duration);
   }
 
   position(): { currentS: number; durationS: number } | undefined {

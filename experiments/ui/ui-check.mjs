@@ -67,6 +67,16 @@ try {
     await page.locator(".badge", { hasText: "Combat" }).waitFor();
     await page.waitForTimeout(3000);
   });
+  await step("3b-seek", async () => {
+    const seek = page.getByLabel("Position in track");
+    await seek.waitFor({ timeout: 30_000 }); // once the track's length is known
+    const box = await seek.boundingBox();
+    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+    await page.waitForFunction(() => {
+      const input = document.querySelector('input[aria-label="Position in track"]');
+      return input && Math.abs(Number(input.value) / Number(input.max) - 0.5) < 0.05;
+    });
+  });
   await step("4-log", async () => {
     await page.getByRole("button", { name: "Log" }).click();
     await page.locator(".drawer.open .log").waitFor();
@@ -80,6 +90,27 @@ try {
   await step("6-closed", async () => {
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => !document.querySelector(".drawer.open"));
+  });
+  await step("6b-click-outside", async () => {
+    await page.getByRole("button", { name: "Log" }).click();
+    await page.locator(".drawer.open .log").waitFor();
+    await page.mouse.click(40, 300);
+    await page.waitForFunction(() => !document.querySelector(".drawer.open"));
+    await page.locator(".track").waitFor(); // the click closed the panel and did nothing else
+  });
+  await step("6c-footer", async () => {
+    await page.locator(".foot").scrollIntoViewIfNeeded();
+  });
+  await step("6d-credits", async () => {
+    await page.locator(".foot").getByRole("button", { name: "credits" }).click();
+    await page.locator(".drawer.open #about").waitFor();
+    await page.waitForTimeout(500);
+    const shown = await page.evaluate(() => {
+      const r = document.querySelector("#about").getBoundingClientRect();
+      return r.top >= 0 && r.top < innerHeight;
+    });
+    if (!shown) throw new Error("the credits aren't scrolled into view");
+    await page.keyboard.press("Escape");
   });
   await step("7-phone", async () => {
     await page.setViewportSize({ width: 390, height: 844 });

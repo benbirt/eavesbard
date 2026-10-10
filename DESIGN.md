@@ -48,7 +48,7 @@ The app is a single page made of the following stages, each a separate module wi
 2. **Mic capture** — getUserMedia, mono, resampled to 16 kHz for Whisper.
 3. **Speech-to-text** — Whisper via transformers.js on WebGPU, with WASM as a fallback. Audio is chunked on voice activity.
 4. **Transcript buffer** — a rolling window of recent transcribed text with timestamps.
-5. **Keyword trigger** — removed; the classifier runs often instead (see 7.4).
+5. **Initiative cue** — calling for initiative starts combat at once; everything else comes from the classifier (see 7.4).
 6. **Classifier** — runs periodically on the transcript window and returns a scene label. The initial implementation is Claude Haiku over the API.
 7. **Scene state machine** — applies hysteresis and dwell times so the music doesn't flap.
 8. **Track selector** — maps the current scene to candidate tracks using the track index and picks one, avoiding recent repeats.
@@ -163,9 +163,9 @@ The file also records when it was generated. Filenames are kept exactly as the s
 - Keeps the most recent two to three minutes of text. The size is configurable.
 - Tracks whether there is new text since the last classification, so that calls are skipped during silence.
 
-### 7.4 Keyword triggers (removed)
+### 7.4 The initiative cue
 
-Keywords that switched the scene or forced an immediate check were tried and dropped: they couldn't tell a fight from rules talk, and with a check every 15 seconds they saved little time.
+A general keyword list was tried and dropped: it couldn't tell a fight from rules talk. One phrase came back (`src/scene/cues.ts`): calling for initiative ("roll for initiative", "everyone roll initiative", and the common mishearing "role for initiative") starts combat at once, like setting it by hand, so the minimum combat time (7.6) holds it. Questions ("do we roll for initiative?", "how does initiative work?") don't count. It's back because the scene check alone was slow and unreliable here: in a real session, Gemma 4 E2B called a lone "Roll for initiative" calm, the tie with the embedding model meant nothing changed, and combat started about 45 seconds late.
 
 ### 7.5 Classifier
 
@@ -271,8 +271,8 @@ Designed for a GM mid-session, glancing at the screen from across the table: the
 - **Before a session**, the side column is a "Set the scene" card: an opening description, Begin session, where to play, and a readiness checklist (tracks, speech model, scene model download).
 - **During a session**, the side column has two cards and a Stop button:
   - **The scene:** setting and intensity, the last line heard and why, how long it has lasted, the next check, what's pending, and buttons to set the setting or intensity yourself. A change set by hand restarts that axis's clock, so the minimum durations (7.6) keep the classifier from undoing it at once.
-  - **Now playing:** the track and progress, pause, a different track, volume, and this computer or Cast (with what to check, collapsed, when no Cast devices are found). Where to play lives only here and on the start card, not in Setup.
-- **Side panels** (`src/ui/Drawer.tsx`) slide over from the right, with tabs to switch between them; Escape closes them.
+  - **Now playing:** the track and progress (click or drag to seek), pause, a different track, volume, and this computer or Cast (with what to check, collapsed, when no Cast devices are found). Where to play lives only here and on the start card, not in Setup.
+- **Side panels** (`src/ui/Drawer.tsx`) slide over from the right, with tabs to switch between them; Escape or a click outside closes them (the outside click does nothing else).
   - **Session log** (7.9): speech, scene changes and music by default, and model details and dropped speech on request, with export and clear.
   - **Setup:** automatic music; who decides the scene (on this computer, or Claude with its key and privacy note); listening; picking a track yourself, with testing controls and the playback log; and About (attributions, the Fan Content notice and all art credits).
 - **Footer:** Tabletop Audio's attribution, the Fan Content Policy notice, and a pointer to the art credits, always visible.
