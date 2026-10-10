@@ -1,7 +1,10 @@
 import { useEffect, useState } from "preact/hooks";
 import {
   auto,
-  classifying,
+  checking,
+  effectiveEngine,
+  engine,
+  ENGINE_NAMES,
   description,
   newSpeech,
   nextCheckAt,
@@ -16,7 +19,7 @@ import {
 import { pendingChanges } from "../scene/state-machine.js";
 import { nowPlaying, playbackPosition } from "../player.js";
 import { loadApiKey } from "../settings.js";
-import { localSearch } from "../pick/local-picker.js";
+import { localModel } from "../local-models.js";
 import { ListeningStatus } from "./Listening.js";
 import { OutputChooser } from "./Playback.js";
 
@@ -51,8 +54,11 @@ function StartBox() {
           onInput={(e) => setDescription(e.currentTarget.value)}
         />
       </label>
-      {auto.value && !loadApiKey() && (
-        <p class="warning">Add an Anthropic API key in Setup below so the music can follow the game.</p>
+      {auto.value && engine.value === "claude" && !loadApiKey() && (
+        <p class="muted">
+          No Anthropic API key, so the local model will decide the scene and pick tracks. Add a key in Setup to use
+          Claude.
+        </p>
       )}
       <button type="submit" class="primary">
         Start session
@@ -62,8 +68,7 @@ function StartBox() {
 }
 
 function NextCheck({ now }: { now: number }) {
-  if (!loadApiKey()) return <span class="warning">No API key: the scene won't change.</span>;
-  if (classifying.value) return <span>Asking Claude…</span>;
+  if (checking.value) return <span>Asking the {ENGINE_NAMES[effectiveEngine()].toLowerCase()}…</span>;
   const at = nextCheckAt.value;
   if (!at) return null;
   const left = Math.max(0, Math.ceil((at - now) / 1000));
@@ -116,13 +121,13 @@ function NowStrip() {
       )}
       <p class="status">
         <ListeningStatus />
-        {localSearch.value.phase === "loading" && (
+        {localModel.value.phase === "loading" && (
           <span class="muted">
             {" "}
-            · Loading local search ({Math.round(localSearch.value.loaded / 1e6)} MB)
+            · Loading the local model ({Math.round(localModel.value.loaded / 1e6)} MB)
           </span>
         )}
-        {localSearch.value.phase === "error" && <span class="warning"> · {localSearch.value.message}</span>}
+        {localModel.value.phase === "error" && <span class="warning"> · {localModel.value.message}</span>}
         {cost.calls > 0 && (
           <span class="muted">
             {" "}

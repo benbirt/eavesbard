@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
-import { auto, chooser, compareChoosers, setAuto, setChooser, setCompareChoosers } from "../director.js";
+import { auto, compare, engine, setAuto, setCompare, setEngine } from "../director.js";
 import { EMBEDDING_DOWNLOAD_MB } from "../pick/embed-protocol.js";
-import type { TrackChooser } from "../timeline.js";
+import type { Engine } from "../timeline.js";
 import { loadApiKey, saveApiKey } from "../settings.js";
 import { SpeechModelChooser } from "./Listening.js";
 
@@ -49,16 +49,15 @@ export function Settings() {
           work out the scene. Let the table know.
         </p>
         <label>
-          Who picks the tracks{" "}
-          <select value={chooser.value} onChange={(e) => setChooser(e.currentTarget.value as TrackChooser)}>
-            <option value="claude">Claude, reading the whole track list (needs the API key)</option>
-            <option value="local">Local search on this computer (downloads about {EMBEDDING_DOWNLOAD_MB} MB once)</option>
-            <option value="random">Random pick from the scene's tracks</option>
+          Models{" "}
+          <select value={engine.value} onChange={(e) => setEngine(e.currentTarget.value as Engine)}>
+            <option value="claude">Claude: decides scenes and reads the whole track list (needs the API key)</option>
+            <option value="local">Local: a small model on this computer (downloads about {EMBEDDING_DOWNLOAD_MB} MB once)</option>
           </select>
         </label>
         <label>
-          <input type="checkbox" checked={compareChoosers.value} onChange={(e) => setCompareChoosers(e.currentTarget.checked)} />{" "}
-          Also show what the other chooser (Claude or local search) would have picked, for comparison
+          <input type="checkbox" checked={compare.value} onChange={(e) => setCompare(e.currentTarget.checked)} /> Also run
+          the other models and show their answers, for comparison (Claude only with an API key)
         </label>
         <SpeechModelChooser />
       </fieldset>

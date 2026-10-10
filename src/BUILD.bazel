@@ -62,6 +62,16 @@ esbuild(
     target = "chrome120",
 )
 
+# The local classifier's scenario evaluation, for tuning; not deployed.
+esbuild(
+    name = "local_eval",
+    srcs = [":app"],
+    entry_point = "eval/local-eval.js",
+    format = "esm",
+    output = "local-eval.js",
+    target = "chrome120",
+)
+
 esbuild(
     name = "capture_worklet",
     srcs = [":app"],

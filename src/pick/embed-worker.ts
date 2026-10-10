@@ -13,7 +13,7 @@ const post = (message: FromEmbedWorker) => self.postMessage(message);
 const QUERY_PREFIX = "Represent this sentence for searching relevant passages: ";
 
 let extractor: FeatureExtractionPipeline | undefined;
-const vectors = new Map<number, Float32Array>();
+const vectors = new Map<string, Float32Array>();
 
 async function load(): Promise<void> {
   const files = new Map<string, { loaded: number; total: number }>();
@@ -41,26 +41,25 @@ async function embed(texts: string[]): Promise<Float32Array[]> {
   return Array.from({ length: rows }, (_, i) => data.slice(i * dims, (i + 1) * dims));
 }
 
-async function index(docs: { id: number; text: string }[]): Promise<void> {
+async function index(docs: { key: string; text: string }[]): Promise<void> {
   const started = performance.now();
   for (let i = 0; i < docs.length; i += 16) {
     const batch = docs.slice(i, i + 16);
     const embedded = await embed(batch.map((d) => d.text));
-    batch.forEach((d, j) => vectors.set(d.id, embedded[j]!));
+    batch.forEach((d, j) => vectors.set(d.key, embedded[j]!));
   }
   post({ type: "indexed", count: vectors.size, ms: performance.now() - started });
 }
 
-async function query(requestId: number, text: string, candidates?: number[]): Promise<void> {
+async function query(requestId: number, text: string, candidates: string[]): Promise<void> {
   const started = performance.now();
   const [q] = await embed([QUERY_PREFIX + text]);
-  const ids = candidates ?? [...vectors.keys()];
-  const ranked = ids
-    .map((id) => {
-      const v = vectors.get(id);
+  const ranked = candidates
+    .map((key) => {
+      const v = vectors.get(key);
       let score = 0;
       if (v) for (let k = 0; k < v.length; k++) score += v[k]! * q![k]!;
-      return { id, score };
+      return { key, score };
     })
     .sort((a, b) => b.score - a.score);
   post({ type: "ranked", requestId, ranked, ms: performance.now() - started });

@@ -37,27 +37,31 @@ function Body({ entry }: { entry: TimelineEntry }) {
         <div>
           {e.error ? (
             <span class="warning">
-              {e.purpose === "opening" ? "Opening scene" : e.purpose === "pick" ? "Track pick" : "Scene"} check failed:{" "}
+              {e.comparison && "For comparison: "}
+              {e.model.startsWith("local") ? "Local model" : "Claude"}:{" "}
+              {e.purpose === "opening" ? "opening scene" : e.purpose === "pick" ? "track pick" : "scene check"} failed:{" "}
               {e.error}
             </span>
           ) : e.pick ? (
-            <span>
-              Claude picks <strong>{e.pick.title}</strong> “{e.pick.reason}”{" "}
+            <span class={e.comparison ? "muted" : undefined}>
+              {e.comparison && "For comparison: "}Claude picks <strong>{e.pick.title}</strong> “{e.pick.reason}”{" "}
               <span class="muted">
                 {((e.latencyMs ?? 0) / 1000).toFixed(1)} s{e.costUsd !== undefined && `, $${e.costUsd.toFixed(5)}`}
               </span>
             </span>
           ) : (
             e.result && (
-              <span>
-                {e.purpose === "opening" ? "Opening scene: " : "Claude says: "}
+              <span class={e.comparison ? "muted" : undefined}>
+                {e.comparison && "For comparison: "}
+                {e.model.startsWith("local") ? "Local model" : "Claude"}
+                {e.purpose === "opening" ? " reads the opening as " : " says: "}
                 <strong>
                   {e.result.setting} ({pct(e.result.settingConfidence)}), {e.result.intensity} (
                   {pct(e.result.intensityConfidence)})
                 </strong>{" "}
                 “{e.result.reason}”{" "}
                 <span class="muted">
-                  {((e.latencyMs ?? 0) / 1000).toFixed(1)} s{e.costUsd !== undefined && `, $${e.costUsd.toFixed(5)}`}
+                  {((e.latencyMs ?? 0) / 1000).toFixed(1)} s{e.costUsd ? `, $${e.costUsd.toFixed(5)}` : ""}
                 </span>
               </span>
             )

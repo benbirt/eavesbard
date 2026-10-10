@@ -16,7 +16,10 @@ export type TimelineEvent =
   | {
       kind: "call";
       purpose: "opening" | "scene" | "pick";
+      /** e.g. "claude-haiku-5-5" or "local (bge-small)". */
       model: string;
+      /** The model not in charge, run alongside for comparison: its answer changes nothing. */
+      comparison?: boolean;
       userText: string;
       result?: {
         setting: Setting | "unknown";
@@ -47,6 +50,9 @@ export type TimelineEvent =
 export type TimelineKind = TimelineEvent["kind"];
 
 export type TrackChooser = "claude" | "local" | "random";
+
+/** Which models make the decisions (DESIGN.md 7.5, 7.7). */
+export type Engine = "claude" | "local";
 
 export interface TimelineEntry {
   sessionId: string;

@@ -185,6 +185,9 @@ Two kinds of keyword trigger were tried and dropped; the classifier now simply r
 - **Cost meter:** record input, output and cached token counts from each response's usage field. Prices per model come from `config/pricing.json`, updated by hand (Haiku 5.5: $0.10 input, $0.50 output, $0.01 cache reads and $0.125 cache writes per million tokens, for prompts of 100K tokens or fewer). Show a running session total in the UI, with the share of input served from cache.
 - **Rough cost:** each call is about 1,000 tokens of input (mostly the cached system prompt) and a few hundred of output including thinking, so roughly $0.0001 to $0.0003. A four-hour session makes at most about 960 calls: roughly 10 to 30 cents.
 - **Failures:** on an API error or invalid JSON, log the failure and keep the current scene. Never crash playback.
+- **Local alternative** (`src/classify/local-classifier.ts`, `src/local-models.ts`; a first version of experiment E9b): the embedding model used for local track search (7.7) also scores the transcript against short, table-talk-like descriptions of each setting and intensity, plus an "off-topic" group (rules lookups, food, scheduling). Each label scores its best-matching description, and a softmax over labels gives the confidence. The setting is judged from the last 150 words; the intensity from the last two lines (at most 30 words), since a fight that just ended still fills the earlier lines. Setting similarities below 0.54 mean unknown; an off-topic win makes the intensity ignorable. Milliseconds per check, no key, no cost.
+  - **Scenario check:** `src/eval/scenarios.ts` holds 17 scripted scenes (openings, tavern chat, travel, sneaking, fights starting and ending, rules talk) shared with `scripts/classifier-check.ts`. `//src:local_eval` runs them through the local classifier in a browser. After tuning the descriptions: 16 of 17 as expected (the miss: "sneaking through the goblin warren" read as combat rather than tense). The set is small and was used for tuning, so real sessions are the real test.
+- **Which engine decides** (Setup → Models): Claude or Local, for both scene checks and track picks. Without an API key, Claude falls back to Local and the timeline says so. By default the other engine also runs on the same input (Claude only with a key) and its answers are recorded as comparisons that change nothing. The local model starts downloading when the page opens if it will be needed.
 
 ### 7.6 Scene state machine
 
@@ -211,13 +214,13 @@ All parameters are configurable, and the defaults below are starting points to t
 - **Setting-only changes** keep the current track if it's also in the new bucket.
 - **Track end:** when a track finishes (each is ten minutes long), another is chosen for the same scene.
 
-**Who picks the track** (a setting; the first version picked at random within the bucket, which gave "Bubbling Pools", tagged `underground` among desert and swamp tags, for "underground caverns, exploring"):
+**Who picks the track** (follows the Models setting in 7.5; the first version picked at random within the bucket, which gave "Bubbling Pools", tagged `underground` among desert and swamp tags, for "underground caverns, exploring"):
 
 - **Claude** (the default; `src/pick/claude-picker.ts`): Haiku reads the whole list of tracks in use (about 330 lines of id, title, settings, intensities, tags and description, roughly 17,000 tokens) in a cached system prompt, and the description or recent transcript in the request, and picks one track with a short reason. It's asked only when a track is needed (opening, scene change, track end), not on every scene check. The answer must be a listed id that suits the current intensity, or it counts as a failure. Cost per pick is roughly $0.0003 with the cache warm, about $0.003 when the cache has to be written.
-- **Local search** (`src/pick/local-picker.ts`, `src/pick/embed-worker.ts`): a small sentence-embedding model (`Xenova/bge-small-en-v1.5`, 8-bit, about 34 MB, run on the CPU through transformers.js in its own worker) embeds each track's title, description, tags and keywords once per session, then ranks the allowed tracks by similarity to "setting, intensity, description or latest transcript". Milliseconds per pick, no API key, no cost. This is a first implementation of experiment E9b, applied to choosing tracks rather than classifying scenes.
+- **Local** (`src/pick/local-picker.ts`, `src/pick/embed-worker.ts`): a small sentence-embedding model (`Xenova/bge-small-en-v1.5`, 8-bit, about 34 MB, run on the CPU through transformers.js in its own worker) embeds each track's title, description, tags and keywords once per session, then ranks the allowed tracks by similarity to "setting, intensity, description or latest transcript". Milliseconds per pick, no API key, no cost. This is a first implementation of experiment E9b, applied to choosing tracks rather than classifying scenes.
 - **Random** within the allowed tracks, as before.
 - **Fallbacks:** if the chosen picker fails, local search, then random. Local search never holds up the music for its download: if it isn't ready within a few seconds, another picker is used that time.
-- **Comparison:** by default the other picker (Claude or local search) also picks, in the background, and its choice is recorded on the timeline ("Local search agrees", or "would have picked…"), so real sessions compare the two.
+- **Comparison:** by default the other engine also picks, in the background, and its choice is recorded on the timeline ("Local search agrees", or "would have picked…"), so real sessions compare the two.
 - A small local language model with the whole list as context was considered and rejected for now: 17,000 tokens of context takes tens of seconds to read on a laptop GPU, and small models choose poorly from long lists.
 
 ### 7.8 Playback adapters
@@ -265,7 +268,7 @@ Entries are written to IndexedDB as they happen. Buttons export the current sess
   - listening status (model download progress, hearing speech), wake lock, and the session's classifier calls and cost;
   - Stop session.
 - **Timeline** (7.9), newest first, with tick boxes to show or hide speech, Claude calls, decisions and music, plus dropped speech. Each call can be expanded to show exactly what was sent.
-- **Setup** (collapsed): API key, automatic music on or off with the privacy note, who picks the tracks (Claude, local search or random) and whether to record the other's pick for comparison, and the Whisper model.
+- **Setup** (collapsed): API key, automatic music on or off with the privacy note, Models (Claude or Local, for scene checks and track picks) and whether to run the other for comparison, and the Whisper model.
 - **Pick tracks yourself** (collapsed): the manual track picker, transport controls and the raw playback log.
 - **Attribution footer:** "Ambiences by Tabletop Audio (tabletopaudio.com), CC BY-NC-ND 4.0", with links, and a link to the source code. The current track's title, shown in the Now strip, completes the per-work attribution.
 - **Wake lock:** held while listening, re-requested when the tab becomes visible again, with a warning when lost (7.2, section 4).
@@ -296,9 +299,10 @@ Suggested layout:
 /src/library       index format and validation, tag mapping and index build
 /src/audio         mic capture, VAD
 /src/stt           Whisper (transformers.js) wrapper
-/src/classify      classifier (Anthropic SDK), prompt, cost (later: webllm.ts, embeddings.ts)
+/src/classify      Claude classifier (Anthropic SDK), prompt, cost; local (embedding) classifier
 /src/scene         transcript buffer, state machine, track selector
 /src/pick          track choosers: Claude (whole track list), local embedding search (worker)
+/src/eval          scripted scenarios for checking classifiers, and the local classifier's browser evaluation
 /src/director.ts   automatic music: wires listening, classifier, scene and player together
 /src/playback      adapter interface, cast.ts, local.ts
 /src/log           IndexedDB logger, JSONL export
