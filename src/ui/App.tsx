@@ -1,4 +1,5 @@
 import { EventLog } from "./EventLog.js";
+import { ArtCredits } from "./SceneArt.js";
 import { Transport } from "./Playback.js";
 import { Session } from "./Session.js";
 import { Settings } from "./Settings.js";
@@ -30,6 +31,7 @@ export function App() {
         Ambiences by <a href="https://tabletopaudio.com/">Tabletop Audio</a>, licensed{" "}
         <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>. Source code on{" "}
         <a href="https://github.com/benbirt/eavesbard">GitHub</a>.
+        <ArtCredits />
       </footer>
     </>
   );

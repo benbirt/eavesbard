@@ -124,7 +124,7 @@ copy_to_directory(
         ":ort",
         ":stamped_html",
         ":stt_worker",
-    ],
+    ] + glob(["art/*.webp"]),
     replace_prefixes = {"stamped/": ""},
     visibility = ["//visibility:public"],
 )

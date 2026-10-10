@@ -1,3 +1,4 @@
+import { SceneArtBanner } from "./SceneArt.js";
 import { useEffect, useState } from "preact/hooks";
 import {
   auto,
@@ -146,6 +147,7 @@ function NowStrip() {
 export function Session() {
   return (
     <section class="session">
+      <SceneArtBanner />
       {sessionActive.value ? <NowStrip /> : <StartBox />}
       <OutputChooser />
     </section>

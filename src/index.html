@@ -50,6 +50,37 @@
       select {
         max-width: 100%;
       }
+      .scene-art {
+        margin: 0 0 1rem;
+      }
+      .scene-art-frame {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        border-radius: 6px;
+        background: #000;
+      }
+      .scene-art-fill {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: blur(24px) brightness(0.55);
+        transform: scale(1.15);
+      }
+      .scene-art-image {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 100%;
+        /* Whole image, never cropped: signatures and copyright lines stay visible. */
+        object-fit: contain;
+      }
+      .scene-art figcaption {
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+      }
       .muted,
       footer {
         color: var(--muted);
