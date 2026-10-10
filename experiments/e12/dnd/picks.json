@@ -3,108 +3,133 @@
   "subject": "The Dran & Courtier inn in Red Larch",
   "book": "Acquisitions Incorporated (Wizards of the Coast, 2019)",
   "artist": "Klaus Pillon",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Dran_%26_courtier-5e.jpg"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Dran_%26_courtier-5e.jpg",
+  "verdict": "up"
  },
  "tavern/tense": {
   "subject": "Bandits doing banditism",
   "book": "Monster Manual (Wizards of the Coast, 2025)",
   "artist": "Katerina Ladon",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Bandits_5point5e.jpg"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Bandits_5point5e.jpg",
+  "verdict": "up"
  },
  "tavern/combat": {
   "subject": "Redbrands: criminals in their scarlet cloaks",
   "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
   "artist": "Zoltan Boros",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Redbrand-ruffians.webp"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Redbrand-ruffians.webp",
+  "verdict": "up"
  },
  "town/calm": {
   "subject": "Waterdeep as seen from the water",
   "book": "City of Splendors: Waterdeep (Wizards of the Coast, 2005)",
   "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep3e.jpg"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep3e.jpg",
+  "verdict": "up"
  },
  "town/tense": {
-  "subject": "A view of the gate-town of Ribcage",
-  "book": "Planescape: Adventures in the Multiverse (Wizards of the Coast, 2023)",
-  "artist": "Alfven Ato",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Ribcage-5e.jpg"
+  "subject": "Traffic in a Waterdeep street",
+  "book": "Waterdeep: Dragon Heist (Wizards of the Coast, 2018)",
+  "artist": null,
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep_traffic-5e.jpg",
+  "verdict": null,
+  "unseen": true,
+  "note": "A busy street; may read as lively rather than tense."
  },
  "town/combat": {
-  "subject": "Evernight",
-  "book": "Vecna: Eve of Ruin (Wizards of the Coast, 2024)",
-  "artist": "Calder Moore",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Evernight_-_Calder_Moore.png"
+  "subject": "A fireball goes off in Trollskull Alley",
+  "book": "Waterdeep: Dragon Heist (Wizards of the Coast, 2018)",
+  "artist": null,
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep-fireball-5e.jpg",
+  "verdict": null,
+  "unseen": true
  },
  "interior/calm": {
-  "subject": "Lethchauntos in his lost library",
-  "book": "Forgotten Realms: Adventures in Faerûn (Wizards of the Coast, 2025)",
-  "artist": "Brian Valenzuela",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Lethchauntos_and_his_library_-_Brian_Valenzuela.webp"
+  "subject": "Inside the great library of Candlekeep",
+  "book": "Candlekeep Mysteries (Wizards of the Coast, 2021)",
+  "artist": "Vincent Proce",
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Candlekeep_interior-5e.jpg",
+  "verdict": null,
+  "unseen": true,
+  "note": "The wiki also files this under Images by Vincent Proce; confirm the book on its page."
  },
  "interior/tense": {
-  "subject": "A temple of Zotzilaha in Tamoachan",
-  "book": "Tales from the Yawning Portal (Wizards of the Coast, 2017)",
-  "artist": "Scott Murphy",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Zotzilaha.png"
+  "subject": "Still needed",
+  "book": "",
+  "artist": null,
+  "page": null,
+  "verdict": null,
+  "gap": true,
+  "note": "Web search didn't turn up a specific image. Good books to look in: Keys from the Golden Vault (heists), Waterdeep: Dragon Heist."
  },
  "interior/combat": {
   "subject": "The bronze dragon Runara presenting her true form before Hank, and Presto, along with a third individual",
   "book": "Dungeons & Dragons Starter Set: Dragons of Stormwreck Isle (Wizards of the Coast, 2022)",
   "artist": "David Auden Nash",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Elder_Runara,_temple_of_Bahamut.png"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Elder_Runara,_temple_of_Bahamut.png",
+  "verdict": "up"
  },
  "wilderness/calm": {
   "subject": "The Heartlands",
   "book": "Forgotten Realms: Heroes of Faerûn (Wizards of the Coast, 2025)",
   "artist": "Pedro H. Cardoso",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Pedro-h-cardoso-heartlands.png"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Pedro-h-cardoso-heartlands.png",
+  "verdict": "up"
  },
  "wilderness/tense": {
   "subject": "An owlbear is among the many dangers along the Triboar Trail",
   "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
   "artist": "Klaus Pillon",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Triboar_trail_-_Klaus_Pillon.png"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Triboar_trail_-_Klaus_Pillon.png",
+  "verdict": "up"
  },
  "wilderness/combat": {
   "subject": "The green dragon Chuth",
   "book": "The Rise of Tiamat (Wizards of the Coast, 2014)",
   "artist": "Guido Kuip",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Green_Dragon.jpg"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Green_Dragon.jpg",
+  "verdict": "up"
  },
  "dungeon/calm": {
   "subject": "Modrons march through the realm of Gzemnid, passing the skull of the deceased archdevil Beherit",
   "book": "Planescape: Adventures in the Multiverse (Wizards of the Coast, 2023)",
   "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Beherit_Skull.jpg"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Beherit_Skull.jpg",
+  "verdict": "up"
  },
  "dungeon/tense": {
   "subject": "A very introverted troglodyte",
   "book": "Monster Manual (Wizards of the Coast, 2025)",
   "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Troglodyte_5point5e.jpg"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Troglodyte_5point5e.jpg",
+  "verdict": "up"
  },
  "dungeon/combat": {
   "subject": "Skeletons inhabiting Tresendar Manor",
   "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
   "artist": "Zoltan Boros",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Tresendar-skeletons.webp"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Tresendar-skeletons.webp",
+  "verdict": "up"
  },
  "travel/calm": {
   "subject": "The fishing boats of Ten Towns docked in one of the region's lakes",
   "book": "Legacy of the Crystal Shard (Wizards of the Coast, 2013)",
   "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Lakes.jpg"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Lakes.jpg",
+  "verdict": "up"
  },
  "travel/tense": {
   "subject": "Key art for the Voyage to Stormwreck Isle encounter",
   "book": "Dungeons & Dragons Starter Set: Dragons of Stormwreck Isle (Wizards of the Coast, 2022)",
   "artist": "Linda Lithén",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Voyage_to_stormwreck_-_Linda_Lith%C3%A9n.webp"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Voyage_to_stormwreck_-_Linda_Lith%C3%A9n.webp",
+  "verdict": "up"
  },
  "travel/combat": {
   "subject": "A vengeful roc",
   "book": "Monster Manual (Wizards of the Coast, 2025)",
   "artist": "Alejandro Pacheco",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Roc_5point5e.jpg"
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Roc_5point5e.jpg",
+  "verdict": "up"
  }
 }
