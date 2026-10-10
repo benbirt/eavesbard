@@ -63,8 +63,7 @@
   "book": "Waterdeep: Dragon Heist (Wizards of the Coast, 2018)",
   "artist": null,
   "page": "https://forgottenrealms.fandom.com/wiki/File:Trollskull_manor-5e.jpg",
-  "verdict": null,
-  "unseen": true,
+  "verdict": "up",
   "note": "Probably the outside of the house, not a room inside. Fallback if not: reuse the dungeon · tense image."
  },
  "interior/combat": {
