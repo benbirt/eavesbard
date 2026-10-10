@@ -10,6 +10,10 @@ Done.
 
 Done: the blend is re-tuned for Gemma 4 E2B (92% on held-out scenes, up from 83%); the JSON prompt, its off-topic line and the 2-bit build didn't beat it; the embeddings stay. See experiments/E9.md.
 
+## 2b. One choice for local or remote
+
+Setup currently has two model choices: Models (Local or Claude, for scene checks and track picks) and the speech model (Whisper or Web Speech). Ideally one choice covers both: "Local" (Gemma for speech and scenes) or "Remote" (cloud speech-to-text plus Claude). Claude's API doesn't take audio, so "Remote" would pair Claude with a speech service: Web Speech's cloud mode (Google, no key) or a paid speech API. Do after Gemma speech-to-text (section 3).
+
 ## 3. Gemma 4 instead of Whisper (new experiment E11)
 
 Gemma 4 E2B takes audio input (its ONNX package includes an audio encoder, about 170 MB at 4-bit). If it transcribes table talk well enough, the app needs one model fewer (Whisper base is 205 MB) and one fewer pipeline.

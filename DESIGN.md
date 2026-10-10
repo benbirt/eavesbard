@@ -171,7 +171,7 @@ Keywords that switched the scene or forced an immediate check were tried and dro
 
 - **Interface:** a function from a transcript window, the current scene and how long it has lasted to a setting and an intensity, each with its own confidence between 0 and 1. A short free-text reason is included in logs only.
 - **Cadence:** every 15 seconds, and only if there is new transcript text. The overlap between checks is deliberate: the setting often depends on something said a few minutes earlier.
-- **Which engine decides** (Setup → Models): Local (the default) or Claude, for both scene checks and track picks. Without an API key, Claude falls back to Local and the timeline says so. By default the other engine also runs on the same input (Claude only with a key) and its answers are recorded as comparisons that change nothing. The local models start downloading when the page opens if they will be needed.
+- **Which engine decides** (Setup → Models): Local (the default) or Claude, for both scene checks and track picks. Without an API key, Claude falls back to Local and the timeline says so. (Running the other engine alongside for comparison was removed to simplify setup; it's in git history if needed for debugging.) The local models start downloading when the page opens if they will be needed.
 - **Failures:** on any model error or invalid answer, log the failure and keep the current scene. Never crash playback.
 
 **Local** (`src/local-models.ts`, `src/classify/local-classifier.ts`, `src/classify/llm-prompt.ts`, `src/llm/`): Gemma 4 E2B on WebGPU, blended with a small embedding model. No key, no cost. On the held-out test set this gets 92% of scenes fully right, against 83% for Gemma alone and 64% for the embeddings alone; experiments/E9.md has the comparisons that led here.
@@ -225,7 +225,6 @@ All parameters are configurable, and the defaults below are starting points to t
 - **Local** (`src/pick/local-picker.ts`, `src/pick/embed-worker.ts`): a small sentence-embedding model (`Xenova/bge-small-en-v1.5`, 8-bit, about 34 MB, run on the CPU through transformers.js in its own worker) embeds each track's title, description, tags and keywords once per session, then ranks the allowed tracks by similarity to "setting, intensity, description or latest transcript". Milliseconds per pick, no API key, no cost. This is a first implementation of experiment E9b, applied to choosing tracks rather than classifying scenes.
 - **Random** within the allowed tracks, as before.
 - **Fallbacks:** if the chosen picker fails, local search, then random. Local search never holds up the music for its download: if it isn't ready within a few seconds, another picker is used that time.
-- **Comparison:** by default the other engine also picks, in the background, and its choice is recorded on the timeline ("Local search agrees", or "would have picked…"), so real sessions compare the two.
 - A small local language model with the whole list as context was considered and rejected for now: 17,000 tokens of context takes tens of seconds to read on a laptop GPU, and small models choose poorly from long lists.
 
 ### 7.8 Playback adapters
@@ -273,7 +272,7 @@ Entries are written to IndexedDB as they happen. Buttons export the current sess
   - listening status (model download progress, hearing speech), wake lock, the helper LLM's download progress, and the session's classifier calls and cost;
   - Stop session.
 - **Timeline** (7.9), newest first, with tick boxes to show or hide speech, Claude calls, decisions and music, plus dropped speech. Each call can be expanded to show exactly what was sent.
-- **Setup** (collapsed): API key, automatic music on or off with the privacy note, Models (Local or Claude, for scene checks and track picks) and whether to run the other for comparison, the local scene model (Gemma 4 E2B with the embeddings, and a warning where there's no WebGPU), and the speech model (Whisper sizes, or Web Speech on-device or cloud).
+- **Setup** (collapsed): automatic music on or off; Models (Local or Claude, for scene checks and track picks); for Claude, the API key and the privacy note, and for Local, the scene model (Gemma 4 E2B with the embeddings, and a warning where there's no WebGPU); and the speech model (Whisper sizes, or Web Speech on-device or cloud).
 - **Pick tracks yourself** (collapsed): the manual track picker, transport controls and the raw playback log.
 - **Attribution footer:** "Ambiences by Tabletop Audio (tabletopaudio.com), CC BY-NC-ND 4.0", with links, and a link to the source code. The current track's title, shown in the Now strip, completes the per-work attribution.
 - **Wake lock:** held while listening, re-requested when the tab becomes visible again, with a warning when lost (7.2, section 4).

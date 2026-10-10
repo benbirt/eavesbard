@@ -1,7 +1,7 @@
 // The session and automatic music: listening → transcript → scene check →
 // scene state machine → track choice → player, with everything recorded on
 // the timeline. Scene checks and track choices are made by Claude or by
-// local models (the "engine"); the other can run alongside for comparison.
+// local models (the "engine").
 // See DESIGN.md 7.3–7.7 and 7.9.
 
 import { computed, signal } from "@preact/signals";
@@ -42,8 +42,6 @@ export interface SessionCost {
 export const auto = signal(loadSetting("auto") !== "off");
 /** The chosen engine, local by default; Claude falls back to local without an API key. */
 export const engine = signal<Engine>(loadSetting("engine") === "claude" ? "claude" : "local");
-/** Whether the other engine also runs, for comparison (Claude only with an API key). */
-export const compare = signal(loadSetting("compare") !== "off");
 /** The opening-scene description, remembered between visits. */
 export const description = signal(loadSetting("openingDescription") ?? "");
 export const sessionActive = signal(false);
@@ -65,18 +63,11 @@ export function effectiveEngine(): Engine {
   return engine.value === "claude" && !loadApiKey() ? "local" : engine.value;
 }
 
-/** The engine run alongside for comparison, if any. */
-function comparisonEngine(): Engine | undefined {
-  if (!compare.value) return undefined;
-  const other: Engine = effectiveEngine() === "claude" ? "local" : "claude";
-  return other === "claude" && !loadApiKey() ? undefined : other;
-}
-
 export const ENGINE_NAMES: Record<Engine, string> = { claude: "Claude", local: "Local model" };
 
 // Start downloading the local model as soon as the page opens if it will be
 // needed, so it's ready by the time a session starts.
-if (auto.value && (effectiveEngine() === "local" || compare.value)) {
+if (auto.value && effectiveEngine() === "local") {
   setTimeout(prepareLocal, 1000);
 }
 
@@ -106,11 +97,6 @@ export function setAuto(on: boolean): void {
 export function setEngine(next: Engine): void {
   engine.value = next;
   saveSetting("engine", next);
-}
-
-export function setCompare(on: boolean): void {
-  compare.value = on;
-  saveSetting("compare", on ? "on" : "off");
 }
 
 export function setDescription(text: string): void {
@@ -147,15 +133,13 @@ async function startAuto(opening: string): Promise<void> {
   sessionCost.value = { usd: 0, calls: 0, cachedShare: 0 };
 
   const primary = effectiveEngine();
-  const other = comparisonEngine();
   record({
     kind: "session",
     text:
       `${ENGINE_NAMES[primary]} decides the scene and picks the tracks` +
-      (engine.value === "claude" && primary === "local" ? " (no Anthropic API key, so local models are used)" : "") +
-      (other ? `; ${ENGINE_NAMES[other].toLowerCase()} runs alongside for comparison.` : "."),
+      (engine.value === "claude" && primary === "local" ? " (no Anthropic API key, so local models are used)." : "."),
   });
-  if (primary === "local" || other === "local") {
+  if (primary === "local") {
     prepareLocal();
     const llm = SCENE_LLM.name;
     record(
@@ -168,8 +152,7 @@ async function startAuto(opening: string): Promise<void> {
   // The opening scene: from the description if there is one, else the default.
   let start: Parameters<typeof initialScene>[1];
   if (opening) {
-    if (other) void checkScene(other, "opening", { description: opening }, true);
-    const c = await checkScene(primary, "opening", { description: opening }, false, LOCAL_WAIT_MS);
+    const c = await checkScene(primary, "opening", { description: opening }, LOCAL_WAIT_MS);
     if (c) {
       start = {
         setting: c.setting === "unknown" ? initialScene(0).setting : c.setting,
@@ -234,16 +217,15 @@ type SceneInput = { description: string } | { scene: SceneState; lines: { at: nu
 
 /**
  * Asks one engine for the scene and records the answer on the timeline.
- * Returns undefined if it couldn't answer. A comparison changes nothing.
+ * Returns undefined if it couldn't answer.
  */
 async function checkScene(
   by: Engine,
   purpose: "opening" | "scene",
   input: SceneInput,
-  comparison: boolean,
   localWaitMs?: number,
 ): Promise<Classification | undefined> {
-  if (!comparison) checking.value = true;
+  checking.value = true;
   const model = by === "claude" ? DEFAULT_MODEL : LOCAL_MODEL_NAME;
   let userText = "";
   try {
@@ -255,7 +237,7 @@ async function checkScene(
           ? openingMessage(input.description)
           : userMessage(input.scene, input.now - Math.min(input.scene.settingSince, input.scene.intensitySince), input.lines, input.now);
       const result = await classify({ apiKey, model, userText });
-      record({ kind: "call", purpose, model, comparison, userText, result: result.classification, latencyMs: result.latencyMs, costUsd: result.costUsd, usage: result.usage });
+      record({ kind: "call", purpose, model, userText, result: result.classification, latencyMs: result.latencyMs, costUsd: result.costUsd, usage: result.usage });
       addCost(result.usage, result.costUsd);
       return result.classification;
     }
@@ -264,14 +246,14 @@ async function checkScene(
       "description" in input ? input : { lines: input.lines.map((l) => l.text), current: input.scene },
     );
     userText = result.queryText;
-    record({ kind: "call", purpose, model: result.model, comparison, userText, result: result.classification, latencyMs: result.latencyMs, costUsd: 0 });
+    record({ kind: "call", purpose, model: result.model, userText, result: result.classification, latencyMs: result.latencyMs, costUsd: 0 });
     return result.classification;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    record({ kind: "call", purpose, model, comparison, userText, error: message });
+    record({ kind: "call", purpose, model, userText, error: message });
     return undefined;
   } finally {
-    if (!comparison) checking.value = false;
+    checking.value = false;
   }
 }
 
@@ -282,9 +264,7 @@ async function tick(): Promise<void> {
   newSpeech.value = false;
   const now = Date.now();
   const input: SceneInput = { scene: current, lines: buffer.window(now), now };
-  const other = comparisonEngine();
-  if (other) void checkScene(other, "scene", input, true);
-  const c = await checkScene(effectiveEngine(), "scene", input, false, LOCAL_WAIT_MS);
+  const c = await checkScene(effectiveEngine(), "scene", input, LOCAL_WAIT_MS);
   const before = scene.value;
   if (!c || !before) return;
   const t = nextScene(before, {
@@ -347,7 +327,7 @@ async function choose(seq: number, current: SceneState, why: string, leavingInte
   let picked: { entry: LibraryTrack; by: TrackChooser; reason: string } | undefined;
   for (const by of [...new Set<TrackChooser>([primary, "local", "random"])]) {
     try {
-      picked = { by, ...(await pickWith(by, request, pool, false)) };
+      picked = { by, ...(await pickWith(by, request, pool)) };
       break;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -370,25 +350,6 @@ async function choose(seq: number, current: SceneState, why: string, leavingInte
     chooser: by,
   });
   void play(entry);
-
-  // For comparison: what the other engine would have picked. Never delays the music.
-  const other = comparisonEngine();
-  if (other && other !== by) {
-    pickWith(other, request, pool, true)
-      .then((alt) => {
-        const same = alt.entry.track.id === entry.track.id;
-        record({
-          kind: "music",
-          text: same
-            ? `${CHOOSER_NAMES[other]} agrees: ${alt.entry.track.title}. ${alt.reason}.`
-            : `For comparison, the ${CHOOSER_NAMES[other].toLowerCase()} would have picked ${alt.entry.track.title}: ${alt.reason}.`,
-          trackId: alt.entry.track.id,
-          chooser: other,
-          comparison: true,
-        });
-      })
-      .catch(() => undefined);
-  }
 }
 
 /** Asks one chooser for a track from `pool`; throws if it can't. */
@@ -396,7 +357,6 @@ async function pickWith(
   by: TrackChooser,
   request: PickRequest,
   pool: LibraryTrack[],
-  comparison: boolean,
 ): Promise<{ entry: LibraryTrack; reason: string }> {
   switch (by) {
     case "claude": {
@@ -407,14 +367,13 @@ async function pickWith(
         pick = await claudePick(apiKey, request, library.tracks);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
-        record({ kind: "call", purpose: "pick", model: DEFAULT_MODEL, comparison, userText: "", error: message });
+        record({ kind: "call", purpose: "pick", model: DEFAULT_MODEL, userText: "", error: message });
         throw err;
       }
       record({
         kind: "call",
         purpose: "pick",
         model: DEFAULT_MODEL,
-        comparison,
         userText: pick.userText,
         pick: { trackId: pick.entry.track.id, title: pick.entry.track.title, reason: pick.reason },
         latencyMs: pick.answer.latencyMs,
@@ -428,8 +387,8 @@ async function pickWith(
       return { entry: pick.entry, reason: pick.reason };
     }
     case "local": {
-      // The music never waits long for the download; a comparison can.
-      await localReady(comparison ? undefined : LOCAL_WAIT_MS);
+      // The music never waits long for the download.
+      await localReady(LOCAL_WAIT_MS);
       const pick = await localPick(request, pool);
       return { entry: pick.entry, reason: `closest match to “${pick.query}” (similarity ${pick.score.toFixed(2)})` };
     }

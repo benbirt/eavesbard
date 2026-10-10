@@ -18,8 +18,6 @@ export type TimelineEvent =
       purpose: "opening" | "scene" | "pick";
       /** e.g. "claude-haiku-5-5" or "local (bge-small)". */
       model: string;
-      /** The model not in charge, run alongside for comparison: its answer changes nothing. */
-      comparison?: boolean;
       userText: string;
       result?: {
         setting: Setting | "unknown";
@@ -42,8 +40,6 @@ export type TimelineEvent =
       trackId?: number;
       /** Which chooser picked it, when a track was chosen. */
       chooser?: TrackChooser;
-      /** Another chooser's pick, recorded for comparison only. */
-      comparison?: boolean;
     }
   | { kind: "error"; text: string };
 

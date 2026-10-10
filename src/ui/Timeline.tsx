@@ -37,22 +37,20 @@ function Body({ entry }: { entry: TimelineEntry }) {
         <div>
           {e.error ? (
             <span class="warning">
-              {e.comparison && "For comparison: "}
               {e.model.startsWith("local") ? "Local model" : "Claude"}:{" "}
               {e.purpose === "opening" ? "opening scene" : e.purpose === "pick" ? "track pick" : "scene check"} failed:{" "}
               {e.error}
             </span>
           ) : e.pick ? (
-            <span class={e.comparison ? "muted" : undefined}>
-              {e.comparison && "For comparison: "}Claude picks <strong>{e.pick.title}</strong> “{e.pick.reason}”{" "}
+            <span>
+              Claude picks <strong>{e.pick.title}</strong> “{e.pick.reason}”{" "}
               <span class="muted">
                 {((e.latencyMs ?? 0) / 1000).toFixed(1)} s{e.costUsd !== undefined && `, $${e.costUsd.toFixed(5)}`}
               </span>
             </span>
           ) : (
             e.result && (
-              <span class={e.comparison ? "muted" : undefined}>
-                {e.comparison && "For comparison: "}
+              <span>
                 {e.model.startsWith("local") ? "Local model" : "Claude"}
                 {e.purpose === "opening" ? " reads the opening as " : " says: "}
                 <strong>
@@ -89,7 +87,7 @@ function Body({ entry }: { entry: TimelineEntry }) {
         </div>
       );
     case "music":
-      return <span class={e.comparison ? "muted" : undefined}>{e.text}</span>;
+      return <span>{e.text}</span>;
     case "error":
       return <span class="warning">{e.text}</span>;
   }
