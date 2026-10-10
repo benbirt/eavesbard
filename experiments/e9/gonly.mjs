@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { DEV, TEST, current, effective } from "./common.mjs";
-const G = JSON.parse(readFileSync("dists-G4.json", "utf8"));
+const G = JSON.parse(readFileSync(`dists-${process.argv[2] ?? "G4"}.json`, "utf8"));
 const OVER = JSON.parse(readFileSync("fight-over.json", "utf8"));
 const argmax = (d) => Object.entries(d).reduce((a, b) => (b[1] > a[1] ? b : a));
 for (const useOver of [false, true]) for (const set of [["DEV", DEV], ["TEST", TEST]]) {
