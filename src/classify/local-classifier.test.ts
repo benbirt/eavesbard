@@ -38,13 +38,13 @@ const llm = (setting: string, intensity: string) => ({
   intensity: { calm: 0, tense: 0, combat: 0, [intensity]: 1 },
 });
 
-test("an LLM answer is blended in: it can settle the setting but not overrule a clear fight", () => {
-  // Embeddings: unsure between tavern and town, sure of combat. LLM: town, calm.
+test("an LLM answer is blended in: the more certain side wins", () => {
+  // Embeddings: unsure between tavern and town, sure of combat. LLM: sure of town, unsure about calm.
   const c = classifyFromScores(
     scores([["tavern", 0.61], ["town", 0.6]]),
     scores([["calm", 0.5], ["combat", 0.7]]),
     { intensity: "calm" },
-    llm("town", "calm"),
+    { ...llm("town", "calm"), intensity: { calm: 0.6, tense: 0.1, combat: 0.3 } },
   );
   assert.equal(c.setting, "town");
   assert.equal(c.intensity, "combat");
@@ -76,7 +76,7 @@ test("an LLM's 'fight over' ends combat even when the embeddings still hear a fi
   const tie = classifyFromScores(...embeddings, { intensity: "combat" }, { ...llm("tavern", "combat"), fightOver: 0.5 });
   assert.equal(tie.intensity, "combat");
   // Only during a fight.
-  const calm = classifyFromScores(...embeddings, { intensity: "calm" }, { ...llm("tavern", "calm"), fightOver: 0.98 });
+  const calm = classifyFromScores(...embeddings, { intensity: "calm" }, { ...llm("tavern", "combat"), fightOver: 0.98 });
   assert.equal(calm.intensity, "combat");
 });
 

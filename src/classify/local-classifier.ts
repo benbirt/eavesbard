@@ -133,19 +133,31 @@ export interface LlmAnswer {
 }
 
 /**
- * How much the LLM counts in a blend, per axis. Chosen on the DEV scenarios
- * and checked on the held-out set (experiments/E9.md): the LLM is better at
- * settings, the embeddings at spotting a fight.
+ * How much the LLM counts in a blend, per axis, and how much its answers are
+ * softened first (they're nearly always 0% or 100%). Tuned for Gemma 4 E2B
+ * by cross-validation over all scenarios (experiments/E9.md, round 3).
  */
-export const LLM_WEIGHT = { setting: 0.5, intensity: 0.25 };
-/** LLM answers are nearly always 0% or 100%; this softens them before blending. */
-export const LLM_TEMPERATURE = 3;
+export const LLM_WEIGHT = { setting: 0.5, intensity: 0.5 };
+export const LLM_TEMPERATURE = 2;
 /**
  * During a fight, the LLM's "is it over?" answer ends it on its own above
  * this probability. It never ended a fight that was still going in the test sets,
  * whereas the embeddings read "combat over" as combat.
  */
 export const FIGHT_OVER_THRESHOLD = 0.5;
+
+/** The blend's settings; experiments pass their own (experiments/e9/analyse.mjs). */
+export interface BlendOptions {
+  weight: { setting: number; intensity: number };
+  temperature: number;
+  fightOverThreshold: number;
+}
+
+export const BLEND: BlendOptions = {
+  weight: LLM_WEIGHT,
+  temperature: LLM_TEMPERATURE,
+  fightOverThreshold: FIGHT_OVER_THRESHOLD,
+};
 
 /** Raises probabilities to the power 1/T and renormalises. */
 export function soften<L extends string>(probs: Record<L, number>, temperature: number): Record<L, number> {
@@ -163,11 +175,12 @@ export function classifyFromScores(
   intensityScores: ReadonlyMap<string, number>,
   current: { intensity: Intensity },
   llm?: LlmAnswer,
+  options: BlendOptions = BLEND,
 ): Classification {
   const s = scoreAxis(LABEL_GROUPS.setting, settingScores);
   const i = scoreAxis(LABEL_GROUPS.intensity, intensityScores);
   const offtopic = i.label === "offtopic";
-  if (llm) return blend(s, i, llm, current, offtopic);
+  if (llm) return blend(s, i, llm, current, offtopic, options);
   const settingUnknown = s.similarity < MIN_SETTING_SIMILARITY;
   return {
     setting: settingUnknown ? "unknown" : (s.label as Setting),
@@ -187,21 +200,22 @@ function blend(
   llm: LlmAnswer,
   current: { intensity: Intensity },
   offtopic: boolean,
+  options: BlendOptions,
 ): Classification {
   const mix = <L extends string>(labels: readonly L[], a: Record<L, number>, b: Record<L, number>, w: number) => {
-    const soft = soften(b, LLM_TEMPERATURE);
+    const soft = soften(b, options.temperature);
     return labels.map((label) => ({ label, p: (1 - w) * a[label] + w * soft[label] }));
   };
   const best = <L extends string>(xs: { label: L; p: number }[]) => xs.reduce((x, y) => (y.p > x.p ? y : x));
   // No "unknown" setting here: the LLM is told the current scene and keeps it when nothing changed.
-  const setting = best(mix(SETTINGS, s.probs, llm.setting, LLM_WEIGHT.setting));
-  const intensities = mix(INTENSITIES, i.probs, llm.intensity, LLM_WEIGHT.intensity);
+  const setting = best(mix(SETTINGS, s.probs, llm.setting, options.weight.setting));
+  const intensities = mix(INTENSITIES, i.probs, llm.intensity, options.weight.intensity);
   const intensity = best(intensities);
   const top = <L extends string>(d: Record<L, number>) =>
     (Object.entries(d) as [L, number][]).reduce((x, y) => (y[1] > x[1] ? y : x))[0];
   const llmSaid = `${llm.model}: ${top(llm.setting)}, ${top(llm.intensity)}`;
 
-  if (current.intensity === "combat" && llm.fightOver !== undefined && llm.fightOver > FIGHT_OVER_THRESHOLD) {
+  if (current.intensity === "combat" && llm.fightOver !== undefined && llm.fightOver > options.fightOverThreshold) {
     const after = best(intensities.filter((x) => x.label !== "combat"));
     return {
       setting: setting.label,

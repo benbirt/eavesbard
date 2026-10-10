@@ -41,16 +41,29 @@ const current: Variant = async (llm, input) => {
  * One question for both axes, framed around choosing the soundtrack, with a
  * JSON answer. The JSON is prefilled up to each value, setting first.
  */
-export function jsonPrompt(input: VariantInput, meanings: boolean, withCurrent = false): string {
+export interface JsonOptions {
+  /** Each label with its one-line meaning, rather than names only. */
+  meanings: boolean;
+  /** Say which soundtrack is playing. */
+  withCurrent?: boolean;
+  /** Say that table talk means keeping the current soundtrack. */
+  offTopic?: boolean;
+}
+
+export function jsonPrompt(input: VariantInput, o: JsonOptions): string {
   const options = (d: Record<string, string>) =>
-    meanings
+    o.meanings
       ? "\n" + Object.entries(d).map(([k, v]) => `- ${k}: ${v}`).join("\n")
       : Object.keys(d).join(", ");
   const what =
     "description" in input
       ? `Opening scene, as described by the game master: ${input.description}`
       : `Last 2.5 minutes of transcript:\n${input.lines.join("\n")}` +
-        (withCurrent ? `\n\nThe soundtrack currently playing is for: ${input.current.setting}, ${input.current.intensity}.` : "");
+        (o.withCurrent ? `\n\nThe soundtrack currently playing is for: ${input.current.setting}, ${input.current.intensity}.` : "") +
+        (o.offTopic
+          ? "\n\nIf the latest talk isn't about the game (rules lookups, dice, food, scheduling, real-world chat), " +
+            "reply with the soundtrack that's playing."
+          : "");
   return (
     "We're playing DnD. We need you to identify the current setting & intensity for another system to choose " +
     `the soundtrack which should currently play.\n\n${what}\n\n` +
@@ -62,9 +75,9 @@ export function jsonPrompt(input: VariantInput, meanings: boolean, withCurrent =
 /** Gemma 4 writes JSON in a code fence, one key per line; the prefill matches what it writes. */
 export const JSON_START = '```json\n{\n  "setting": "';
 
-function jsonVariant(meanings: boolean, withCurrent = false): Variant {
+function jsonVariant(o: JsonOptions): Variant {
   return async (llm, input) => {
-    const content = jsonPrompt(input, meanings, withCurrent);
+    const content = jsonPrompt(input, o);
     const setting = asRecord(SETTINGS, await llm.ask(content, JSON_START, SETTINGS.map((l) => [l])));
     const top = SETTINGS.reduce((a, b) => (setting[b] > setting[a] ? b : a));
     const intensity = asRecord(
@@ -77,7 +90,8 @@ function jsonVariant(meanings: boolean, withCurrent = false): Variant {
 
 export const VARIANTS: Record<string, Variant> = {
   current,
-  "json-names": jsonVariant(false),
-  "json-meanings": jsonVariant(true),
-  "json-meanings-current": jsonVariant(true, true),
+  "json-names": jsonVariant({ meanings: false }),
+  "json-meanings": jsonVariant({ meanings: true }),
+  "json-meanings-current": jsonVariant({ meanings: true, withCurrent: true }),
+  "json-offtopic": jsonVariant({ meanings: true, withCurrent: true, offTopic: true }),
 };

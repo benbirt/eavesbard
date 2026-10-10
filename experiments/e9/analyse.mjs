@@ -30,8 +30,8 @@ function alone(s, a, fightOver) {
   }
   return { setting, settingConfidence, intensity, intensityConfidence };
 }
-function blended(s, r, a, fightOver) {
-  return LC.classifyFromScores(new Map(r.embed.setting), new Map(r.embed.intensity), { intensity: current(s)?.intensity ?? "calm" }, { model: "llm", setting: a.setting, intensity: a.intensity, fightOver });
+function blended(s, r, a, fightOver, options = LC.BLEND) {
+  return LC.classifyFromScores(new Map(r.embed.setting), new Map(r.embed.intensity), { intensity: current(s)?.intensity ?? "calm" }, { model: "llm", setting: a.setting, intensity: a.intensity, fightOver }, options);
 }
 const embeddingsAlone = (s, r) => LC.classifyFromScores(new Map(r.embed.setting), new Map(r.embed.intensity), { intensity: current(s)?.intensity ?? "calm" });
 
@@ -51,7 +51,52 @@ function score(rows, classify) {
   return { both: p(both), setting: p(set), intensity: p(int), cats: Object.fromEntries(Object.entries(cats).map(([k, [o, n]]) => [k, `${Math.round((100 * o) / n)}%`])) };
 }
 
-for (const file of process.argv.slice(2)) {
+const TUNE = process.argv.includes("--tune");
+const files = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+
+/**
+ * Tunes the blend for one variant by 5-fold cross-validation over all scenes
+ * (DEV is too small to choose on alone): choose on four folds, score on the
+ * fifth. Ties go to the setting closest to the shipped one.
+ */
+function tune(all, v, over) {
+  const steps = [0, 0.25, 0.5, 0.75, 1];
+  const grid = [];
+  for (const ws of steps) for (const wi of steps) for (const temperature of [1, 2, 3, 5]) for (const fightOverThreshold of [0.5, 0.9, 2])
+    grid.push({ weight: { setting: ws, intensity: wi }, temperature, fightOverThreshold });
+  const B = LC.BLEND;
+  const distance = (o) => Math.abs(o.weight.setting - B.weight.setting) + Math.abs(o.weight.intensity - B.weight.intensity) + Math.abs(o.temperature - B.temperature) / 4 + (o.fightOverThreshold === B.fightOverThreshold ? 0 : 0.1);
+  // right[g][n]: whether setting g gets scene n right.
+  const right = grid.map((options) => all.map((r) => {
+    const sc = byName.get(r.name);
+    const e = effective(sc, blended(sc, r, r.llm[v], over(r), options));
+    return (sc.settings.includes(e.setting) || (e.setting === current(sc)?.setting && sc.settings.includes("unknown"))) && sc.intensities.includes(e.intensity);
+  }));
+  const acc = (g, idx) => idx.filter((n) => right[g][n]).length / idx.length;
+  const choose = (idx) => grid.map((o, g) => ({ g, a: acc(g, idx), d: distance(o) })).sort((x, y) => y.a - x.a || x.d - y.d)[0].g;
+  const folds = 5;
+  let correct = 0;
+  const picks = [];
+  for (let k = 0; k < folds; k++) {
+    const train = all.map((_, n) => n).filter((n) => n % folds !== k);
+    const held = all.map((_, n) => n).filter((n) => n % folds === k);
+    const g = choose(train);
+    picks.push(grid[g]);
+    correct += held.filter((n) => right[g][n]).length;
+  }
+  const label = (o) => `Gemma weight setting ${o.weight.setting}, intensity ${o.weight.intensity}; temperature ${o.temperature}; fight-over ${o.fightOverThreshold > 1 ? "off" : "> " + o.fightOverThreshold}`;
+  const p = (x) => `${Math.round(100 * x)}%`;
+  const everyone = all.map((_, n) => n);
+  const shipped = grid.findIndex((o) => distance(o) === 0);
+  const final = choose(everyone);
+  console.log(`\n### ${v}: blend tuning, ${grid.length} settings, ${all.length} scenes\n`);
+  console.log(`- shipped settings, all scenes: ${p(acc(shipped, everyone))}`);
+  console.log(`- tuned, cross-validated (expected on unseen scenes): ${p(correct / all.length)}`);
+  console.log(`- picked per fold: ${picks.map(label).join(" | ")}`);
+  console.log(`- tuned on all scenes: ${label(grid[final])}: ${p(acc(final, everyone))} (optimistic)`);
+}
+
+for (const file of files) {
   const { repo, variants, results } = JSON.parse(readFileSync(file, "utf8"));
   const sets = { dev: results.filter((r) => r.set === "dev"), test: results.filter((r) => r.set === "test") };
   const over = (r) => r.llm.current?.fightOver;
@@ -71,6 +116,7 @@ for (const file of process.argv.slice(2)) {
     const t = sets.test.length ? score(sets.test, f) : { both: "–", setting: "–", intensity: "–", cats: {} };
     console.log(`| ${name} | ${d} | ${t.both} | ${t.setting} | ${t.intensity} | ${cats.map((c) => t.cats[c] ?? "–").join(" | ")} |`);
   }
+  if (TUNE) for (const v of variants) tune(results, v, (r) => r.llm[v].fightOver ?? r.llm.current?.fightOver);
   const free = results.filter((r) => r.free);
   for (const r of free) console.log(`free text, ${r.name}: ${JSON.stringify(r.free)}`);
 }

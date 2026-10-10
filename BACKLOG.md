@@ -4,17 +4,11 @@ Work agreed but not started, roughly in order. Design detail lives in DESIGN.md;
 
 ## 1. Repo cleanup
 
-Done (Gemma 3 and Qwen leftovers, the old embeddings-only evaluation page, duplicated and unused code, and DESIGN.md trimmed to the current design), except:
-- Re-tune the blend (weights, softening temperature, fight-over threshold) for Gemma 4: they were chosen for Gemma 3. Best done alongside the experiments below.
+Done.
 
 ## 2. Model experiments (E9, round 3)
 
-Each takes about 10 minutes with `experiments/e9/browser-eval.mjs` on a local GPU.
-
-- The JSON "soundtrack" prompt, plus a line saying off-topic table talk (rules, food, scheduling) means keep the current soundtrack. It's the best prompt alone (85%), and off-topic is its weak spot.
-- The same prompt blended with the embeddings, against the shipped 83%.
-- Google's 2-bit Gemma 4 E2B build (`onnx-community/gemma-4-E2B-it-qat-mobile-ONNX`, about 2.3 GB) against the 4-bit one (about 3.1 GB): accuracy, speed, download.
-- Gemma 4 alone (no embeddings) once the prompt handles fights starting and off-topic chat. If it matches the blend, scene checks need only Gemma (the embeddings would still pick tracks).
+Done: the blend is re-tuned for Gemma 4 E2B (92% on held-out scenes, up from 83%); the JSON prompt, its off-topic line and the 2-bit build didn't beat it; the embeddings stay. See experiments/E9.md.
 
 ## 3. Gemma 4 instead of Whisper (new experiment E11)
 

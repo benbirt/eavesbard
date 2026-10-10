@@ -91,7 +91,7 @@ window.evalRun = async ({ variants, freeText = 0, sets = ["dev", "test"] }) => {
       const answer = await VARIANTS[v]!(llm!, input);
       result.llm[v] = { ...answer, ms: performance.now() - started };
     }
-    if (n < freeText) result.free = await llm!.generate(jsonPrompt(input, true), 30);
+    if (n < freeText) result.free = await llm!.generate(jsonPrompt(input, { meanings: true, withCurrent: true, offTopic: true }), 30);
     results.push(result);
     if (n % 10 === 0) log(`${n + 1}/${scenes.length} ${s.name}`);
   }

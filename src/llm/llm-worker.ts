@@ -36,7 +36,7 @@ async function load(spec: LlmLoad): Promise<void> {
     }
     post({ type: "progress", loaded, total });
   };
-  tokenizer = await AutoTokenizer.from_pretrained(spec.repo, { progress_callback });
+  tokenizer = await AutoTokenizer.from_pretrained(spec.tokenizerRepo ?? spec.repo, { progress_callback });
   model = await AutoModelForCausalLM.from_pretrained(spec.repo, {
     device: "webgpu",
     // 16-bit activations halve the download, but not every GPU can do 16-bit floats.

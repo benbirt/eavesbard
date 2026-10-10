@@ -16,6 +16,8 @@ export interface LlmLoad {
   emptyThought?: boolean;
   /** Overrides the choice between q4f16 and q4 (for experiments). */
   dtype?: string;
+  /** Where to load the tokenizer from, if not `repo` (some builds ship without a chat template). */
+  tokenizerRepo?: string;
 }
 
 export type ToLlmWorker =

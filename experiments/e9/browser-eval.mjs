@@ -13,6 +13,7 @@ const { values: args } = parseArgs({
   options: {
     repo: { type: "string" },
     dtype: { type: "string" },
+    tokenizer: { type: "string" },
     "empty-thought": { type: "boolean", default: false },
     variants: { type: "string", default: "current" },
     free: { type: "string", default: "0" },
@@ -49,7 +50,7 @@ const progress = setInterval(async () => {
 }, 2000);
 
 const started = Date.now();
-await page.evaluate((m) => window.evalLoad(m), { repo: args.repo, emptyThought: args["empty-thought"], ...(args.dtype ? { dtype: args.dtype } : {}) });
+await page.evaluate((m) => window.evalLoad(m), { repo: args.repo, emptyThought: args["empty-thought"], ...(args.dtype ? { dtype: args.dtype } : {}), ...(args.tokenizer ? { tokenizerRepo: args.tokenizer } : {}) });
 const results = await page.evaluate((o) => window.evalRun(o), {
   variants: args.variants.split(","),
   freeText: Number(args.free),
