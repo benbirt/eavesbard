@@ -18,6 +18,8 @@ export interface LlmLoad {
   dtype?: string;
   /** Where to load the tokenizer from, if not `repo` (some builds ship without a chat template). */
   tokenizerRepo?: string;
+  /** Load the audio encoder too, so the model can transcribe (Gemma 4 E2B/E4B; experiment E11). */
+  audio?: boolean;
 }
 
 export type ToLlmWorker =
@@ -29,7 +31,9 @@ export type ToLlmWorker =
    */
   | { type: "ask"; requestId: number; content: string; prefill: string; spellings: string[][] }
   /** Free text, for checking what the model would write unprompted. */
-  | { type: "generate"; requestId: number; content: string; maxTokens: number };
+  | { type: "generate"; requestId: number; content: string; maxTokens: number }
+  /** Speech to text: 16 kHz mono audio (at most 30 s), with an instruction. Needs `audio` at load. */
+  | { type: "transcribe"; requestId: number; audio: Float32Array; instruction: string; maxTokens: number };
 
 export type FromLlmWorker =
   | { type: "progress"; loaded: number; total: number }

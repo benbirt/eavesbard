@@ -12,6 +12,7 @@ import { rank } from "../pick/embeddings.js";
 import { SCENARIOS, type Scenario } from "./scenarios.js";
 import { TEST_SET } from "./test-set.js";
 import { jsonPrompt, VARIANTS, type VariantInput } from "./llm-variants.js";
+import "./stt-eval.js";
 
 export interface SceneResult {
   set: "dev" | "test";

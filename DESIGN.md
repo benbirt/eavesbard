@@ -358,6 +358,8 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 
 **E9 — Local classifiers.** Done ([experiments/E9.md](experiments/E9.md)): candidates were scored against hand-labelled scenes (`src/eval/test-set.ts`, 108 held out) rather than Haiku logs, first on a CPU, then on a local GPU through the app's own code. Embeddings alone get 64% of held-out scenes right; nearest-track voting, zero-shot NLI and LLMs under 1B parameters do worse; Gemma 4 E2B blended with the embeddings gets 92% and is what the app uses (7.5). Chrome's built-in Prompt API wasn't tried.
 
+**E11 — Gemma 4 for speech-to-text.** Done ([experiments/E11.md](experiments/E11.md)): Gemma 4 E2B's audio input transcribes worse than Whisper (21% word errors on clean text-to-speech clips, against 11% for base and 7% for small) at the same speed as Whisper small, so Whisper stays. Whisper small is the most accurate, especially with music playing.
+
 **E10 — Browser behaviour over a full session.** On a Mac with default power and lock settings, left untouched, check:
 - that the wake lock holds, and the display, screensaver and auto-lock never kick in, with both local and Cast output;
 - that the wake lock is re-acquired after switching tabs and back;

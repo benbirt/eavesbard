@@ -40,6 +40,11 @@ export class LlmClient {
     return this.request((requestId) => ({ type: "ask", requestId, content, prefill, spellings })) as Promise<number[]>;
   }
 
+  /** Speech to text (16 kHz mono, at most 30 s); the model must be loaded with `audio`. */
+  transcribe(audio: Float32Array, instruction: string, maxTokens = 128): Promise<string> {
+    return this.request((requestId) => ({ type: "transcribe", requestId, audio, instruction, maxTokens })) as Promise<string>;
+  }
+
   /** What the model writes, greedily, up to `maxTokens`. */
   generate(content: string, maxTokens: number): Promise<string> {
     return this.request((requestId) => ({ type: "generate", requestId, content, maxTokens })) as Promise<string>;

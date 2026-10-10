@@ -12,21 +12,13 @@ Done: the blend is re-tuned for Gemma 4 E2B (92% on held-out scenes, up from 83%
 
 ## 2b. One choice for local or remote
 
-Setup currently has two model choices: Models (Local or Claude, for scene checks and track picks) and the speech model (Whisper or Web Speech). Ideally one choice covers both: "Local" (Gemma for speech and scenes) or "Remote" (cloud speech-to-text plus Claude). Claude's API doesn't take audio, so "Remote" would pair Claude with a speech service: Web Speech's cloud mode (Google, no key) or a paid speech API. Do after Gemma speech-to-text (section 3).
+Setup currently has two model choices: Models (Local or Claude, for scene checks and track picks) and the speech model (Whisper or Web Speech). Ideally one choice covers both: "Local" (Gemma for speech and scenes) or "Remote" (cloud speech-to-text plus Claude). Claude's API doesn't take audio, so "Remote" would pair Claude with a speech service: Web Speech's cloud mode (Google, no key) or a paid speech API. With Gemma staying out of speech-to-text (section 3), "Local" means Whisper plus Gemma.
 
-## 3. Gemma 4 instead of Whisper (new experiment E11)
+## 3. Gemma 4 instead of Whisper (E11)
 
-Gemma 4 E2B takes audio input (its ONNX package includes an audio encoder, about 170 MB at 4-bit). If it transcribes table talk well enough, the app needs one model fewer (Whisper base is 205 MB) and one fewer pipeline.
-
-Questions to answer first:
-- Does transformers.js 4.3.1 support Gemma 4's audio input in the browser, and how long a clip can it take?
-- Transcription quality against Whisper on real table audio (crosstalk, distance, music playing), and its tendency to invent text from music.
-- Latency and GPU contention: transcription and scene checks would share one model on one GPU.
-- Keep Silero VAD for segmenting either way.
-
-Two shapes, in order of preference:
-- **Gemma transcribes**, everything else unchanged: the transcript still feeds the timeline, the embeddings and track picks.
-- **Gemma judges the scene straight from audio**: simpler, but loses the transcript, which the timeline and debugging rely on.
+Done, not adopted: Gemma 4 E2B transcribes worse than Whisper (21% word errors on clean test clips, against 11% for Whisper base and 7% for Whisper small) and is no faster. See experiments/E11.md. Follow-ups:
+- Consider Whisper small as the default on capable machines: the most accurate by far, especially with music playing (590 MB download).
+- Test with real table recordings rather than text-to-speech.
 
 ## 4. UI cleanup, and make it pretty
 

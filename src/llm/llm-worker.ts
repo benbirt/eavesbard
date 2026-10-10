@@ -7,10 +7,13 @@
 import "../ml-env.js";
 import {
   AutoModelForCausalLM,
+  AutoProcessor,
   AutoTokenizer,
+  Gemma4ForConditionalGeneration,
   Tensor,
   type PreTrainedModel,
   type PreTrainedTokenizer,
+  type Processor,
 } from "@huggingface/transformers";
 import { labelProbabilities } from "../classify/llm-prompt.js";
 import { gpuAdapter } from "../gpu.js";
@@ -20,6 +23,8 @@ const post = (message: FromLlmWorker) => self.postMessage(message);
 
 let tokenizer: PreTrainedTokenizer | undefined;
 let model: PreTrainedModel | undefined;
+/** Turns audio and a chat into model inputs; only when loaded with audio. */
+let processor: Processor | undefined;
 let emptyThought = false;
 
 async function load(spec: LlmLoad): Promise<void> {
@@ -36,16 +41,24 @@ async function load(spec: LlmLoad): Promise<void> {
     }
     post({ type: "progress", loaded, total });
   };
-  tokenizer = await AutoTokenizer.from_pretrained(spec.tokenizerRepo ?? spec.repo, { progress_callback });
-  model = await AutoModelForCausalLM.from_pretrained(spec.repo, {
-    device: "webgpu",
+  const options = {
+    device: "webgpu" as const,
     // 16-bit activations halve the download, but not every GPU can do 16-bit floats.
     dtype: (spec.dtype ?? ((await hasShaderF16()) ? "q4f16" : "q4")) as "q4",
     progress_callback: (info: { status: string; file?: string; loaded?: number; total?: number }) => {
       progress_callback(info);
       if (info.status === "done" && info.file?.includes("onnx")) post({ type: "preparing" });
     },
-  });
+  };
+  if (spec.audio) {
+    // The full model (audio and vision encoders as well); it still answers text-only questions.
+    processor = await AutoProcessor.from_pretrained(spec.tokenizerRepo ?? spec.repo, { progress_callback });
+    tokenizer = processor.tokenizer!;
+    model = await Gemma4ForConditionalGeneration.from_pretrained(spec.repo, options);
+  } else {
+    tokenizer = await AutoTokenizer.from_pretrained(spec.tokenizerRepo ?? spec.repo, { progress_callback });
+    model = await AutoModelForCausalLM.from_pretrained(spec.repo, options);
+  }
   post({ type: "ready" });
 }
 
@@ -117,6 +130,20 @@ async function ask(requestId: number, content: string, prefill: string, spelling
   post({ type: "answer", requestId, probs, ms: performance.now() - started });
 }
 
+async function transcribe(requestId: number, audio: Float32Array, instruction: string, maxTokens: number): Promise<void> {
+  if (!processor) throw new Error("the model was loaded without audio");
+  const started = performance.now();
+  const prompt = processor.apply_chat_template(
+    [{ role: "user", content: [{ type: "audio" }, { type: "text", text: instruction }] }],
+    // Extra options reach the chat template; the typings don't list this one.
+    { enable_thinking: false, add_generation_prompt: true } as { add_generation_prompt: boolean },
+  ) as string;
+  const inputs = (await processor(prompt, null, audio, { add_special_tokens: false })) as Record<string, Tensor>;
+  const output = (await model!.generate({ ...inputs, max_new_tokens: maxTokens, do_sample: false })) as Tensor;
+  const ids = Array.from(output.data as BigInt64Array, Number).slice(inputs.input_ids!.dims.at(-1));
+  post({ type: "text", requestId, text: tokenizer!.decode(ids, { skip_special_tokens: true }).trim(), ms: performance.now() - started });
+}
+
 async function generate(requestId: number, content: string, maxTokens: number): Promise<void> {
   const started = performance.now();
   const inputs = tokenizer!(chatPrompt(content), { add_special_tokens: false }) as Record<string, Tensor>;
@@ -138,6 +165,8 @@ self.onmessage = (event: MessageEvent<ToLlmWorker>) => {
           return ask(m.requestId, m.content, m.prefill, m.spellings);
         case "generate":
           return generate(m.requestId, m.content, m.maxTokens);
+        case "transcribe":
+          return transcribe(m.requestId, m.audio, m.instruction, m.maxTokens);
       }
     })
     .catch((err: unknown) =>
