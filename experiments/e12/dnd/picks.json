@@ -32,17 +32,16 @@
   "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
   "artist": null,
   "page": "https://forgottenrealms.fandom.com/wiki/File:Phandalin-welcome.webp",
-  "verdict": null,
-  "unseen": true
+  "verdict": "down"
  },
  "town/tense (option 2)": {
   "subject": "A Waterdeep alley",
-  "book": "Source not confirmed: check its page",
+  "book": "Probably Waterdeep and the North (TSR, 1987), by Chris Miller: unconfirmed",
   "artist": null,
   "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep-alley.jpg",
-  "verdict": null,
-  "unseen": true,
-  "note": "Only use it if its page names a Wizards book."
+  "verdict": "up",
+  "note": "Licence check needed: if its page names a TSR book, it's a grey area (Wizards owns TSR's work, but the policy covers material published by Wizards). Please read the source line on its page.",
+  "caution": true
  },
  "town/combat": {
   "subject": "A fireball goes off in Trollskull Alley",
@@ -56,18 +55,17 @@
   "book": "Candlekeep Mysteries (Wizards of the Coast, 2021)",
   "artist": null,
   "page": "https://forgottenrealms.fandom.com/wiki/Candlekeep",
-  "verdict": null,
-  "unseen": true,
+  "verdict": "up",
   "note": "Search didn't give its file name: the link opens the Candlekeep article; the image is in its gallery."
  },
  "interior/tense": {
-  "subject": "Still needed",
-  "book": "",
+  "subject": "Trollskull Manor: abandoned and haunted",
+  "book": "Waterdeep: Dragon Heist (Wizards of the Coast, 2018)",
   "artist": null,
-  "page": null,
+  "page": "https://forgottenrealms.fandom.com/wiki/File:Trollskull_manor-5e.jpg",
   "verdict": null,
-  "gap": true,
-  "note": "Still no specific image after two rounds of search. Options: reuse the dungeon · tense image, or leave a gap for now."
+  "unseen": true,
+  "note": "Probably the outside of the house, not a room inside. Fallback if not: reuse the dungeon · tense image."
  },
  "interior/combat": {
   "subject": "The bronze dragon Runara presenting her true form before Hank, and Presto, along with a third individual",
@@ -144,8 +142,7 @@
   "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
   "artist": "Klaus Pillon",
   "page": "https://forgottenrealms.fandom.com/wiki/File:Triboar_trail_-_Klaus_Pillon.png",
-  "verdict": null,
-  "unseen": true,
+  "verdict": "down",
   "note": "An extra: overland travel, alongside the sea images."
  },
  "travel/overland (option 2)": {
@@ -153,7 +150,6 @@
   "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
   "artist": null,
   "page": "https://forgottenrealms.fandom.com/wiki/File:Road_to_phandalin.webp",
-  "verdict": null,
-  "unseen": true
+  "verdict": "up"
  }
 }
