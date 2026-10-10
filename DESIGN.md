@@ -355,6 +355,7 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 - **E9a — WebLLM:** small instruction models (around 1 to 3B parameters) with JSON-constrained output.
 - **E9b — Embeddings:** a small sentence-embedding model via transformers.js, comparing the transcript window against embedded label descriptions. No generative model is involved. Already used for choosing tracks (7.7); the timeline's comparisons with Claude's picks are its first data.
 - **E9c — Chrome's built-in Prompt API (Gemini Nano):** only if it is available to ordinary web pages at the time of testing.
+- **First round** ([experiments/E9.md](experiments/E9.md)): scored offline against a held-out set of 108 hand-labelled scenes (`src/eval/test-set.ts`) rather than Haiku logs. The current classifier gets 63% of scenes fully right. Nearest-track voting gets 38%, and zero-shot NLI models up to 51%. Small LLMs under 1B parameters score near chance. Qwen3-1.7B gets 61% and Gemma 3 4B 60%. Blending an LLM with the current classifier reaches 70% (Qwen3-1.7B) to 74% (Gemma 3 4B).
 
 **E10 — Browser behaviour over a full session.** On a Mac with default power and lock settings, left untouched, check:
 - that the wake lock holds, and the display, screensaver and auto-lock never kick in, with both local and Cast output;

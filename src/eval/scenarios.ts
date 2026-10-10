@@ -4,8 +4,11 @@
 
 import type { Intensity, Setting } from "../library/scenes.js";
 
+export type Category = "opening" | "setting" | "tense" | "combat" | "combat starts" | "combat ends" | "off-topic";
+
 export interface Scenario {
   name: string;
+  category?: Category;
   /** An opening-scene description, or a transcript with a current scene. */
   input:
     | { description: string }
@@ -22,6 +25,7 @@ const FIGHT: [number, string][] = [
   [80, "My turn, I cast magic missile at the hurt one. Three darts, it drops."],
 ];
 
+/** The development set: used while tuning, so its scores are optimistic. */
 export const SCENARIOS: Scenario[] = [
   // Openings
   { name: "opening: underground caverns", input: { description: "underground caverns, exploring" }, settings: ["dungeon"], intensities: ["calm", "tense"] },
