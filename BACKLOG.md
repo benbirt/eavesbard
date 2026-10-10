@@ -24,7 +24,7 @@ Done, not adopted: Gemma 4 E2B transcribes worse than Whisper (21% word errors o
 
 - Tidy the layout and settings now that the options have settled. For example, the setup text still carries rationale and numbers that belong in the docs.
 - A proper visual design, ideally with interesting art: for example, a backdrop that changes with the setting and intensity.
-- Art: an open-licensed library of fantasy illustrations, one or more per setting and intensity, chosen to match the scene. Check each licence allows reuse in a public web app, and credit the artists (alongside Tabletop Audio's attribution). Generated art (including SVG from the LLM) was considered and set aside.
+- Art: researched in experiments/E12.md. Proposed: a curated, bundled set of public-domain illustrations (mostly 18th–19th-century engravings such as Doré, Piranesi, Pyle and Bauer, from Wikimedia Commons and museum open-access collections), 3–5 per setting and intensity, unified by a duotone tinted by intensity, with a credits page; plus game-icons.net icons. Generated art (including SVG from the LLM) was considered and set aside.
 
 ## Smaller items
 
