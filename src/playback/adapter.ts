@@ -12,6 +12,8 @@ export interface PlaybackAdapter {
   stop(fadeMs: number): Promise<void>;
   /** Overall output level, 0 to 1. */
   setVolume(level: number): void;
+  /** Pause or resume the current track. */
+  setPaused(paused: boolean): void;
   /** Seek to `secondsBeforeEnd` before the end of the current track (for testing track-end events). */
   seekNearEnd(secondsBeforeEnd: number): void;
   onEvent(listener: PlaybackListener): void;

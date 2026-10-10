@@ -9,7 +9,7 @@ import { DEFAULT_MODEL } from "./classify/api.js";
 import { classify, openingMessage, userMessage, type Classification } from "./classify/classifier.js";
 import type { Usage } from "./classify/cost.js";
 import { library } from "./library-data.js";
-import type { Intensity } from "./library/scenes.js";
+import type { Intensity, Setting } from "./library/scenes.js";
 import type { LibraryTrack } from "./library/tag-map.js";
 import { onTranscriptLine, start as startListening, stop as stopListening } from "./listener.js";
 import { LOCAL_MODEL_NAME, localClassify, localModel, prepareLocalModels } from "./local-models.js";
@@ -285,6 +285,50 @@ async function tick(): Promise<void> {
   } else {
     playForScene(false, `setting changed to ${t.state.setting}`);
   }
+}
+
+/** Plays a different track for the current scene (the "next" button). */
+export function differentTrack(): void {
+  if (!scene.value) return;
+  record({ kind: "music", text: "You asked for a different track." });
+  playForScene(true, "you asked for a different track");
+}
+
+/**
+ * Sets the scene by hand. The change restarts that axis's clock, so the
+ * usual minimum durations (7.6) stop the classifier undoing it at once.
+ */
+export function setSceneYourself(change: { setting?: Setting; intensity?: Intensity }): void {
+  const before = scene.value;
+  if (!before) return;
+  const now = Date.now();
+  const setting = change.setting ?? before.setting;
+  const intensity = change.intensity ?? before.intensity;
+  if (setting === before.setting && intensity === before.intensity) return;
+  const after: SceneState = {
+    ...before,
+    setting,
+    intensity,
+    settingSince: setting !== before.setting ? now : before.settingSince,
+    intensitySince: intensity !== before.intensity ? now : before.intensitySince,
+    pendingSetting: undefined,
+    pendingIntensity: undefined,
+    reason: "set by you",
+  };
+  scene.value = after;
+  const sceneOf = (s: SceneState) => ({ setting: s.setting, intensity: s.intensity });
+  record({
+    kind: "decision",
+    changed: true,
+    from: sceneOf(before),
+    to: sceneOf(after),
+    notes: {
+      setting: setting !== before.setting ? `${before.setting} → ${setting}, set by you.` : `still ${setting}.`,
+      intensity: intensity !== before.intensity ? `${before.intensity} → ${intensity}, set by you.` : `still ${intensity}.`,
+    },
+  });
+  if (intensity !== before.intensity) playForScene(true, `you set the scene to ${intensity}`, before.intensity);
+  else playForScene(false, `you set the scene to ${setting}`);
 }
 
 /** Bumped for each track request, so a slow pick can't override a newer one. */

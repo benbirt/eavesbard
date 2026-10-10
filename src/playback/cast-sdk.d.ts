@@ -96,6 +96,7 @@ declare namespace cast.framework {
     currentTime: number;
     duration: number;
     volumeLevel: number;
+    isPaused: boolean;
   }
 
   class RemotePlayerController {
@@ -104,6 +105,7 @@ declare namespace cast.framework {
     seek(): void;
     stop(): void;
     setVolumeLevel(): void;
+    playOrPause(): void;
   }
 }
 

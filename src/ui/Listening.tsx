@@ -1,82 +1,38 @@
-import { model, setModel, speaking, state, wakeLock } from "../listener.js";
+import { model, setModel, state, wakeLock } from "../listener.js";
 import { isWebSpeech, WHISPER_DOWNLOAD_MB, WHISPER_MODELS, type SpeechModel } from "../stt/protocol.js";
 import { hasWebSpeech } from "../stt/web-speech.js";
 
-const MB = 1e6;
+const RECOMMENDED = "small.en";
 
-/** Chooses the speech-to-text model (in the setup section). */
+/** Chooses the speech-to-text model (in Setup). */
 export function SpeechModelChooser() {
   const active = state.value.phase === "loading" || state.value.phase === "listening";
   const m = model.value;
   return (
-    <label>
-      Speech model{" "}
-      <select value={m} disabled={active} onChange={(e) => setModel(e.currentTarget.value as SpeechModel)}>
+    <>
+      <select class="field" value={m} disabled={active} aria-label="Speech model" onChange={(e) => setModel(e.currentTarget.value as SpeechModel)}>
         {WHISPER_MODELS.map((w) => (
           <option key={w} value={w}>
-            Whisper {w} (about {WHISPER_DOWNLOAD_MB[w]} MB, on this computer)
+            Whisper {w.replace(".en", "")}
+            {w === RECOMMENDED ? " (recommended)" : ""} · about {WHISPER_DOWNLOAD_MB[w]} MB once
           </option>
         ))}
-        <option value="webspeech-device">Web Speech, on-device (built into the browser; Chrome only)</option>
-        <option value="webspeech-cloud">Web Speech, cloud (audio goes to the browser's maker, e.g. Google)</option>
-      </select>{" "}
+        <option value="webspeech-device">Web Speech, on-device (Chrome only)</option>
+        <option value="webspeech-cloud">Web Speech, cloud (sends audio to the browser's maker)</option>
+      </select>
+      {active && <p>Stop the session to change it.</p>}
       {isWebSpeech(m) ? (
-        <span class="warning">
+        <p class="warning small">
           {hasWebSpeech ? "" : "This browser has no Web Speech recognition. "}
           Web Speech is designed for Chrome; other browsers may not work.
           {m === "webspeech-cloud"
             ? " In this mode the browser sends what the microphone hears to its maker's servers: let the table know."
             : " On-device mode needs a recent Chrome, which may download its own speech model first."}
-        </span>
+        </p>
       ) : (
-        <span class="muted">Bigger is more accurate but slower. Downloaded once, then cached.</span>
+        <p>Runs on this computer. Bigger models hear better but take longer to download.</p>
       )}
-    </label>
-  );
-}
-
-function LoadingProgress({ loaded, total, preparing }: { loaded: number; total: number; preparing: boolean }) {
-  // Files report their sizes only as each download starts, so until the big
-  // ones begin, use the expected size to keep the bar from jumping backwards.
-  const m = model.value;
-  if (isWebSpeech(m)) return <p class="muted">Starting the browser's speech recognition…</p>;
-  const max = Math.max(total, WHISPER_DOWNLOAD_MB[m] * MB);
-  return (
-    <div class="progress">
-      {/* No value: an indeterminate bar while the GPU setup runs. */}
-      <progress value={preparing ? undefined : loaded} max={max} />
-      <span class="muted">
-        {preparing
-          ? "Preparing the speech model for your graphics card…"
-          : `Loading speech models: ${(loaded / MB).toFixed(0)} of about ${(max / MB).toFixed(0)} MB. ` +
-            "They download once; later visits load them from the browser's cache."}
-      </span>
-    </div>
-  );
-}
-
-const WAKE_LOCK_TEXT = {
-  off: "",
-  held: "Screen kept awake.",
-  lost: "The screen may sleep or lock: keep this tab visible.",
-  unsupported: "This browser can't keep the screen awake.",
-};
-
-/** Listening status for the "now" strip. */
-export function ListeningStatus() {
-  const s = state.value;
-  return (
-    <>
-      {s.phase === "loading" && <LoadingProgress loaded={s.loaded} total={s.total} preparing={s.preparing} />}
-      {s.phase === "error" && <p class="warning">{s.message}</p>}
-      {s.phase === "listening" && (
-        <span>
-          <span class={speaking.value ? "dot speaking" : "dot"} /> {speaking.value ? "Hearing speech" : "Listening"}
-        </span>
-      )}
-      {wakeLock.value !== "off" && (
-        <span class={wakeLock.value === "held" ? "muted" : "warning"}> · {WAKE_LOCK_TEXT[wakeLock.value]}</span>
-      )}
+      {wakeLock.value === "unsupported" && <p class="warning small">This browser can't keep the screen awake: keep it from sleeping yourself.</p>}
     </>
   );
 }

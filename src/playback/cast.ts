@@ -104,6 +104,10 @@ export class CastAdapter implements PlaybackAdapter {
     this.controller.setVolumeLevel();
   }
 
+  setPaused(paused: boolean): void {
+    if (this.player.isConnected && this.player.isPaused !== paused) this.controller.playOrPause();
+  }
+
   seekNearEnd(secondsBeforeEnd: number): void {
     if (this.player.duration > 0) {
       this.player.currentTime = Math.max(0, this.player.duration - secondsBeforeEnd);

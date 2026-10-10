@@ -22,9 +22,9 @@ Done, not adopted: Gemma 4 E2B transcribes worse than Whisper (21% word errors o
 
 ## 4. UI cleanup, and make it pretty
 
-- Tidy the layout and settings now that the options have settled. For example, the setup text still carries rationale and numbers that belong in the docs.
-- A proper visual design, ideally with interesting art: for example, a backdrop that changes with the setting and intensity.
-- Art: researched in experiments/E12.md. Proposed: a curated, bundled set of public-domain illustrations (mostly 18th–19th-century engravings such as Doré, Piranesi, Pyle and Bauer, from Wikimedia Commons and museum open-access collections), 3–5 per setting and intensity, unified by a duotone tinted by intensity, with a credits page; plus game-icons.net icons. Generated art (including SVG from the LLM) was considered and set aside.
+Done: a redesign around the scene art (DESIGN.md 7.10), with setting the scene by hand. Follow-ups:
+- Check listening on a real Chrome after the redesign: in headless Chrome, Whisper's warm-up never finished, with or without Gemma loaded (the speech code didn't change).
+- More art per intensity, especially tense (three images), and a few with known artists.
 
 ## Smaller items
 

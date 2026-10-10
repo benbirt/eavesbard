@@ -5,9 +5,9 @@ const pct = (x: number) => `${Math.round(x * 100)}%`;
 
 const FILTERS: { kind: TimelineKind; label: string }[] = [
   { kind: "speech", label: "Speech" },
-  { kind: "call", label: "Claude" },
-  { kind: "decision", label: "Decisions" },
+  { kind: "decision", label: "Scene changes" },
   { kind: "music", label: "Music" },
+  { kind: "call", label: "Model details" },
 ];
 
 const ICONS: Record<TimelineKind, string> = {
@@ -94,7 +94,7 @@ function Body({ entry }: { entry: TimelineEntry }) {
 }
 
 export function Timeline() {
-  const shown = useSignal<Set<TimelineKind>>(new Set(["speech", "call", "decision", "music"]));
+  const shown = useSignal<Set<TimelineKind>>(new Set(["speech", "decision", "music"]));
   const showDropped = useSignal(false);
   const entries = timeline.value
     .filter((t) => {
@@ -114,29 +114,26 @@ export function Timeline() {
   };
 
   return (
-    <section>
-      <h2>Timeline</h2>
-      <p class="filters">
+    <>
+      <div class="pills" role="group" aria-label="Show">
         {FILTERS.map((f) => (
-          <label class="inline" key={f.kind}>
-            <input type="checkbox" checked={shown.value.has(f.kind)} onChange={(e) => toggle(f.kind, e.currentTarget.checked)} />{" "}
-            {ICONS[f.kind]} {f.label}
-          </label>
+          <button type="button" class="pill" key={f.kind} aria-pressed={shown.value.has(f.kind)} onClick={() => toggle(f.kind, !shown.value.has(f.kind))}>
+            {f.label}
+          </button>
         ))}
-        <label class="inline">
-          <input type="checkbox" checked={showDropped.value} onChange={(e) => (showDropped.value = e.currentTarget.checked)} />{" "}
+        <button type="button" class="pill" aria-pressed={showDropped.value} onClick={() => (showDropped.value = !showDropped.value)}>
           Dropped speech
-        </label>
-      </p>
-      {!storageOk.value && <p class="warning">This browser refused storage, so this session won't be saved for export.</p>}
+        </button>
+      </div>
+      {!storageOk.value && <p class="warning small">This browser refused storage, so this session won't be saved for export.</p>}
       {entries.length === 0 ? (
-        <p class="muted">Start a session to see what's heard, what Claude decides, and what plays.</p>
+        <p class="small">Start a session to see what's heard, what's decided and what plays.</p>
       ) : (
-        <ol class="timeline">
+        <ol class="log">
           {entries.map((t) => (
             <li key={t.seq} class={`kind-${t.event.kind}`}>
-              <span class="time muted">{new Date(t.at).toLocaleTimeString("en-GB")}</span>
-              <span class="icon">{ICONS[t.event.kind]}</span>
+              <time>{new Date(t.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</time>
+              <span aria-hidden="true">{ICONS[t.event.kind]}</span>
               <div class="body">
                 <Body entry={t} />
               </div>
@@ -145,20 +142,23 @@ export function Timeline() {
         </ol>
       )}
       <p>
-        <button onClick={() => void exportJsonl(false)}>Export this session (JSONL)</button>{" "}
-        <button onClick={() => void exportJsonl(true)}>Export all sessions</button>{" "}
+        <button type="button" class="btn" onClick={() => void exportJsonl(false)}>
+          Export this session
+        </button>{" "}
+        <button type="button" class="btn" onClick={() => void exportJsonl(true)}>
+          Export all
+        </button>{" "}
         <button
+          type="button"
+          class="btn"
           onClick={() => {
             if (confirm("Delete every saved session from this browser?")) void clearStored();
           }}
         >
-          Clear saved sessions
+          Clear saved
         </button>
       </p>
-      <p class="muted">
-        Sessions, including transcripts, are saved in this browser until you clear them, and can be exported for
-        tuning the classifier.
-      </p>
-    </section>
+      <p class="small">Sessions, including transcripts, are saved in this browser until you clear them.</p>
+    </>
   );
 }

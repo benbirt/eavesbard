@@ -35,6 +35,10 @@ export interface CastStatus {
 export const output = signal<Output>("local");
 /** The track most recently started, whichever output it's on. */
 export const nowPlaying = signal<LibraryTrack | undefined>(undefined);
+/** Whether the current track is paused. */
+export const paused = signal(false);
+/** Output level, 0 to 1. */
+export const volume = signal(1);
 export const castStatus = signal<CastStatus>({ available: undefined, state: "", hint: "" });
 /** Newest first. */
 export const events = signal<LogEntry[]>([]);
@@ -123,6 +127,7 @@ export function play(entry: LibraryTrack | undefined): Promise<void> {
     const url = audioUrl(entry.track.file);
     log(output.value, { type: "info", detail: `requesting ${entry.track.title} (${url})` });
     nowPlaying.value = entry;
+    paused.value = false;
     return adapter().play(url, entry.track.title, FADE_MS);
   });
 }
@@ -139,8 +144,19 @@ export function playbackPosition(): { currentS: number; durationS: number } | un
 export const stop = () =>
   run(output.value, () => {
     nowPlaying.value = undefined;
+    paused.value = false;
     return adapter().stop(FADE_MS);
   });
 export const seekNearEnd = () => run(output.value, () => adapter().seekNearEnd(20));
-export const setVolume = (level: number) => run(output.value, () => adapter().setVolume(level));
+export const setVolume = (level: number) =>
+  run(output.value, () => {
+    volume.value = level;
+    adapter().setVolume(level);
+  });
+export const setPaused = (on: boolean) =>
+  run(output.value, () => {
+    if (!nowPlaying.value) return;
+    paused.value = on;
+    adapter().setPaused(on);
+  });
 export const connectCast = () => run("cast", () => cast?.connect());

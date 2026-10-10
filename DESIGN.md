@@ -263,19 +263,21 @@ Entries are written to IndexedDB as they happen. Buttons export the current sess
 
 ### 7.10 UI
 
-- **Start box** (before a session): an optional opening-scene description, Start session, and the output choice (this computer or Cast).
-- **Now strip** (during a session):
-  - the scene in large type, how long it has lasted and why it was chosen;
-  - what's pending ("→ calm (1 of 2)", "combat stays at least 40 s more");
-  - a countdown to the next classifier check, or "next check when there's new speech", or "Asking Claude…";
-  - the playing track with a progress bar;
-  - listening status (model download progress, hearing speech), wake lock, the helper LLM's download progress, and the session's classifier calls and cost;
-  - Stop session.
-- **Timeline** (7.9), newest first, with tick boxes to show or hide speech, Claude calls, decisions and music, plus dropped speech. Each call can be expanded to show exactly what was sent.
-- **Setup** (collapsed): automatic music on or off; Models (Local or Claude, for scene checks and track picks); for Claude, the API key and the privacy note, and for Local, the scene model (Gemma 4 E2B with the embeddings, and a warning where there's no WebGPU); and the speech model (Whisper sizes, or Web Speech on-device or cloud).
-- **Pick tracks yourself** (collapsed): the manual track picker, transport controls and the raw playback log.
-- **Attribution footer:** "Ambiences by Tabletop Audio (tabletopaudio.com), CC BY-NC-ND 4.0", with links, and a link to the source code. The current track's title, shown in the Now strip, completes the per-work attribution.
-- **Wake lock:** held while listening, re-requested when the tab becomes visible again, with a warning when lost (7.2, section 4).
+Designed for a GM mid-session, glancing at the screen from across the table: the scene must be trusted at a glance and corrected in one tap, and everything else can wait. The mock-up it was built from is `experiments/ui/mockup.html`; `experiments/ui/ui-check.mjs` drives the real app through its main states.
+
+- **Art first** (`src/ui/SceneArt.tsx`, `src/art/`): official D&D illustrations grouped by intensity (experiments/E12.md). The current image sits whole in a frame, never cropped or covered, because the Fan Content Policy forbids removing notices and signatures. A heavily blurred copy fills the whole page as an ambient background, and the controls sit on glass cards over the blur, never over the art. A new image is picked only when the intensity changes; calm when there's no session.
+- **Colour:** the intensity colours the controls (green when calm, amber when tense, red in combat), never the art. Dark only, for a dim room. Cinzel (self-hosted, SIL Open Font License) for scene and track names, the system font for the rest.
+- **Top bar:** the name; status chips for listening (loading, listening, hearing speech, problems) and the scene model (download progress, ready, problems, or Claude's running cost); Log and Setup buttons.
+- **Before a session**, the side column is a "Set the scene" card: an opening description, Begin session, where to play, and a readiness checklist (tracks, speech model, scene model download).
+- **During a session**, the side column has two cards and a Stop button:
+  - **The scene:** setting and intensity, the last line heard and why, how long it has lasted, the next check, what's pending, and buttons to set the setting or intensity yourself. A change set by hand restarts that axis's clock, so the minimum durations (7.6) keep the classifier from undoing it at once.
+  - **Now playing:** the track and progress, pause, a different track, volume, and this computer or Cast.
+- **Side panels** (`src/ui/Drawer.tsx`) slide over from the right, with tabs to switch between them; Escape closes them.
+  - **Session log** (7.9): speech, scene changes and music by default, and model details and dropped speech on request, with export and clear.
+  - **Setup:** automatic music; who decides the scene (on this computer, or Claude with its key and privacy note); listening; where to play, with Cast troubleshooting; picking a track yourself, with testing controls and the playback log; and About (attributions, the Fan Content notice and all art credits).
+- **Footer:** Tabletop Audio's attribution, the Fan Content Policy notice, and a pointer to the art credits, always visible.
+- **Narrow screens:** one column (art, scene, music); the scene-model chip hides below 860 px.
+- **Wake lock:** held while listening, re-requested when the tab becomes visible again, with a warning in the listening chip when lost (7.2, section 4).
 
 ## 8. Tech stack and repo layout
 

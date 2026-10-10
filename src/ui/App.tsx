@@ -1,38 +1,68 @@
-import { EventLog } from "./EventLog.js";
-import { ArtCredits } from "./SceneArt.js";
-import { Transport } from "./Playback.js";
-import { Session } from "./Session.js";
+import { useEffect } from "preact/hooks";
+import { FAN_CONTENT_NOTICE, FAN_CONTENT_POLICY_URL } from "../art/scene-art.js";
+import { scene, sessionActive } from "../director.js";
+import { ListeningChip, ModelChip } from "./Chips.js";
+import { Drawer, toggleDrawer } from "./Drawer.js";
+import { Ambient, ArtFrame } from "./SceneArt.js";
+import { MusicCard, SceneCard, StartCard, StopButton } from "./Session.js";
 import { Settings } from "./Settings.js";
 import { Timeline } from "./Timeline.js";
-import { TrackPicker } from "./TrackPicker.js";
 
 export function App() {
+  const intensity = scene.value?.intensity ?? "calm";
+  // The intensity colours the controls (never the art).
+  useEffect(() => {
+    document.body.dataset.intensity = intensity;
+  }, [intensity]);
   return (
     <>
-      <h1>Eavesbard</h1>
-      <Session />
-      <Timeline />
-      <details>
-        <summary>Setup</summary>
+      <Ambient />
+      <div class="app">
+        <header class="top">
+          <div class="brand">Eavesbard</div>
+          <ListeningChip />
+          <ModelChip />
+          <button type="button" class="iconbtn" onClick={() => toggleDrawer("log")}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M4 6h16M4 12h16M4 18h10" />
+            </svg>
+            Log
+          </button>
+          <button type="button" class="iconbtn" onClick={() => toggleDrawer("setup")}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+            </svg>
+            Setup
+          </button>
+        </header>
+        <main class="stage">
+          <ArtFrame />
+          <div class="col">
+            {sessionActive.value ? (
+              <>
+                <SceneCard />
+                <MusicCard />
+                <StopButton />
+              </>
+            ) : (
+              <StartCard />
+            )}
+          </div>
+        </main>
+        <footer class="foot">
+          Ambiences by <a href="https://tabletopaudio.com/">Tabletop Audio</a> (
+          <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>). {FAN_CONTENT_NOTICE}{" "}
+          <a href={FAN_CONTENT_POLICY_URL}>Fan Content Policy</a>. Art credits are in Setup → About. Source on{" "}
+          <a href="https://github.com/benbirt/eavesbard">GitHub</a>.
+        </footer>
+      </div>
+      <Drawer name="log" title="Session log">
+        <Timeline />
+      </Drawer>
+      <Drawer name="setup" title="Setup">
         <Settings />
-      </details>
-      <details>
-        <summary>Pick tracks yourself</summary>
-        <fieldset>
-          <TrackPicker />
-          <Transport />
-          <details>
-            <summary class="muted">Playback log</summary>
-            <EventLog />
-          </details>
-        </fieldset>
-      </details>
-      <footer>
-        Ambiences by <a href="https://tabletopaudio.com/">Tabletop Audio</a>, licensed{" "}
-        <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>. Source code on{" "}
-        <a href="https://github.com/benbirt/eavesbard">GitHub</a>.
-        <ArtCredits />
-      </footer>
+      </Drawer>
     </>
   );
 }

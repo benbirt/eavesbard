@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eavesbard UI mock-up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0d0b;
+    --fg: #f1ece2;
+    --muted: #b3aa9a;
+    --glass: rgba(18, 16, 13, 0.72);
+    --glass-strong: rgba(18, 16, 13, 0.9);
+    --line: rgba(241, 236, 226, 0.14);
+    --accent: #7fb59c;
+    --accent-ink: #0e0d0b;
+    --radius: 14px;
+    --display: "Cinzel", Georgia, serif;
+    --ui: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  body[data-intensity="tense"] { --accent: #e0a94a; }
+  body[data-intensity="combat"] { --accent: #e0574e; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.45 var(--ui); overflow-x: hidden; }
+  button { font: inherit; color: inherit; }
+  a { color: var(--accent); }
+
+  /* Ambient: a blurred copy of the art fills the page; the real art sits untouched in a frame. */
+  .ambient { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+  .ambient img { width: 100%; height: 100%; object-fit: cover; filter: blur(40px) saturate(1.1) brightness(0.45); transform: scale(1.2); transition: opacity 1.2s; }
+  .ambient::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, transparent 0, rgba(14,13,11,.55) 70%); }
+
+  .app { position: relative; z-index: 1; min-height: 100%; display: grid; grid-template-rows: auto 1fr; }
+
+  /* Top bar: identity, health, and the two drawers. */
+  .top { display: flex; align-items: center; gap: 12px; padding: 12px 20px; }
+  .brand { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: .06em; margin-right: auto; }
+  .chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 999px; background: var(--glass); border: 1px solid var(--line); font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .chip b { color: var(--fg); font-weight: 600; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #6fcf8a; box-shadow: 0 0 0 0 rgba(111,207,138,.6); }
+  .dot.hearing { animation: pulse 1.4s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 8px rgba(111,207,138,0); } 100% { box-shadow: 0 0 0 0 rgba(111,207,138,0); } }
+  .iconbtn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 10px; background: var(--glass); border: 1px solid var(--line); cursor: pointer; }
+  .iconbtn:hover { border-color: var(--accent); }
+  .iconbtn svg { width: 17px; height: 17px; }
+
+  /* Stage: art frame + side column. */
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 20px; padding: 4px 20px 20px; align-items: start; }
+  .frame { margin: 0; }
+  .frame .art { border-radius: var(--radius); overflow: hidden; background: #000; box-shadow: 0 20px 60px rgba(0,0,0,.5); aspect-ratio: 16 / 10; display: grid; place-items: center; position: relative; }
+  .frame .art .fill { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(22px) brightness(.5); transform: scale(1.15); }
+  .frame .art .img { position: relative; width: 100%; height: 100%; object-fit: contain; display: block; }
+  .credit { margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .credit a { color: var(--muted); }
+
+  .col { display: grid; gap: 14px; }
+  .card { background: var(--glass); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+
+  .scene-name { font-family: var(--display); font-size: 30px; line-height: 1.1; margin: 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .badge { font-family: var(--ui); font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
+  .why { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+  .meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+  .bar { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; background: var(--accent); }
+  .pending { margin-top: 8px; font-size: 13px; color: var(--accent); }
+
+  .override { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .override p { margin: 0 0 8px; font-size: 12px; color: var(--muted); }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+  .pill { padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; font-size: 13px; cursor: pointer; color: var(--muted); }
+  .pill[aria-pressed="true"] { border-color: var(--accent); color: var(--fg); background: color-mix(in srgb, var(--accent) 20%, transparent); }
+  .proposed { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; border: 1px dashed var(--muted); border-radius: 4px; padding: 0 4px; margin-left: 4px; }
+
+  .track { font-family: var(--display); font-size: 19px; margin: 0; }
+  .src { color: var(--muted); font-size: 13px; }
+  .transport { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+  .round { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: transparent; border: 1px solid var(--line); cursor: pointer; }
+  .round.primary { background: var(--accent); color: var(--accent-ink); border: none; }
+  .round svg { width: 18px; height: 18px; }
+  input[type=range] { accent-color: var(--accent); flex: 1; min-width: 60px; }
+  .output { display: flex; gap: 6px; margin-top: 12px; }
+  .seg { flex: 1; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: transparent; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .seg[aria-pressed="true"] { border-color: var(--accent); color: var(--fg); }
+
+  .stop { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: transparent; cursor: pointer; color: var(--muted); }
+  .stop:hover { border-color: #e0574e; color: var(--fg); }
+
+  /* Before a session: the start card takes the side column. */
+  .start h2 { font-family: var(--display); font-size: 26px; margin: 0 0 6px; }
+  .start p { margin: 0 0 14px; color: var(--muted); }
+  .start input[type=text] { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,.35); color: var(--fg); font: inherit; }
+  .start input[type=text]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .begin { width: 100%; margin-top: 12px; padding: 13px; border-radius: 10px; border: none; background: var(--accent); color: var(--accent-ink); font-weight: 700; font-size: 16px; cursor: pointer; }
+  .ready { display: grid; gap: 6px; margin-top: 14px; font-size: 13px; color: var(--muted); }
+  .ready span::before { content: "✓ "; color: #6fcf8a; }
+  .ready span.wait::before { content: "◌ "; color: var(--accent); }
+
+  /* Drawers: the log and setup slide over from the right. */
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100vw); z-index: 5; background: var(--glass-strong); border-left: 1px solid var(--line); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); transform: translateX(100%); transition: transform .25s ease; display: flex; flex-direction: column; }
+  .drawer.open { transform: none; }
+  .drawer header { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+  .drawer h2 { font-family: var(--display); font-size: 20px; margin: 0; }
+  .drawer .body { overflow-y: auto; padding: 14px 18px 24px; }
+  .close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); }
+
+  .log { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 2px; }
+  .log li { display: grid; grid-template-columns: 52px 22px 1fr; gap: 6px; padding: 7px 4px; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .log time { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .log .speech { color: var(--fg); font-style: italic; }
+  .log .decision strong { color: var(--accent); }
+  .log details summary { cursor: pointer; color: var(--muted); }
+  .log details pre { white-space: pre-wrap; font-size: 12px; background: rgba(0,0,0,.3); padding: 8px; border-radius: 6px; }
+
+  .section { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .section h3 { margin: 0 0 8px; font-size: 15px; }
+  .section p { margin: 6px 0; color: var(--muted); font-size: 13px; }
+  .radio { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; margin: 6px 0; cursor: pointer; }
+  .radio:has(input:checked) { border-color: var(--accent); }
+  .radio small { display: block; color: var(--muted); }
+  .field { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: rgba(0,0,0,.35); color: var(--fg); font: inherit; }
+  .btn { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-size: 13px; }
+  .toggle { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .credits { font-size: 12px; color: var(--muted); padding-left: 18px; }
+
+  /* Prototype controls (not part of the design). */
+  .proto { position: fixed; left: 12px; bottom: 12px; z-index: 10; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 6px; border-radius: 10px; background: #fff; color: #111; font: 12px/1 var(--ui); border: 2px dashed #888; max-width: calc(100vw - 24px); }
+  .proto b { margin: 0 4px; }
+  .proto button { padding: 5px 8px; border-radius: 6px; border: 1px solid #bbb; background: #f4f4f4; cursor: pointer; color: #111; }
+  .proto button[aria-pressed="true"] { background: #111; color: #fff; }
+  .notes { position: fixed; left: 12px; bottom: 60px; z-index: 10; width: min(460px, calc(100vw - 24px)); max-height: 70vh; overflow: auto; background: #fff; color: #111; border-radius: 10px; padding: 14px 16px; font: 13px/1.5 var(--ui); box-shadow: 0 10px 40px rgba(0,0,0,.4); display: none; }
+  .notes.open { display: block; }
+  .notes h2 { margin: 0 0 6px; font-size: 15px; }
+  .notes ul { padding-left: 18px; margin: 6px 0; }
+
+  /* Phone width. */
+  body.phone .app { max-width: 390px; margin: 0 auto; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+  body.phone .stage, .stage-narrow { grid-template-columns: 1fr; }
+  body.phone .top .chip.model { display: none; }
+  body.phone .brand { font-size: 17px; }
+  body.phone .scene-name { font-size: 24px; }
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+    .top .chip.model { display: none; }
+  }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body data-intensity="combat">
+<div class="ambient"><img id="ambient" alt="" src="../../src/art/combat-roc.webp"></div>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">Eavesbard</div>
+    <span class="chip health" id="listen-chip"><span class="dot hearing"></span><b>Hearing speech</b> · Whisper small</span>
+    <span class="chip health model"><b>Gemma 4</b> + embeddings · ready</span>
+    <button class="iconbtn" data-drawer="log" aria-label="Session log">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Log</button>
+    <button class="iconbtn" data-drawer="setup" aria-label="Setup">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Setup</button>
+  </header>
+
+  <main class="stage">
+    <figure class="frame">
+      <div class="art"><img class="fill" id="fill" alt="" src="../../src/art/combat-roc.webp"><img class="img" id="art" src="../../src/art/combat-roc.webp" alt="A vengeful roc"></div>
+      <figcaption class="credit" id="credit">A vengeful roc · Monster Manual (2025) · art by Alejandro Pacheco · © Wizards of the Coast</figcaption>
+    </figure>
+
+    <div class="col">
+      <!-- Before a session -->
+      <section class="card start" id="start" hidden>
+        <h2>Set the scene</h2>
+        <p>Describe where the party begins, or leave it blank and let the table talk decide.</p>
+        <input type="text" placeholder="the party arrives at a busy port at dusk" aria-label="Opening scene">
+        <button class="begin">Begin session</button>
+        <div class="output" role="group" aria-label="Play on">
+          <button class="seg" aria-pressed="true">This Mac</button>
+          <button class="seg" aria-pressed="false">Cast…</button>
+        </div>
+        <div class="ready">
+          <span>Track list: 332 ambiences</span>
+          <span>Speech: Whisper small, cached</span>
+          <span class="wait">Scene model: downloading Gemma 4 (1.2 of 3.1 GB)</span>
+        </div>
+      </section>
+
+      <!-- During a session -->
+      <section class="card" id="scene">
+        <p class="eyebrow">The scene</p>
+        <h1 class="scene-name"><span id="setting">Travel</span> <span class="badge" id="intensity">Combat</span></h1>
+        <p class="why" id="why">“…the roc dives at the ship — roll initiative!” · Gemma 4 and the embeddings agree</p>
+        <div class="meta"><span id="since">for 1:42</span><span id="next">next check in 9 s</span></div>
+        <div class="bar"><i style="width: 40%"></i></div>
+        <p class="pending" id="pending">Ending? 1 of 2 checks say calm</p>
+        <div class="override">
+          <p>Tap to set the scene yourself <span class="proposed">proposed</span></p>
+          <div class="pills" id="setting-pills"></div>
+          <div class="pills" id="intensity-pills"></div>
+        </div>
+      </section>
+
+      <section class="card" id="music">
+        <p class="eyebrow">Now playing</p>
+        <p class="track" id="track">Ship Battle</p>
+        <p class="src">Tabletop Audio · 3:12 / 10:00</p>
+        <div class="bar"><i style="width: 32%"></i></div>
+        <div class="transport">
+          <button class="round primary" aria-label="Pause"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg></button>
+          <button class="round" aria-label="Different track"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l9 7-9 7zM17 5v14"/></svg></button>
+          <input type="range" min="0" max="1" step=".05" value=".8" aria-label="Volume">
+        </div>
+        <div class="output" role="group" aria-label="Play on">
+          <button class="seg" aria-pressed="true">This Mac</button>
+          <button class="seg" aria-pressed="false">Cast…</button>
+        </div>
+      </section>
+
+      <button class="stop" id="stop">Stop session</button>
+    </div>
+  </main>
+</div>
+
+<!-- Session log drawer -->
+<aside class="drawer" id="drawer-log" aria-label="Session log">
+  <header><h2>Session log</h2><button class="close" data-close aria-label="Close">×</button></header>
+  <div class="body">
+    <div class="pills">
+      <button class="pill" aria-pressed="true">Speech</button>
+      <button class="pill" aria-pressed="true">Scene changes</button>
+      <button class="pill" aria-pressed="true">Music</button>
+      <button class="pill" aria-pressed="false">Model details</button>
+      <button class="pill" aria-pressed="false">Dropped speech</button>
+    </div>
+    <ol class="log">
+      <li><time>21:14</time><span>🎵</span><span>Playing <b>Ship Battle</b>: closest match to “travel, combat”.</span></li>
+      <li class="decision"><time>21:14</time><span>⚔️</span><span><strong>Travel · calm → combat</strong> (92% sure)</span></li>
+      <li><time>21:14</time><span>🗣</span><span class="speech">the roc dives at the ship, roll initiative</span></li>
+      <li><time>21:13</time><span>🗣</span><span class="speech">something huge is circling above the mast</span></li>
+      <li><time>21:13</time><span>🤖</span><span>Gemma 4 + embeddings: travel, tense
+        <details><summary>details</summary><pre>embeddings: travel 0.71, tense 0.64
+Gemma 4: travel, tense; fight over n/a
+blended: travel 0.83, tense 0.58</pre></details></span></li>
+      <li><time>21:12</time><span>🗣</span><span class="speech">we set sail for the islands at dawn</span></li>
+      <li><time>21:10</time><span>●</span><span><b>Session started</b>: “sailing to the islands on a merchant ship”.</span></li>
+    </ol>
+    <p><button class="btn">Export this session</button> <button class="btn">Export all</button> <button class="btn">Clear saved</button></p>
+  </div>
+</aside>
+
+<!-- Setup drawer -->
+<aside class="drawer" id="drawer-setup" aria-label="Setup">
+  <header><h2>Setup</h2><button class="close" data-close aria-label="Close">×</button></header>
+  <div class="body">
+    <div class="section">
+      <div class="toggle"><h3>Choose music automatically</h3><input type="checkbox" checked aria-label="Choose music automatically"></div>
+      <p>Listens to the table and changes the music with the scene.</p>
+    </div>
+    <div class="section">
+      <h3>Who decides the scene</h3>
+      <label class="radio"><input type="radio" name="engine" checked><span>On this computer <small>Gemma 4 with embeddings · 3.1 GB once · free and private</small></span></label>
+      <label class="radio"><input type="radio" name="engine"><span>Claude <small>Needs an Anthropic API key · about 10–30 cents a session · sends the transcript to Anthropic</small></span></label>
+    </div>
+    <div class="section">
+      <h3>Listening</h3>
+      <select class="field" aria-label="Speech model">
+        <option>Whisper small (recommended) · 590 MB once</option>
+        <option>Whisper base · 205 MB once</option>
+        <option>Whisper tiny · 120 MB once</option>
+        <option>Web Speech, on-device (Chrome only)</option>
+        <option>Web Speech, cloud (sends audio to Google)</option>
+      </select>
+      <p>Screen kept awake while listening.</p>
+    </div>
+    <div class="section">
+      <h3>Play on</h3>
+      <div class="output"><button class="seg" aria-pressed="true">This Mac</button><button class="seg">Cast…</button></div>
+      <p>No Cast devices found? On a Mac, allow Chrome “Local Network” access; on Android, “Nearby devices”.</p>
+    </div>
+    <div class="section">
+      <h3>Pick a track yourself</h3>
+      <p><select class="field" aria-label="Setting"><option>Tavern</option></select></p>
+      <p><select class="field" aria-label="Track"><option>The Inn at the Crossroads</option></select></p>
+      <p><button class="btn">Play</button> <button class="btn">Play something random</button></p>
+    </div>
+    <div class="section">
+      <h3>About</h3>
+      <p>Ambiences by <a href="#">Tabletop Audio</a>, licensed CC BY-NC-ND 4.0. Source code on <a href="#">GitHub</a>.</p>
+      <p>Eavesbard is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.</p>
+      <details><summary class="src">Art credits</summary><ul class="credits"><li>A vengeful roc · Monster Manual (2025) · art by Alejandro Pacheco</li><li>…all fifteen, as now</li></ul></details>
+    </div>
+  </div>
+</aside>
+
+<div class="notes" id="notes">
+  <h2>Design notes</h2>
+  <p><b>Who:</b> a GM mid-session, glancing at the screen from across the table. It must be trusted at a glance and corrected in one tap; everything else can wait.</p>
+  <ul>
+    <li><b>The scene is the hero.</b> Art, scene name and music lead; model calls, countdowns and costs move to the log.</li>
+    <li><b>Nothing over the art.</b> The licence forbids covering notices and signatures, so the art sits whole in a frame; a blurred copy becomes the page's ambient background, and controls live on glass cards over the blur.</li>
+    <li><b>The intensity colours the chrome</b> (green, amber, red), never the art.</li>
+    <li><b>One-tap corrections:</b> pause, a different track, volume and output on the main view. Proposed: tap a setting or intensity to set the scene yourself.</li>
+    <li><b>Rare things in one place:</b> Setup holds models, listening, output, the manual track picker and About (credits and the Fan Content notice).</li>
+    <li><b>Before a session</b> the side column becomes a “Set the scene” card with a readiness checklist (downloads), instead of loading bars scattered around.</li>
+    <li><b>Health</b> sits in the top bar as chips (hearing speech, scene model ready); problems turn a chip amber and say what to do.</li>
+  </ul>
+  <p>Typography: Cinzel for scene and track names, the system font for everything else. Dark only, for a dim room.</p>
+</div>
+
+<nav class="proto" aria-label="Prototype controls">
+  <b>Mock-up:</b>
+  <button data-state="before">Before session</button>
+  <button data-state="calm">Calm</button>
+  <button data-state="tense">Tense</button>
+  <button data-state="combat" aria-pressed="true">Combat</button>
+  <b>·</b>
+  <button data-open="log">Log</button>
+  <button data-open="setup">Setup</button>
+  <button id="phone">Phone width</button>
+  <button id="notes-btn">Design notes</button>
+</nav>
+
+<script>
+  const ART = {
+    before: { file: "calm-waterdeep.webp", credit: "Waterdeep, seen from the water · City of Splendors: Waterdeep (2005) · © Wizards of the Coast" },
+    calm: { file: "calm-ten-towns-boats.webp", credit: "Fishing boats of Ten-Towns · Legacy of the Crystal Shard (2013) · © Wizards of the Coast", setting: "Travel", why: "“we set sail for the islands at dawn” · Gemma 4 and the embeddings agree", track: "Calm Seas", pending: "" },
+    tense: { file: "tense-owlbear-trail.webp", credit: "An owlbear on the trail · Phandelver and Below (2023) · art by Klaus Pillon · © Wizards of the Coast", setting: "Wilderness", why: "“something big is crashing through the trees” · Gemma 4: tense; embeddings: tense", track: "Dark Forest", pending: "Combat? 1 of 2 checks say so" },
+    combat: { file: "combat-roc.webp", credit: "A vengeful roc · Monster Manual (2025) · art by Alejandro Pacheco · © Wizards of the Coast", setting: "Travel", why: "“…the roc dives at the ship — roll initiative!” · Gemma 4 and the embeddings agree", track: "Ship Battle", pending: "Ending? 1 of 2 checks say calm" },
+  };
+  const SETTINGS = ["Tavern", "Town", "Interior", "Wilderness", "Dungeon", "Travel"];
+  const INTENSITIES = ["Calm", "Tense", "Combat"];
+  const $ = (id) => document.getElementById(id);
+  function pills(el, items, current) {
+    el.innerHTML = items.map((i) => `<button class="pill" aria-pressed="${i === current}">${i}</button>`).join("");
+  }
+  function setState(state) {
+    const a = ART[state];
+    const intensity = state === "before" ? "calm" : state;
+    document.body.dataset.intensity = intensity;
+    for (const id of ["ambient", "fill", "art"]) $(id).src = "../../src/art/" + a.file;
+    $("credit").textContent = a.credit;
+    const before = state === "before";
+    $("start").hidden = !before;
+    for (const id of ["scene", "music", "stop"]) $(id).hidden = before;
+    $("listen-chip").innerHTML = before ? '<span class="dot" style="background:#888"></span><b>Not listening</b>' : '<span class="dot hearing"></span><b>Hearing speech</b> · Whisper small';
+    if (!before) {
+      $("setting").textContent = a.setting;
+      $("intensity").textContent = intensity[0].toUpperCase() + intensity.slice(1);
+      $("why").textContent = a.why;
+      $("track").textContent = a.track;
+      $("pending").textContent = a.pending;
+      $("pending").hidden = !a.pending;
+      pills($("setting-pills"), SETTINGS, a.setting);
+      pills($("intensity-pills"), INTENSITIES, intensity[0].toUpperCase() + intensity.slice(1));
+    }
+    document.querySelectorAll("[data-state]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.state === state)));
+  }
+  function openDrawer(name) {
+    document.querySelectorAll(".drawer").forEach((d) => d.classList.toggle("open", d.id === "drawer-" + name && !d.classList.contains("open")));
+  }
+  document.querySelectorAll("[data-state]").forEach((b) => b.addEventListener("click", () => setState(b.dataset.state)));
+  document.querySelectorAll("[data-open], [data-drawer]").forEach((b) => b.addEventListener("click", () => openDrawer(b.dataset.open || b.dataset.drawer)));
+  document.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => b.closest(".drawer").classList.remove("open")));
+  $("phone").addEventListener("click", (e) => { document.body.classList.toggle("phone"); e.currentTarget.setAttribute("aria-pressed", String(document.body.classList.contains("phone"))); });
+  $("notes-btn").addEventListener("click", (e) => { $("notes").classList.toggle("open"); e.currentTarget.setAttribute("aria-pressed", String($("notes").classList.contains("open"))); });
+  document.querySelectorAll(".pills").forEach((g) => g.addEventListener("click", (e) => { const b = e.target.closest(".pill"); if (b && g.closest(".drawer")) b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true")); }));
+  setState("combat");
+</script>
+</body>
+</html>

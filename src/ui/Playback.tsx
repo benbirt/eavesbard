@@ -1,55 +1,49 @@
-import { castStatus, connectCast, output, seekNearEnd, setOutput, setVolume, stop } from "../player.js";
+import { castStatus, connectCast, output, seekNearEnd, setOutput, stop } from "../player.js";
 
-export function OutputChooser() {
+/** Where the music plays: this computer or a Cast device. Setup also shows Cast troubleshooting. */
+export function OutputSwitch({ withHint = false }: { withHint?: boolean }) {
   const cast = castStatus.value;
-  const status =
+  const castTitle =
     cast.available === undefined
       ? "Loading Cast support…"
       : cast.available
-        ? `Cast SDK loaded: ${cast.state}.`
-        : "Casting isn't available in this browser (the Cast SDK reported it unavailable).";
+        ? `Cast: ${cast.state}`
+        : "Casting isn't available in this browser";
   return (
     <>
-      <label>
-        <input type="radio" name="output" checked={output.value === "local"} onChange={() => setOutput("local")} />{" "}
-        This computer
-      </label>
-      <label>
-        <input
-          type="radio"
-          name="output"
-          checked={output.value === "cast"}
+      <div class="output" role="group" aria-label="Play on">
+        <button type="button" class="seg" aria-pressed={output.value === "local"} onClick={() => void setOutput("local")}>
+          This computer
+        </button>
+        <button
+          type="button"
+          class="seg"
+          aria-pressed={output.value === "cast"}
           disabled={!cast.available}
-          onChange={() => setOutput("cast")}
-        />{" "}
-        Cast <google-cast-launcher />{" "}
-        <button type="button" disabled={!cast.available} onClick={connectCast}>
-          Connect…
-        </button>{" "}
-        <span class="muted">{status}</span>
-      </label>
-      {cast.hint && <p class="warning">{cast.hint}</p>}
+          title={castTitle}
+          onClick={() => {
+            void setOutput("cast");
+            void connectCast();
+          }}
+        >
+          Cast…
+        </button>
+      </div>
+      {withHint && cast.hint && <p class="warning small">{cast.hint}</p>}
     </>
   );
 }
 
+/** Testing controls for the manual track picker. */
 export function Transport() {
   return (
-    <>
-      <p>
-        <button onClick={stop}>Stop</button> <button onClick={seekNearEnd}>Skip to 20 s before end</button>
-      </p>
-      <label>
-        Volume{" "}
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.05"
-          defaultValue="1"
-          onInput={(e) => setVolume(Number(e.currentTarget.value))}
-        />
-      </label>
-    </>
+    <p>
+      <button type="button" class="btn" onClick={stop}>
+        Stop the music
+      </button>{" "}
+      <button type="button" class="btn" onClick={seekNearEnd}>
+        Skip to 20 s before the end
+      </button>
+    </p>
   );
 }

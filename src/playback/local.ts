@@ -65,6 +65,13 @@ export class LocalAdapter implements PlaybackAdapter {
     this.elements[this.active]!.volume = level;
   }
 
+  setPaused(paused: boolean): void {
+    const el = this.elements[this.active]!;
+    if (!el.getAttribute("src")) return;
+    if (paused) el.pause();
+    else void el.play().catch(() => undefined);
+  }
+
   seekNearEnd(secondsBeforeEnd: number): void {
     const el = this.elements[this.active]!;
     if (Number.isFinite(el.duration)) el.currentTime = Math.max(0, el.duration - secondsBeforeEnd);
