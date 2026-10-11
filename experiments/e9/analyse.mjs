@@ -1,13 +1,14 @@
 // Scores saved browser-eval results (results/*.json): each prompt variant alone
 // and blended with the embeddings through the app's own code
 // (classifyFromScores), with and without the fight-over answer.
-//   bazel build //src:app && node analyse.mjs results/gemma3.json [more.json…]
+//   bazel build //src:app && node analyse.mjs results/gemma3.json [more.json…] [--set=large] [--tune]
 import { readFileSync } from "node:fs";
 const BIN = new URL("../../bazel-bin/src/", import.meta.url).pathname;
 const LC = await import(BIN + "classify/local-classifier.js");
 const { SCENARIOS } = await import(BIN + "eval/scenarios.js");
 const { TEST_SET } = await import(BIN + "eval/test-set.js");
-const byName = new Map([...SCENARIOS, ...TEST_SET].map((s) => [s.name, s]));
+const { LARGE_SET } = await import(BIN + "eval/large-set.js");
+const byName = new Map([...SCENARIOS, ...TEST_SET, ...LARGE_SET].map((s) => [s.name, s]));
 
 const current = (s) => ("scene" in s.input ? s.input.scene : undefined);
 /** What the state machine would do with a classification (DESIGN.md 7.6). */
@@ -52,6 +53,8 @@ function score(rows, classify) {
 }
 
 const TUNE = process.argv.includes("--tune");
+/** Which set the main columns report: --set=large for the large set (default: test). */
+const MAIN = process.argv.find((a) => a.startsWith("--set="))?.slice(6) ?? "test";
 const files = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 
 /**
@@ -98,7 +101,7 @@ function tune(all, v, over) {
 
 for (const file of files) {
   const { repo, variants, results } = JSON.parse(readFileSync(file, "utf8"));
-  const sets = { dev: results.filter((r) => r.set === "dev"), test: results.filter((r) => r.set === "test") };
+  const sets = { dev: results.filter((r) => r.set === "dev"), test: results.filter((r) => r.set === MAIN) };
   const over = (r) => r.llm.current?.fightOver;
   const methods = { "embeddings alone": (s, r) => embeddingsAlone(s, r) };
   for (const v of variants) {
@@ -109,7 +112,8 @@ for (const file of files) {
   }
   console.log(`\n## ${repo} (${file})\n`);
   const cats = Object.keys(score(sets.test.length ? sets.test : sets.dev, methods["embeddings alone"]).cats);
-  console.log(`| method | DEV both | TEST both | TEST setting | TEST intensity | ${cats.join(" | ")} |`);
+  const T = MAIN.toUpperCase();
+  console.log(`| method | DEV both | ${T} both | ${T} setting | ${T} intensity | ${cats.join(" | ")} |`);
   console.log(`|---|---|---|---|---|${cats.map(() => "---").join("|")}|`);
   for (const [name, f] of Object.entries(methods)) {
     const d = sets.dev.length ? score(sets.dev, f).both : "–";

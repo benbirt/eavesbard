@@ -3,6 +3,8 @@
 // to results/<name>.json for analyse.mjs.
 //   bazel build //src:eval_site
 //   node browser-eval.mjs --repo onnx-community/gemma-3-4b-it-ONNX --variants current,json-names --name gemma3
+// Long runs: prefix with `caffeinate -dims` so the Mac and its display stay
+// awake; a sleeping display may cost Chrome its GPU device mid-run.
 import { chromium } from "playwright-core";
 import { createServer } from "node:http";
 import { mkdirSync, readFileSync, writeFileSync, existsSync, statSync } from "node:fs";
@@ -46,6 +48,14 @@ setTimeout(() => {
 const page = await context.newPage();
 page.setDefaultTimeout(0);
 page.on("pageerror", (e) => console.error("page error:", e.message));
+// Fail at once if Chrome goes away, rather than waiting forever for an answer.
+const fail = (why) => {
+  console.error(why);
+  process.exit(1);
+};
+page.on("crash", () => fail("the page crashed"));
+let finished = false;
+context.on("close", () => finished || fail("Chrome closed"));
 page.on("console", (m) => m.type() === "error" && console.error("console:", m.text().slice(0, 300)));
 await page.goto(`http://localhost:${port}/llm-eval.html`);
 let shown = 0;
@@ -68,5 +78,6 @@ const out = join(here, "results", `${args.name}.json`);
 writeFileSync(out, JSON.stringify({ repo: args.repo, dtype: args.dtype, variants: args.variants.split(","), results }));
 const perScene = Object.fromEntries(args.variants.split(",").map((v) => [v, (results.reduce((a, r) => a + r.llm[v].ms, 0) / results.length / 1000).toFixed(2) + " s"]));
 console.log(`saved ${out}: ${results.length} scenes in ${((Date.now() - started) / 1000).toFixed(0)} s; per scene:`, perScene);
+finished = true;
 await context.close();
 server.close();
