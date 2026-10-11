@@ -1,0 +1,14 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary")
+
+# Experiment E11 (experiments/E11.md): Whisper against Gemma 4 for speech-to-text.
+#   bazel run //experiments/e11:stt_eval -- --models whisper:tiny.en,gemma --snr clean,10 --name run1
+js_binary(
+    name = "stt_eval",
+    data = [
+        "//experiments:node_modules/playwright-core",
+        "//experiments:paths",
+        "//src:app",
+        "//src:eval_site",
+    ],
+    entry_point = "stt-eval.mjs",
+)

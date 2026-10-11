@@ -1,0 +1,16 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary")
+
+# Experiment E12 (experiments/E12.md): scene art.
+#   bazel run //experiments/e12:contact_sheets   # Wikimedia Commons candidates (round 1)
+#   bazel run //experiments/e12:collect          # a local page for hand-saved images
+js_binary(
+    name = "contact_sheets",
+    data = ["//experiments:paths"],
+    entry_point = "contact-sheets.mjs",
+)
+
+js_binary(
+    name = "collect",
+    data = ["//experiments:paths"],
+    entry_point = "dnd/collect.mjs",
+)

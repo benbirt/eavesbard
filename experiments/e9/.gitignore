@@ -1,4 +1,6 @@
-node_modules/
 embed-cache.json
 dists-*.json
+fight-over.json
+fight-start.json
 .chrome-profile/
+.model-cache/

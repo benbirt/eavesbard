@@ -1,14 +1,15 @@
 // Why did Gemma call "Roll for initiative" calm? Asks the app's exact
 // questions about the moments in a real session log, scores them as the app
 // does, then has the model explain itself in writing.
-//   bazel build //src:eval_site && node explain.mjs
+//   bazel run //experiments/e9:explain   (REPO=<model> CASE=calm to vary it)
 import { chromium } from "playwright-core";
 import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
+import { built, source } from "../paths.mjs";
 
-const here = new URL(".", import.meta.url).pathname;
-const site = join(here, "../../bazel-bin/src/eval_site");
+const here = source("experiments/e9");
+const site = built("src/eval_site");
 const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".map": "application/json" };
 const server = createServer((req, res) => {
   const path = join(site, decodeURIComponent(new URL(req.url, "http://x").pathname));

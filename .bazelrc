@@ -3,5 +3,8 @@ common --incompatible_strict_action_env
 common --@aspect_rules_ts//ts:skipLibCheck=always
 common --@aspect_rules_ts//ts:default_to_tsc_transpiler
 test --test_output=errors
+# Build only the tests and what they need: the experiment binaries (and their
+# own npm packages, such as onnxruntime-node) only when run.
+test --build_tests_only
 
 try-import %workspace%/.bazelrc.user

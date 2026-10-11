@@ -1,15 +1,16 @@
 // Runs the scenario sets through an LLM on this computer's GPU, in headless
 // Chrome, via the evaluation page (src/eval/llm-eval.ts). Saves raw answers
 // to results/<name>.json for analyse.mjs.
-//   bazel build //src:eval_site
-//   node browser-eval.mjs --repo onnx-community/gemma-3-4b-it-ONNX --variants current,json-names --name gemma3
+//   bazel run //experiments/e9:browser_eval -- --repo onnx-community/gemma-4-E2B-it-ONNX --variants current --name run1
 // Long runs: prefix with `caffeinate -dims` so the Mac and its display stay
-// awake; a sleeping display may cost Chrome its GPU device mid-run.
+// awake; a sleeping display may cost Chrome its GPU device mid-run. Results go
+// to experiments/e9/results/<name>.json.
 import { chromium } from "playwright-core";
 import { createServer } from "node:http";
 import { mkdirSync, readFileSync, writeFileSync, existsSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 import { parseArgs } from "node:util";
+import { built, source } from "../paths.mjs";
 
 const { values: args } = parseArgs({
   options: {
@@ -25,8 +26,8 @@ const { values: args } = parseArgs({
     "max-minutes": { type: "string", default: "90" },
   },
 });
-const here = new URL(".", import.meta.url).pathname;
-const site = join(here, "../../bazel-bin/src/eval_site");
+const here = source("experiments/e9");
+const site = built("src/eval_site");
 const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".map": "application/json" };
 const server = createServer((req, res) => {
   const path = join(site, decodeURIComponent(new URL(req.url, "http://x").pathname));

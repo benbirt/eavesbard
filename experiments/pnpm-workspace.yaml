@@ -1,0 +1,13 @@
+# The experiments' own npm packages, apart from the app's (../package.json):
+# transformers.js with its Node-only parts (onnxruntime-node, sharp), which
+# the app leaves out, and playwright-core to drive Chrome.
+# No dependency is allowed to run install scripts.
+allowBuilds: {}
+
+packageExtensions:
+  # transformers.node.mjs imports onnxruntime-common directly but doesn't
+  # declare it, so pnpm's strict layout hides it. In Node it must match
+  # onnxruntime-node's (see pnpm-lock.yaml).
+  "@huggingface/transformers":
+    dependencies:
+      onnxruntime-common: 1.30.0

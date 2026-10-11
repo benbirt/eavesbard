@@ -2,18 +2,16 @@
 // computer's GPU in headless Chrome. Clips are lines from the held-out scene
 // set spoken by macOS voices (`say`), so their text is known; optionally a
 // Tabletop Audio track is mixed in underneath.
-//   bazel build //src:eval_site //src:app
-//   node stt-eval.mjs --models whisper:tiny.en,whisper:base.en,gemma --snr clean,10,0 --name run1
-// Needs playwright-core from ../e9 (npm install there first).
-import { createRequire } from "node:module";
+//   bazel run //experiments/e11:stt_eval -- --models whisper:tiny.en,whisper:base.en,gemma --snr clean,10,0 --name run1
+import { chromium } from "playwright-core";
 import { createHash } from "node:crypto";
 import { createServer } from "node:http";
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import { parseArgs } from "node:util";
+import { built, builtModule, source } from "../paths.mjs";
 
-const { chromium } = createRequire(new URL("../e9/", import.meta.url).pathname)("playwright-core");
 const { values: args } = parseArgs({
   options: {
     models: { type: "string", default: "whisper:base.en,gemma" },
@@ -22,12 +20,11 @@ const { values: args } = parseArgs({
     name: { type: "string", default: "run" },
   },
 });
-const here = new URL(".", import.meta.url).pathname;
-const repo = join(here, "../..");
+const here = source("experiments/e11");
 
 // --- Clips: test-set lines spoken by a rotating cast of voices. ---
 const VOICES = ["Daniel", "Samantha", "Karen", "Moira", "Tessa", "Rishi", "Eddy (English (UK))", "Flo (English (UK))", "Sandy (English (US))", "Fred"];
-const { TEST_SET } = await import(join(repo, "bazel-bin/src/eval/test-set.js"));
+const { TEST_SET } = await builtModule("src/eval/test-set.js");
 const lines = [...new Set(TEST_SET.flatMap((s) => ("lines" in s.input ? s.input.lines.map(([, t]) => t) : [])))];
 const want = Number(args.clips);
 const chosen = Array.from({ length: Math.min(want, lines.length) }, (_, i) => lines[Math.floor((i * lines.length) / want)]);
@@ -52,7 +49,7 @@ const music = join(here, "music.mp3");
 if (!existsSync(music)) execFileSync("curl", ["-sSfL", "-o", music, "https://sounds.tabletopaudio.com/177_Tavern_Music.mp3"]);
 
 // --- Serve the evaluation page and the clips on a fixed origin (Chrome caches models per origin). ---
-const site = join(repo, "bazel-bin/src/eval_site");
+const site = built("src/eval_site");
 const types = { ".html": "text/html", ".js": "text/javascript", ".wasm": "application/wasm", ".wav": "audio/wav", ".mp3": "audio/mpeg" };
 const server = createServer((req, res) => {
   const p = decodeURIComponent(new URL(req.url, "http://x").pathname);
@@ -61,7 +58,7 @@ const server = createServer((req, res) => {
   res.writeHead(200, { "content-type": types[extname(path)] ?? "application/octet-stream" }).end(readFileSync(path));
 }).listen(8765);
 
-const context = await chromium.launchPersistentContext(join(here, "../e9/.chrome-profile"), { channel: "chrome", headless: true });
+const context = await chromium.launchPersistentContext(source("experiments/e9/.chrome-profile"), { channel: "chrome", headless: true });
 const page = await context.newPage();
 page.setDefaultTimeout(0);
 page.on("pageerror", (e) => console.error("page error:", e.message));

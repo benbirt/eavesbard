@@ -1,14 +1,13 @@
 // A local page for spot-checking the large scenario set's labels: each scene
 // with the answers it accepts, and thumbs up or down with a note. Verdicts are
 // saved to label-review.json as they're given.
-//   bazel build //src:app && node label-review.mjs   (then open http://localhost:8771/)
+//   bazel run //experiments/e9:label_review   (then open http://localhost:8771/)
 import { createServer } from "node:http";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { builtModule, source } from "../paths.mjs";
 
-const here = new URL(".", import.meta.url).pathname;
-const { LARGE_SET } = await import(join(here, "../../bazel-bin/src/eval/large-set.js"));
-const saved = join(here, "label-review.json");
+const { LARGE_SET } = await builtModule("src/eval/large-set.js");
+const saved = source("experiments/e9/label-review.json");
 const verdicts = existsSync(saved) ? JSON.parse(readFileSync(saved, "utf8")) : {};
 
 const page = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">

@@ -2,13 +2,14 @@
 // them, Pause stops all fetching, Resume carries on, and after a reload the
 // saved pieces are reused rather than fetched again. Uses Whisper small
 // (about 590 MB) with automatic music off, so only it downloads.
-//   bazel build //src:site && cd experiments/e9 && node ../ui/download-check.mjs
+//   bazel run //experiments/ui:download_check
 import { chromium } from "playwright-core";
 import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync, mkdtempSync, rmSync } from "node:fs";
 import { extname, join } from "node:path";
 import { tmpdir } from "node:os";
-const site = "/Users/ben/github/eavesbard/bazel-bin/src/site";
+import { built } from "../paths.mjs";
+const site = built("src/site");
 const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".webp": "image/webp", ".woff2": "font/woff2" };
 const server = createServer((req, res) => {
   let path = join(site, decodeURIComponent(new URL(req.url, "http://x").pathname));

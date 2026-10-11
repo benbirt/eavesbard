@@ -1,19 +1,25 @@
 // Shared evaluation code: scenarios, library, cached embeddings, scoring.
-import { pipeline } from "@huggingface/transformers";
+import { env, pipeline } from "@huggingface/transformers";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { builtModule, source } from "../paths.mjs";
 
-export const REPO = new URL("../..", import.meta.url).pathname.replace(/\/$/, "");
-const BIN = REPO + "/bazel-bin/src";
-export const { SCENARIOS: DEV } = await import(BIN + "/eval/scenarios.js");
-export const { TEST_SET: TEST } = await import(BIN + "/eval/test-set.js");
-const { buildLibrary } = await import(BIN + "/library/tag-map.js");
-export const { searchText } = await import(BIN + "/library/track-text.js");
-export const LC = await import(BIN + "/classify/local-classifier.js");
+// These experiments read and write their working files (dists-*.json and so
+// on) next to this one, in the source tree.
+process.chdir(source("experiments/e9"));
+// Models download here (git-ignored): Bazel's runfiles, where the package lives, are read-only.
+env.cacheDir = source("experiments/e9/.model-cache");
+
+export const REPO = source();
+export const { SCENARIOS: DEV } = await builtModule("src/eval/scenarios.js");
+export const { TEST_SET: TEST } = await builtModule("src/eval/test-set.js");
+const { buildLibrary } = await builtModule("src/library/tag-map.js");
+export const { searchText } = await builtModule("src/library/track-text.js");
+export const LC = await builtModule("src/classify/local-classifier.js");
 const tracks = JSON.parse(readFileSync(REPO + "/data/tracks.json", "utf8")).tracks;
 export const library = buildLibrary(tracks, JSON.parse(readFileSync(REPO + "/config/tag-map.json", "utf8")));
 
 // --- Embeddings, cached on disk by text ---
-const CACHE = new URL("./embed-cache.json", import.meta.url).pathname;
+const CACHE = source("experiments/e9/embed-cache.json");
 const cache = existsSync(CACHE) ? JSON.parse(readFileSync(CACHE, "utf8")) : {};
 let extractor;
 export const QUERY_PREFIX = "Represent this sentence for searching relevant passages: ";

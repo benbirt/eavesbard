@@ -3,12 +3,13 @@
 // hand (Save Image As…), then drop the file on its slot. Files land in art/
 // (not committed until approved). Images are never fetched automatically:
 // the wiki's terms forbid automated access.
-//   node collect.mjs   → http://localhost:8770/
+//   bazel run //experiments/e12:collect   → http://localhost:8770/
 import { createServer } from "node:http";
 import { existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { extname, join } from "node:path";
+import { source } from "../../paths.mjs";
 
-const here = new URL(".", import.meta.url).pathname;
+const here = source("experiments/e12/dnd");
 const artDir = join(here, "art");
 mkdirSync(artDir, { recursive: true });
 const picks = JSON.parse(readFileSync(join(here, "picks.json"), "utf8"));

@@ -1,0 +1,78 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library")
+
+# Experiment E9 (experiments/E9.md): scene models scored on the scenario sets.
+# Everything runs with bazel run; results and caches are written here, in the
+# source tree. For example:
+#   bazel run //experiments/e9:browser_eval -- --repo onnx-community/gemma-4-E2B-it-ONNX --variants current,mix --sets test,large --name r6
+#   bazel run //experiments/e9:analyse -- experiments/e9/results/r6.json --set=large --tune
+
+# Run on this computer's GPU in headless Chrome, through the app's own code.
+[
+    js_binary(
+        name = name,
+        data = [
+            "//experiments:node_modules/playwright-core",
+            "//experiments:paths",
+            "//src:eval_site",
+        ],
+        entry_point = entry,
+    )
+    for name, entry in [
+        ("browser_eval", "browser-eval.mjs"),
+        ("explain", "explain.mjs"),
+    ]
+]
+
+# Read the app's compiled code: scoring saved runs, and the label review page.
+[
+    js_binary(
+        name = name,
+        data = [
+            "//experiments:paths",
+            "//src:app",
+        ],
+        entry_point = entry,
+    )
+    for name, entry in [
+        ("analyse", "analyse.mjs"),
+        ("label_review", "label-review.mjs"),
+    ]
+]
+
+# Round 1, on the CPU (transformers.js in Node), kept for reference.
+js_library(
+    name = "common",
+    srcs = ["common.mjs"],
+    deps = [
+        "//experiments:node_modules/@huggingface/transformers",
+        "//experiments:paths",
+    ],
+)
+
+[
+    js_binary(
+        name = entry.removesuffix(".mjs").replace("-", "_"),
+        data = [
+            ":common",
+            "//src:app",
+        ],
+        entry_point = entry,
+    )
+    for entry in [
+        "app-blend.mjs",
+        "baseline.mjs",
+        "dists.mjs",
+        "fight-over.mjs",
+        "fight-start.mjs",
+        "gonly.mjs",
+        "int-variants.mjs",
+        "int-wording.mjs",
+        "knn.mjs",
+        "llm.mjs",
+        "mix.mjs",
+        "mix2.mjs",
+        "nli.mjs",
+        "probe-start.mjs",
+        "soundtrack.mjs",
+    ]
+]

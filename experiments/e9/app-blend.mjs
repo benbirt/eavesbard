@@ -1,9 +1,10 @@
 // Checks the app's own code path: llm-prompt.ts questions, the worker's scoring
 // (mirrored here; the worker itself needs a browser) and the blend in local-classifier.ts.
 import { AutoTokenizer, AutoModelForCausalLM } from "@huggingface/transformers";
-import { DEV, TEST, LC, embed, dot, lines, current, evaluate, QUERY_PREFIX, REPO } from "./common.mjs";
+import { DEV, TEST, LC, embed, dot, lines, current, evaluate, QUERY_PREFIX } from "./common.mjs";
+import { builtModule } from "../paths.mjs";
 
-const P = await import(REPO + "/bazel-bin/src/classify/llm-prompt.js");
+const P = await builtModule("src/classify/llm-prompt.js");
 const repo = process.argv[2] ?? "onnx-community/Qwen3-1.7B-ONNX";
 const tok = await AutoTokenizer.from_pretrained(repo);
 const lm = await AutoModelForCausalLM.from_pretrained(repo, { dtype: "q4" });

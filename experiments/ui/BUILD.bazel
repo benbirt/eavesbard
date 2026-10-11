@@ -1,0 +1,20 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary")
+
+# Checks of the real app in headless Chrome (see each script's header):
+#   bazel run //experiments/ui:ui_check
+#   bazel run //experiments/ui:download_check
+[
+    js_binary(
+        name = name,
+        data = [
+            "//experiments:node_modules/playwright-core",
+            "//experiments:paths",
+            "//src:site",
+        ],
+        entry_point = entry,
+    )
+    for name, entry in [
+        ("download_check", "download-check.mjs"),
+        ("ui_check", "ui-check.mjs"),
+    ]
+]

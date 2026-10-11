@@ -1,13 +1,13 @@
 // Scores saved browser-eval results (results/*.json): each prompt variant alone
 // and blended with the embeddings through the app's own code
 // (classifyFromScores), with and without the fight-over answer.
-//   bazel build //src:app && node analyse.mjs results/gemma3.json [more.json…] [--set=large] [--tune]
+//   bazel run //experiments/e9:analyse -- experiments/e9/results/r5.json [more.json…] [--set=large] [--tune] [--offtopic=…]
 import { readFileSync } from "node:fs";
-const BIN = new URL("../../bazel-bin/src/", import.meta.url).pathname;
-const LC = await import(BIN + "classify/local-classifier.js");
-const { SCENARIOS } = await import(BIN + "eval/scenarios.js");
-const { TEST_SET } = await import(BIN + "eval/test-set.js");
-const { LARGE_SET } = await import(BIN + "eval/large-set.js");
+import { builtModule, given } from "../paths.mjs";
+const LC = await builtModule("src/classify/local-classifier.js");
+const { SCENARIOS } = await builtModule("src/eval/scenarios.js");
+const { TEST_SET } = await builtModule("src/eval/test-set.js");
+const { LARGE_SET } = await builtModule("src/eval/large-set.js");
 const byName = new Map([...SCENARIOS, ...TEST_SET, ...LARGE_SET].map((s) => [s.name, s]));
 
 const current = (s) => ("scene" in s.input ? s.input.scene : undefined);
@@ -103,7 +103,7 @@ function tune(all, v, over) {
 }
 
 for (const file of files) {
-  const { repo, variants, results } = JSON.parse(readFileSync(file, "utf8"));
+  const { repo, variants, results } = JSON.parse(readFileSync(given(file), "utf8"));
   const sets = { dev: results.filter((r) => r.set === "dev"), test: results.filter((r) => r.set === MAIN) };
   const over = (r) => r.llm.current?.fightOver;
   const methods = { "embeddings alone": (s, r) => embeddingsAlone(s, r) };

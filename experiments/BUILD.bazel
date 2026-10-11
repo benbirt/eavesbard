@@ -1,0 +1,12 @@
+load("@aspect_rules_js//js:defs.bzl", "js_library")
+load("@npm_experiments//:defs.bzl", "npm_link_all_packages")
+
+# The experiments' own npm packages (package.json, pnpm-lock.yaml here).
+npm_link_all_packages(name = "node_modules")
+
+# Paths for experiment scripts run with bazel run (see paths.mjs).
+js_library(
+    name = "paths",
+    srcs = ["paths.mjs"],
+    visibility = ["//experiments:__subpackages__"],
+)

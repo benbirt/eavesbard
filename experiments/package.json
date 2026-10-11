@@ -1,8 +1,9 @@
 {
-  "name": "model-eval",
+  "name": "eavesbard-experiments",
   "private": true,
   "type": "module",
-  "dependencies": {
+  "packageManager": "pnpm@10.28.0",
+  "devDependencies": {
     "@huggingface/transformers": "4.3.1",
     "playwright-core": "1.55.0"
   }

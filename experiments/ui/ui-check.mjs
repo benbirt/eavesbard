@@ -1,16 +1,15 @@
-// Drives the real app (bazel-bin/src/site) in headless Chrome on this
-// computer's GPU, through its main states, saving screenshots. Every step
-// has a 30 s limit, and the whole run a 6-minute limit.
-//   bazel build //src:site && node ui-check.mjs <screenshot-dir>
-import { createRequire } from "node:module";
+// Drives the real app (//src:site) in headless Chrome on this computer's GPU,
+// through its main states, saving screenshots. Every step has a 30 s limit,
+// and the whole run a 6-minute limit.
+//   bazel run //experiments/ui:ui_check [-- <screenshot-dir>]
+import { chromium } from "playwright-core";
 import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
+import { built, given, source } from "../paths.mjs";
 
-const { chromium } = createRequire(new URL("../e9/", import.meta.url).pathname)("playwright-core");
-const repo = new URL("../..", import.meta.url).pathname;
-const site = join(repo, "bazel-bin/src/site");
-const out = process.argv[2] ?? join(repo, "experiments/ui/shots");
+const site = built("src/site");
+const out = process.argv[2] ? given(process.argv[2]) : source("experiments/ui/shots");
 mkdirSync(out, { recursive: true });
 const T = { ".html": "text/html", ".js": "text/javascript", ".wasm": "application/wasm", ".webp": "image/webp", ".woff2": "font/woff2" };
 // Port 8765, the evaluation runs' origin: their Chrome profile already has the models cached.
@@ -21,7 +20,7 @@ const server = createServer((req, res) => {
   res.writeHead(200, { "content-type": T[extname(p)] ?? "application/octet-stream" }).end(readFileSync(p));
 }).listen(8765);
 
-const ctx = await chromium.launchPersistentContext(join(repo, "experiments/e9/.chrome-profile"), {
+const ctx = await chromium.launchPersistentContext(source("experiments/e9/.chrome-profile"), {
   channel: "chrome", headless: true, permissions: ["microphone"], viewport: { width: 1360, height: 860 },
   args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream", "--autoplay-policy=no-user-gesture-required"],
 });

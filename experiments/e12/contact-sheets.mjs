@@ -2,8 +2,9 @@
 // from Wikimedia Commons, kept only if public domain or CC0 and large
 // enough. Writes candidates.json and contact-sheet.html (tick the ones you
 // like; the page lists your picks to paste back).
-//   node contact-sheets.mjs
+//   bazel run //experiments/e12:contact_sheets
 import { writeFileSync } from "node:fs";
+import { source } from "../paths.mjs";
 
 const UA = "Eavesbard contact-sheet script (https://github.com/benbirt/eavesbard)";
 const PER_CELL = 16;
@@ -93,7 +94,7 @@ for (const [cell, queries] of Object.entries(QUERIES)) {
   console.log(`${cell.padEnd(18)} ${titles.length} found, ${picks.length} public domain and large, kept ${cells[cell].length}`);
   await sleep(300);
 }
-writeFileSync(new URL("candidates.json", import.meta.url), JSON.stringify(cells, null, 1));
+writeFileSync(source("experiments/e12/candidates.json"), JSON.stringify(cells, null, 1));
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const html = `<!doctype html>
@@ -133,5 +134,5 @@ ${Object.entries(cells).map(([cell, items]) => `<h2>${esc(cell.replace("/", " ·
   for (const b of boxes) b.addEventListener('change', update);
   update();
 </script></body></html>`;
-writeFileSync(new URL("contact-sheet.html", import.meta.url), html);
+writeFileSync(source("experiments/e12/contact-sheet.html"), html);
 console.log("wrote contact-sheet.html");

@@ -7,7 +7,10 @@ TESTS = glob(["**/*.test.ts"])
 
 ts_lib(
     name = "app",
-    visibility = ["//scripts:__pkg__"],
+    visibility = [
+        "//experiments:__subpackages__",
+        "//scripts:__pkg__",
+    ],
     srcs = glob(
         [
             "**/*.ts",
@@ -142,6 +145,7 @@ esbuild(
 
 copy_to_directory(
     name = "eval_site",
+    visibility = ["//experiments:__subpackages__"],
     srcs = [
         "eval/llm-eval.html",
         ":capture_worklet",
