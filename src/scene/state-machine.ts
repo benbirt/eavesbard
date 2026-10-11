@@ -10,8 +10,8 @@ export interface SceneOptions {
   startIntensity: Intensity;
   /** Classifier confidence needed to enter combat immediately. */
   combatEntryConfidence: number;
-  /** Confidence in a non-combat intensity needed to leave combat on one result. */
-  combatExitConfidence: number;
+  /** Confidence needed to change intensity on one result (leaving combat, or calm and tense), rather than waiting for agreement. */
+  oneCheckConfidence: number;
   /** Results on an axis below this confidence are ignored on that axis. */
   minConfidence: number;
   /** Scene checks in a row that must agree before a change (other than entering combat). */
@@ -26,7 +26,8 @@ export const DEFAULT_SCENE_OPTIONS: SceneOptions = {
   startSetting: "tavern",
   startIntensity: "calm",
   combatEntryConfidence: 0.6,
-  combatExitConfidence: 0.8,
+  // E9 round 5: for calm and tense, one check at 80%+ made 23 right changes for 2 wrong ones over 270 scenes.
+  oneCheckConfidence: 0.8,
   minConfidence: 0.5,
   agreeingResults: 2,
   minSettingMs: 3 * 60_000,
@@ -109,14 +110,14 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
     const streak = bump(state.pendingIntensity, intensity);
     const leavingCombat = state.intensity === "combat";
     const heldFor = leavingCombat ? waitFor(state.intensitySince, options.minCombatMs) : 0;
-    const confidentExit = leavingCombat && event.intensityConfidence >= options.combatExitConfidence;
-    const agreed = streak.count >= options.agreeingResults || confidentExit;
+    const confident = event.intensityConfidence >= options.oneCheckConfidence;
+    const agreed = streak.count >= options.agreeingResults || confident;
     if (agreed && heldFor <= 0) {
       Object.assign(next, { intensity, intensitySince: event.at, pendingIntensity: undefined });
       const why =
         streak.count >= options.agreeingResults
           ? `${streak.count} checks in a row agree`
-          : `${pct(event.intensityConfidence)} confident, combat over`;
+          : `${pct(event.intensityConfidence)} confident${leavingCombat ? ", combat over" : ""}`;
       reasons.intensity = `classifier: ${intensity} (${why})`;
       notes.intensity = `${state.intensity} → ${intensity} (${why}).`;
     } else {
@@ -124,8 +125,8 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
       notes.intensity =
         agreed
           ? `${intensity} held back: combat lasts at least ${options.minCombatMs / 1000} s, ${heldFor} s to go.`
-          : `maybe ${intensity}: changes if ${options.agreeingResults - streak.count === 1 ? "the next scene check agrees" : `${options.agreeingResults - streak.count} more scene checks agree`}` +
-            `${leavingCombat ? ` (or one is ${pct(options.combatExitConfidence)}+ sure)` : ""}.`;
+          : `maybe ${intensity} (${pct(event.intensityConfidence)} sure): changes if ${options.agreeingResults - streak.count === 1 ? "the next scene check agrees" : `${options.agreeingResults - streak.count} more scene checks agree`}` +
+            `, or one is ${pct(options.oneCheckConfidence)}+ sure.`;
     }
   }
 

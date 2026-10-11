@@ -105,6 +105,13 @@ try {
     await page.locator(".foot summary", { hasText: "credits" }).click();
     await page.locator(".foot .credits li").first().waitFor();
   });
+  await step("6e-short-window", async () => {
+    // Wide but short: the page itself mustn't scroll.
+    await page.setViewportSize({ width: 1280, height: 640 });
+    await page.waitForTimeout(300);
+    const scrolls = await page.evaluate(() => document.scrollingElement.scrollHeight > innerHeight + 1);
+    if (scrolls) throw new Error("the page scrolls in a 1280 × 640 window");
+  });
   await step("7-phone", async () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(500);

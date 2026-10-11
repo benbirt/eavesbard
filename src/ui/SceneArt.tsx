@@ -42,7 +42,6 @@ function credit(a: SceneArt): string {
   return `${a.title} · ${a.book}${a.artist ? ` · art by ${a.artist}` : ""} · © Wizards of the Coast`;
 }
 
-/** The Fan Content Policy notice and every image's credit, for About. */
 /** Every image's credit (the footer's "credits"). */
 export function ArtCredits() {
   return (

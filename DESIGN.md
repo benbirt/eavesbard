@@ -203,7 +203,7 @@ All parameters are configurable, and the defaults below are starting points to t
 - **Entering combat:** immediate, on a classifier result of `combat` with intensity confidence of at least 0.6.
 - **Leaving combat:** at least one minute in combat, so a lull between rounds doesn't drop the combat music; then either one non-combat classification with intensity confidence of at least 0.8, or two consecutive non-combat classifications. (Was three minutes and always two results: a simulation showed combat music outlasting a short fight by over two minutes even when the classifier saw at once that it had ended.)
 - **Setting changes:** require two consecutive classifications that agree on the new setting, and at least three minutes on the current setting.
-- **Calm and tense changes:** require two consecutive agreeing classifications.
+- **Calm and tense changes:** one classification at least 0.8 confident, or two consecutive agreeing ones. (Was always two: replaying 270 scenes, one check at 0.8+ made 23 right changes at once for 2 wrong ones; with no threshold at all it would have made 8 wrong ones.)
 - **Low confidence:** each axis is judged on its own confidence. A setting below 0.5 is treated as `unknown`; an intensity below 0.5 is ignored, keeping the current one.
 - **`unknown` and streaks:** an `unknown` result neither counts towards nor resets a streak of agreeing classifications.
 - **Simultaneous changes:** if setting and intensity both change in the same cycle, that is one transition, not two.
@@ -279,6 +279,7 @@ Designed for a GM mid-session, glancing at the screen from across the table: the
   - **Session log** (7.9): speech, scene changes and music by default, and model details, playback details (what the audio element or Cast receiver reported) and dropped speech on request; save to a file or copy to the clipboard.
   - **Setup:** automatic music; who decides the scene (on this computer, or Claude with its key and privacy note); listening; and reset to defaults (options and the API key; not while a session runs).
 - **Footer:** Tabletop Audio's attribution, the art's credits (collapsed, opening to every image's credit), the Fan Content Policy notice and the source code, always visible.
+- **Fits the window:** on screens wider than 860 px the page never scrolls: the art takes the height left (still whole), the side column scrolls within itself if a short window needs it, and the art credits open as a panel over the page.
 - **Narrow screens:** one column (art, scene, music); the scene-model chip hides below 860 px.
 - **Wake lock:** held while listening, re-requested when the tab becomes visible again, with a warning in the listening chip when lost (7.2, section 4).
 

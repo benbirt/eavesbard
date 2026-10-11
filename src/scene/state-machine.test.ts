@@ -37,11 +37,11 @@ test("starts in the default scene, or a chosen one", () => {
 
 test("notes explain each decision in plain words", () => {
   let s = initialScene(0);
-  let t = nextScene(s, classify(MIN, "dungeon", "tense"));
+  let t = nextScene(s, classify(MIN, "dungeon", "tense", 0.9, 0.7));
   assert.match(t.notes.setting, /maybe dungeon: changes if the next scene check agrees/);
-  assert.match(t.notes.intensity, /maybe tense: changes if the next scene check agrees/);
+  assert.match(t.notes.intensity, /maybe tense \(70% sure\): changes if the next scene check agrees, or one is 80%\+ sure/);
   s = t.state;
-  t = nextScene(s, classify(2 * MIN, "dungeon", "tense"));
+  t = nextScene(s, classify(2 * MIN, "dungeon", "tense", 0.9, 0.7));
   assert.match(t.notes.setting, /dungeon held back: a setting lasts at least 3 minutes, 60 s to go/);
   assert.match(t.notes.intensity, /calm → tense \(2 checks in a row agree\)/);
   t = nextScene(t.state, classify(3 * MIN, "unknown", "combat", 0.9, 0.3));
@@ -83,16 +83,15 @@ test("leaving combat on hesitant results needs two in a row", () => {
   assert.deepEqual(changes, [0, 2]);
 });
 
-test("a confident non-combat result doesn't skip agreement outside combat", () => {
-  const { changes } = run([classify(MIN, "tavern", "tense", 0.9, 0.95)]);
-  assert.deepEqual(changes, []);
-});
-
-test("calm and tense changes need two agreeing results in a row", () => {
-  assert.deepEqual(run([classify(MIN, "tavern", "tense"), classify(2 * MIN, "tavern", "tense")]).changes, [1]);
+test("calm and tense changes need two agreeing results in a row, or one at 80%+", () => {
+  assert.deepEqual(run([classify(MIN, "tavern", "tense", 0.9, 0.7), classify(2 * MIN, "tavern", "tense", 0.9, 0.7)]).changes, [1]);
   // Interrupted by a different value: the streak restarts.
-  const broken = run([classify(MIN, "tavern", "tense"), classify(2 * MIN, "tavern", "calm"), classify(3 * MIN, "tavern", "tense")]);
+  const broken = run([classify(MIN, "tavern", "tense", 0.9, 0.7), classify(2 * MIN, "tavern", "calm", 0.9, 0.7), classify(3 * MIN, "tavern", "tense", 0.9, 0.7)]);
   assert.deepEqual(broken.changes, []);
+  // Sure enough: at once.
+  const sure = nextScene(initialScene(0), classify(MIN, "tavern", "tense", 0.9, 0.85));
+  assert.equal(sure.state.intensity, "tense");
+  assert.match(sure.notes.intensity, /calm → tense \(85% confident\)/);
 });
 
 test("setting changes need agreement and three minutes on the current setting", () => {
@@ -119,15 +118,15 @@ test("a low-confidence intensity is ignored", () => {
 
 test("a result matching the current scene resets pending changes", () => {
   const { changes } = run([
-    classify(3 * MIN, "town", "tense"),
-    classify(4 * MIN, "tavern", "calm"),
-    classify(5 * MIN, "town", "tense"),
+    classify(3 * MIN, "town", "tense", 0.9, 0.7),
+    classify(4 * MIN, "tavern", "calm", 0.9, 0.7),
+    classify(5 * MIN, "town", "tense", 0.9, 0.7),
   ]);
   assert.deepEqual(changes, []);
 });
 
 test("setting and intensity changing together is one transition", () => {
-  const { state, changes } = run([classify(3 * MIN, "dungeon", "tense"), classify(4 * MIN, "dungeon", "tense")]);
+  const { state, changes } = run([classify(3 * MIN, "dungeon", "tense", 0.9, 0.7), classify(4 * MIN, "dungeon", "tense", 0.9, 0.7)]);
   assert.deepEqual(changes, [1]);
   assert.equal(state.setting, "dungeon");
   assert.equal(state.intensity, "tense");
@@ -136,7 +135,7 @@ test("setting and intensity changing together is one transition", () => {
 
 test("table talk says so, and keeps a pending change", () => {
   let s = initialScene(0);
-  s = nextScene(s, { type: "classification", at: 1000, setting: "tavern", settingConfidence: 0.9, intensity: "tense", intensityConfidence: 0.8 }).state;
+  s = nextScene(s, { type: "classification", at: 1000, setting: "tavern", settingConfidence: 0.9, intensity: "tense", intensityConfidence: 0.7 }).state;
   const t = nextScene(s, { type: "classification", at: 2000, setting: "tavern", settingConfidence: 0.9, intensity: "calm", intensityConfidence: 0, tableTalk: true });
   assert.equal(t.notes.intensity, "sounds like table talk, so no change; still maybe tense.");
   assert.equal(t.state.pendingIntensity?.value, "tense");

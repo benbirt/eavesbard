@@ -643,9 +643,30 @@
         padding-left: 18px;
         margin: 4px 0 6px;
       }
+      .art-credits {
+        position: relative;
+      }
       .art-credits summary {
         cursor: pointer;
         width: fit-content;
+      }
+      /* Opens above the footer, over the page, so the layout doesn't move. */
+      .art-credits[open] .credits {
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 0;
+        z-index: 3;
+        width: min(640px, calc(100vw - 40px));
+        max-height: 50vh;
+        overflow-y: auto;
+        margin: 0;
+        padding: 12px 14px 12px 28px;
+        background: var(--glass-strong);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
       }
       .row {
         display: flex;
@@ -745,6 +766,47 @@
         max-height: 14rem;
         overflow: auto;
         padding-left: 1.2rem;
+      }
+
+      /*
+       * Wide screens: the page fits the window and never scrolls. The art
+       * takes the height that's left (still whole, letterboxed against its
+       * blurred copy); the side column scrolls within itself if it must.
+       */
+      @media (min-width: 861px) {
+        .app {
+          height: 100vh;
+          height: 100dvh;
+          display: flex;
+          flex-direction: column;
+        }
+        .stage {
+          flex: 1;
+          min-height: 0;
+          grid-template-rows: minmax(0, 1fr);
+          align-items: stretch;
+          padding-bottom: 14px;
+        }
+        .frame {
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+        }
+        .frame .art {
+          flex: 1;
+          min-height: 0;
+          aspect-ratio: auto;
+          max-height: none;
+        }
+        .col {
+          min-height: 0;
+          overflow-y: auto;
+          align-content: start;
+          scrollbar-width: thin;
+        }
+        .foot {
+          padding-bottom: 14px;
+        }
       }
 
       /* Narrow screens: one column. */
