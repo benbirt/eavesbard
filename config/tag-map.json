@@ -45,7 +45,8 @@
     },
     "travel": {
       "civ": ["roads", "transit"],
-      "words": ["road", "journey", "trail", "wagon", "carriage", "ship", "sailing", "voyage", "travel", "caravan"]
+      "words": ["road", "journey", "trail", "wagon", "carriage", "ship", "sailing", "voyage", "travel", "caravan"],
+      "unless": { "words": ["feast", "banquet"] }
     }
   },
   "intensity": {
