@@ -4,6 +4,7 @@ load("@aspect_rules_js//js:defs.bzl", "js_binary")
 #   bazel run //experiments/ui:ui_check
 #   bazel run //experiments/ui:download_check
 #   bazel run //experiments/ui:tabs_check
+#   bazel run //experiments/ui:gallery_check
 [
     js_binary(
         name = name,
@@ -18,5 +19,6 @@ load("@aspect_rules_js//js:defs.bzl", "js_binary")
         ("download_check", "download-check.mjs"),
         ("ui_check", "ui-check.mjs"),
         ("tabs_check", "tabs-check.mjs"),
+        ("gallery_check", "gallery-check.mjs"),
     ]
 ]
