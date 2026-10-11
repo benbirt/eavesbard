@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
-import { auto, engine, setAuto, setEngine } from "../director.js";
-import { loadApiKey, saveApiKey } from "../settings.js";
+import { auto, engine, sessionActive, setAuto, setEngine } from "../director.js";
+import { loadApiKey, resetSettings, saveApiKey } from "../settings.js";
 import { EventLog } from "./EventLog.js";
 import { SpeechModelChooser } from "./Listening.js";
 import { Transport } from "./Playback.js";
@@ -35,6 +35,44 @@ function ApiKey() {
         every 15 seconds: let the table know.{!loadApiKey() && " Without a key, the models on this computer are used."}
       </p>
     </form>
+  );
+}
+
+/** Back to the defaults: options and the API key, with a confirmation step. */
+function ResetSection() {
+  const [asking, setAsking] = useState(false);
+  const [failed, setFailed] = useState(false);
+  return (
+    <section class="section">
+      <h3>Reset to defaults</h3>
+      <p>Clears the options above and the Anthropic API key saved in this browser, then reloads the page. Downloaded models stay.</p>
+      {sessionActive.value ? (
+        <p class="small">Stop the session first.</p>
+      ) : asking ? (
+        <p>
+          <button
+            type="button"
+            class="btn"
+            onClick={() => {
+              if (resetSettings()) location.reload();
+              else setFailed(true);
+            }}
+          >
+            Yes, reset
+          </button>{" "}
+          <button type="button" class="btn" onClick={() => setAsking(false)}>
+            Cancel
+          </button>
+        </p>
+      ) : (
+        <p>
+          <button type="button" class="btn" onClick={() => setAsking(true)}>
+            Reset to defaults…
+          </button>
+        </p>
+      )}
+      {failed && <p class="warning small">This browser is blocking storage, so there was nothing to reset.</p>}
+    </section>
   );
 }
 
@@ -81,6 +119,8 @@ export function Settings() {
           <EventLog />
         </details>
       </section>
+
+      <ResetSection />
 
       <section class="section" id="about">
         <h3>About</h3>

@@ -116,6 +116,18 @@ try {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(500);
   });
+  await step("8-reset", async () => {
+    await page.setViewportSize({ width: 1360, height: 860 });
+    await page.getByRole("button", { name: "Stop session" }).click();
+    await page.evaluate(() => localStorage.setItem("eavesbard.anthropicApiKey", "sk-test"));
+    await page.getByRole("button", { name: "Setup" }).click();
+    await page.getByRole("button", { name: "Reset to defaults…" }).click();
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: join(out, "8-reset-confirm.png") });
+    await Promise.all([page.waitForEvent("load"), page.getByRole("button", { name: "Yes, reset" }).click()]);
+    const key = await page.evaluate(() => localStorage.getItem("eavesbard.anthropicApiKey"));
+    if (key !== null) throw new Error("the API key survived the reset");
+  });
   stepName = "listening";
   const chip = await page.locator(".chip").first().innerText();
   console.log("listening chip after the run:", chip.replace(/\s+/g, " "));

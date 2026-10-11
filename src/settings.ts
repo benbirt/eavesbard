@@ -39,3 +39,22 @@ export function saveSetting(name: string, value: string): void {
     // Preferences are a convenience; carry on without them.
   }
 }
+
+/** Settings kept by a reset: the user's own text rather than an option. */
+const KEPT_ON_RESET = ["eavesbard.openingDescription"];
+
+/**
+ * Clears stored options and the API key, so the defaults apply after a
+ * reload. Returns whether storage allowed it.
+ */
+export function resetSettings(): boolean {
+  try {
+    const keys = Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)).filter(
+      (k): k is string => k !== null && k.startsWith("eavesbard.") && !KEPT_ON_RESET.includes(k),
+    );
+    for (const k of keys) localStorage.removeItem(k);
+    return true;
+  } catch {
+    return false;
+  }
+}
