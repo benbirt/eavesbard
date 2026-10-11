@@ -19,6 +19,7 @@ import {
 } from "../director.js";
 import { allowDownloads, downloadsAllowed, knownDownloaded, refreshStoredBytes, storedModelBytes } from "../downloads.js";
 import { hasWebGpu } from "../gpu.js";
+import { otherTabs } from "../other-tabs.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
 import { model, speechModel } from "../listener.js";
 import { localModel } from "../local-models.js";
@@ -66,8 +67,28 @@ export function StartCard() {
         {beginBlocker() ?? "Begin session"}
       </button>
       {!auto.value && <p class="small">Automatic music is off: pick tracks below, or turn it on in Setup (More…).</p>}
+      <OtherTabsNotice />
       <DownloadOffer />
     </form>
+  );
+}
+
+/** The app is open elsewhere too: each copy loads its own models, so this one waits to be asked. */
+function OtherTabsNotice() {
+  if (otherTabs.value === 0) return null;
+  const waiting = !downloadsAllowed.value;
+  return (
+    <div class="other-tabs">
+      <p class="warning small">
+        Eavesbard is also open in another tab or window. Each copy loads its own models (about 4 GB), and two copies
+        can stall each other: close the other one first.
+      </p>
+      {waiting && pendingDownload().total === 0 && (
+        <button type="button" class="btn" onClick={allowDownloads}>
+          Load the models here anyway
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -98,6 +119,8 @@ function beginBlocker(): string | undefined {
   const speech = model.value;
   const m = speechModel.value;
   const local = auto.value && effectiveEngine() === "local";
+  const notLoading = (!isWebSpeech(speech) && m.phase === "off") || (local && hasWebGpu && sceneLlm.value.phase === "off");
+  if (otherTabs.value > 0 && notLoading && !downloadsAllowed.value) return "Eavesbard is open in another tab";
   if (auto.value && engine.value === "claude" && !loadApiKey()) return "Add an Anthropic API key in Setup first";
   const notDownloaded =
     (!isWebSpeech(speech) && m.phase === "off" && knownDownloaded(whisperRepo(speech)) === false) ||

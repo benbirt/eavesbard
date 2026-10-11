@@ -15,6 +15,7 @@ import { onTranscriptLine, prepareSpeech, start as startListening, stop as stopL
 import { LOCAL_MODEL_NAME, localClassify, prepareLocalModels, prepareTrackIndex } from "./local-models.js";
 import { allowDownloads, mayLoad, onDownloadsAllowed } from "./downloads.js";
 import { hasWebGpu } from "./gpu.js";
+import { otherTabs } from "./other-tabs.js";
 import { EMBEDDING_MODEL } from "./pick/embed-protocol.js";
 import { SCENE_LLM } from "./llm/llm-protocol.js";
 import { prepareSceneLlm } from "./llm/scene-llm.js";
@@ -90,11 +91,13 @@ export const ENGINE_NAMES: Record<Engine, string> = { claude: "Claude", local: "
 // When the page opens, load the models a session will need if the browser
 // already has them, so they're ready in time; anything that would download
 // waits until the user agrees (Begin session, or the start card's button).
+// Not if the app is also open in another tab: two copies' models can stall each
+// other, so this one waits to be asked (the start card offers "Load the models here").
 if (auto.value && effectiveEngine() === "local") {
-  setTimeout(() => void prepareLocal(true), 1000);
+  setTimeout(() => otherTabs.value === 0 && void prepareLocal(true), 1000);
 }
 // Likewise the speech model (Whisper; Web Speech needs nothing).
-setTimeout(() => prepareSpeech(true), 1500);
+setTimeout(() => otherTabs.value === 0 && prepareSpeech(true), 1500);
 onDownloadsAllowed(() => {
   if (auto.value && effectiveEngine() === "local") void prepareLocal();
   prepareSpeech();

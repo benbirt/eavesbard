@@ -3,6 +3,7 @@ load("@aspect_rules_js//js:defs.bzl", "js_binary")
 # Checks of the real app in headless Chrome (see each script's header):
 #   bazel run //experiments/ui:ui_check
 #   bazel run //experiments/ui:download_check
+#   bazel run //experiments/ui:tabs_check
 [
     js_binary(
         name = name,
@@ -16,5 +17,6 @@ load("@aspect_rules_js//js:defs.bzl", "js_binary")
     for name, entry in [
         ("download_check", "download-check.mjs"),
         ("ui_check", "ui-check.mjs"),
+        ("tabs_check", "tabs-check.mjs"),
     ]
 ]
