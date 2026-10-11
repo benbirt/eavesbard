@@ -1,5 +1,6 @@
 import { useSignal } from "@preact/signals";
-import { clearStored, exportJsonl, storageOk, timeline, type TimelineEntry, type TimelineKind } from "../timeline.js";
+import { useState } from "preact/hooks";
+import { copyToClipboard, saveToFile, timeline, type TimelineEntry, type TimelineKind } from "../timeline.js";
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
@@ -93,6 +94,35 @@ function Body({ entry }: { entry: TimelineEntry }) {
   }
 }
 
+/** Save the session to a file, or copy it, e.g. to share a bug report. */
+function ExportButtons() {
+  const [copied, setCopied] = useState<"" | "copied" | "failed">("");
+  const empty = timeline.value.length === 0;
+  return (
+    <p>
+      <button type="button" class="btn" disabled={empty} onClick={saveToFile}>
+        Save to a file
+      </button>{" "}
+      <button
+        type="button"
+        class="btn"
+        disabled={empty}
+        onClick={() =>
+          copyToClipboard().then(
+            () => setCopied("copied"),
+            () => setCopied("failed"),
+          )
+        }
+      >
+        Copy to clipboard
+      </button>{" "}
+      <span class="small" role="status">
+        {copied === "copied" ? "Copied." : copied === "failed" ? "The browser didn't allow copying." : ""}
+      </span>
+    </p>
+  );
+}
+
 export function Timeline() {
   const shown = useSignal<Set<TimelineKind>>(new Set(["speech", "decision", "music"]));
   const showDropped = useSignal(false);
@@ -125,7 +155,6 @@ export function Timeline() {
           Dropped speech
         </button>
       </div>
-      {!storageOk.value && <p class="warning small">This browser refused storage, so this session won't be saved for export.</p>}
       {entries.length === 0 ? (
         <p class="small">Start a session to see what's heard, what's decided and what plays.</p>
       ) : (
@@ -141,24 +170,8 @@ export function Timeline() {
           ))}
         </ol>
       )}
-      <p>
-        <button type="button" class="btn" onClick={() => void exportJsonl(false)}>
-          Export this session
-        </button>{" "}
-        <button type="button" class="btn" onClick={() => void exportJsonl(true)}>
-          Export all
-        </button>{" "}
-        <button
-          type="button"
-          class="btn"
-          onClick={() => {
-            if (confirm("Delete every saved session from this browser?")) void clearStored();
-          }}
-        >
-          Clear saved
-        </button>
-      </p>
-      <p class="small">Sessions, including transcripts, are saved in this browser until you clear them.</p>
+      <ExportButtons />
+      <p class="small">This session's log, transcript included, is kept only until you close or reload the page.</p>
     </>
   );
 }

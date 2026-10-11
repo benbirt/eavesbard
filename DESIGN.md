@@ -53,7 +53,7 @@ The app is a single page made of the following stages, each a separate module wi
 7. **Scene state machine** — applies hysteresis and dwell times so the music doesn't flap.
 8. **Track selector** — maps the current scene to candidate tracks using the track index and picks one, avoiding recent repeats.
 9. **Playback adapter** — either Cast (Default Media Receiver) or local Web Audio.
-10. **Session logger** — records every classification cycle to IndexedDB, with JSONL export.
+10. **Session logger** — records every classification cycle in memory, to save to a file or copy as JSONL.
 11. **UI** — start and stop controls, current scene and track, live transcript, settings, a running cost meter, library status, and attribution.
 
 ## 6. Scene labels
@@ -261,7 +261,7 @@ One event stream (`src/timeline.ts`) is both what the page shows and what's stor
 - **music:** each track started and why (opening scene, intensity changed, setting changed, last track ended, borrowed from another setting), tracks carrying on, tracks ending;
 - **error:** anything that went wrong, from speech-to-text to playback.
 
-Entries are written to IndexedDB as they happen. Buttons export the current session or all sessions as JSONL, and clear saved sessions. If the browser refuses storage, the timeline still works in memory and says so. These logs are the dataset for E8 and E9; Haiku's labels are treated as the reference, not as ground truth.
+The session is kept in memory only, until the page is closed or reloaded: nothing is stored in the browser (an older IndexedDB store is deleted on load). Two buttons save it as a JSONL file or copy it to the clipboard. These logs are the dataset for E8 and E9; Haiku's labels are treated as the reference, not as ground truth.
 
 ### 7.10 UI
 
@@ -275,7 +275,7 @@ Designed for a GM mid-session, glancing at the screen from across the table: the
   - **The scene:** setting and intensity, the last line heard and why, how long it has lasted, the next check, what's pending, and buttons to set the setting or intensity yourself. A change set by hand restarts that axis's clock, so the minimum durations (7.6) keep the classifier from undoing it at once.
   - **Now playing:** the track and progress (click or drag to seek), pause, a different track, volume, and this computer or Cast (with what to check, collapsed, when no Cast devices are found). Where to play lives only here and on the start card, not in Setup.
 - **Side panels** (`src/ui/Drawer.tsx`) slide over from the right, with tabs to switch between them; Escape or a click outside closes them (the outside click does nothing else).
-  - **Session log** (7.9): speech, scene changes and music by default, and model details and dropped speech on request, with export and clear.
+  - **Session log** (7.9): speech, scene changes and music by default, and model details and dropped speech on request; save to a file or copy to the clipboard.
   - **Setup:** automatic music; who decides the scene (on this computer, or Claude with its key and privacy note); listening; picking a track yourself, with testing controls and the playback log; and About (attributions, the Fan Content notice and all art credits).
 - **Footer:** Tabletop Audio's attribution, the Fan Content Policy notice, and a pointer to the art credits, always visible.
 - **Narrow screens:** one column (art, scene, music); the scene-model chip hides below 860 px.
@@ -314,7 +314,7 @@ Suggested layout:
 /src/eval          scripted scenarios for checking classifiers, and the local classifier's browser evaluation
 /src/director.ts   automatic music: wires listening, classifier, scene and player together
 /src/playback      adapter interface, cast.ts, local.ts
-/src/log           IndexedDB logger, JSONL export
+/src/timeline.ts   session log, JSONL file or clipboard
 /src/ui            Preact components
 /scripts           build-index.ts (the generator) and its parsing code
 /tools             dev server, shared Bazel macros
@@ -385,7 +385,7 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 - **M3 — Automation:**
   - the Haiku classifier, state machine and track selector are wired end to end;
   - the cost meter is working.
-- **M4 — Instrumentation:** the timeline (7.9) doubles as the IndexedDB session log with JSONL export, and the page is reorganised around it (7.10). Done; next, run E8 over real sessions, and E10 alongside it.
+- **M4 — Instrumentation:** the timeline (7.9) doubles as the session log, exported as JSONL, and the page is reorganised around it (7.10). Done; next, run E8 over real sessions, and E10 alongside it.
 - **M5 — Local classifier experiments:** E9, then decide whether the API key remains necessary. Done: local models are the default, with Gemma 4 E2B (7.5).
 
 Agreed next steps (cleanup, more model experiments, Gemma 4 for speech, UI) are in [BACKLOG.md](BACKLOG.md).

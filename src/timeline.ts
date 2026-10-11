@@ -1,6 +1,6 @@
 // The session timeline: one ordered record of everything that happened —
 // speech, classifier calls, scene decisions, music — shown on the page and
-// stored in IndexedDB for export as JSONL (DESIGN.md 7.9).
+// kept in memory only, to save to a file or copy as JSONL (DESIGN.md 7.9).
 
 import { signal } from "@preact/signals";
 import type { Intensity, Setting } from "./library/scenes.js";
@@ -62,8 +62,6 @@ export interface TimelineEntry {
 /** This session's entries, oldest first. */
 export const timeline = signal<TimelineEntry[]>([]);
 export const sessionId = signal<string | undefined>(undefined);
-/** False if the browser refused storage; the timeline then lives only in memory. */
-export const storageOk = signal(true);
 
 let seq = 0;
 
@@ -79,64 +77,14 @@ export function record(event: TimelineEvent): void {
   const id = sessionId.value ?? newSession();
   const entry: TimelineEntry = { sessionId: id, seq: seq++, at: Date.now(), event };
   timeline.value = [...timeline.value, entry];
-  void store(entry);
 }
 
-// --- IndexedDB ---
-
-const DB_NAME = "eavesbard";
-const STORE = "timeline";
-let dbPromise: Promise<IDBDatabase> | undefined;
-
-function db(): Promise<IDBDatabase> {
-  dbPromise ??= new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 1);
-    request.onupgradeneeded = () => {
-      const store = request.result.createObjectStore(STORE, { keyPath: ["sessionId", "seq"] });
-      store.createIndex("session", "sessionId");
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
-  return dbPromise;
-}
-
-function done(request: IDBRequest | IDBTransaction): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (request instanceof IDBTransaction) {
-      request.oncomplete = () => resolve();
-      request.onerror = () => reject(request.error);
-    } else {
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    }
-  });
-}
-
-async function store(entry: TimelineEntry): Promise<void> {
-  try {
-    const tx = (await db()).transaction(STORE, "readwrite");
-    tx.objectStore(STORE).put(entry);
-    await done(tx);
-  } catch {
-    storageOk.value = false;
-  }
-}
-
-async function readAll(session?: string): Promise<TimelineEntry[]> {
-  const store = (await db()).transaction(STORE).objectStore(STORE);
-  const request = session ? store.index("session").getAll(session) : store.getAll();
-  await done(request);
-  return (request.result as TimelineEntry[]).sort((a, b) => a.sessionId.localeCompare(b.sessionId) || a.seq - b.seq);
-}
-
-/** Stored session ids, oldest first. */
-export async function storedSessions(): Promise<string[]> {
-  try {
-    return [...new Set((await readAll()).map((e) => e.sessionId))];
-  } catch {
-    return [];
-  }
+// Sessions used to be kept in IndexedDB. They now live only in memory, so
+// remove anything an earlier version left behind (transcripts included).
+try {
+  indexedDB.deleteDatabase("eavesbard");
+} catch {
+  // No IndexedDB here (e.g. tests): nothing to remove.
 }
 
 /** Entries as JSON Lines, one entry per line. */
@@ -144,31 +92,18 @@ export function toJsonl(entries: readonly TimelineEntry[]): string {
   return entries.map((e) => JSON.stringify(e)).join("\n") + (entries.length ? "\n" : "");
 }
 
-/** Downloads the current session (or every stored session) as a .jsonl file. */
-export async function exportJsonl(all: boolean): Promise<void> {
-  let entries: TimelineEntry[];
-  try {
-    entries = all ? await readAll() : await readAll(sessionId.value);
-  } catch {
-    entries = all ? [] : timeline.value;
-  }
-  if (!all && entries.length === 0) entries = timeline.value;
-  const blob = new Blob([toJsonl(entries)], { type: "application/x-ndjson" });
+/** Saves this session as a .jsonl file in the browser's downloads. */
+export function saveToFile(): void {
+  const blob = new Blob([toJsonl(timeline.value)], { type: "application/x-ndjson" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-");
-  link.download = `eavesbard-${all ? "all-sessions" : "session"}-${stamp}.jsonl`;
+  link.download = `eavesbard-session-${stamp}.jsonl`;
   link.click();
   setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
 }
 
-/** Deletes every stored session, keeping the current one on screen. */
-export async function clearStored(): Promise<void> {
-  try {
-    const tx = (await db()).transaction(STORE, "readwrite");
-    tx.objectStore(STORE).clear();
-    await done(tx);
-  } catch {
-    storageOk.value = false;
-  }
+/** Copies this session, as JSON Lines, to the clipboard. Rejects if the browser refuses. */
+export function copyToClipboard(): Promise<void> {
+  return navigator.clipboard.writeText(toJsonl(timeline.value));
 }
