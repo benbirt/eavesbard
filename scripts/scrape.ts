@@ -211,3 +211,29 @@ export function checkResult(result: BuildResult, previousCount: number, limits =
   }
   return problems;
 }
+
+/** Most tracks that may be missing their audio file before the host itself looks broken. */
+export const MAX_MISSING_FILES = 20;
+
+/**
+ * Splits off tracks whose audio file the host says isn't there (HTTP 403 or
+ * 404, as it answers for a few). Any other answer, or a network error, counts
+ * as present, so a blip can't empty the library. `status` fetches a file's
+ * status; `concurrency` keeps the load on the host light.
+ */
+export async function findMissingFiles(
+  tracks: readonly IndexedTrack[],
+  status: (track: IndexedTrack) => Promise<number>,
+  concurrency = 4,
+): Promise<IndexedTrack[]> {
+  const missing: IndexedTrack[] = [];
+  for (let i = 0; i < tracks.length; i += concurrency) {
+    await Promise.all(
+      tracks.slice(i, i + concurrency).map(async (t) => {
+        const code = await status(t).catch(() => 0);
+        if (code === 403 || code === 404) missing.push(t);
+      }),
+    );
+  }
+  return missing.sort((a, b) => a.id - b.id);
+}

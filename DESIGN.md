@@ -132,7 +132,7 @@ The file also records when it was generated. Filenames are kept exactly as the s
   - **Unmapped:** in-scope tracks with no setting or no intensity are left out. `maxUnmapped` records how many that currently is.
   - As of 2026-10-09, 356 of 528 tracks are in scope, 332 are mapped and 24 are unmapped.
   - The library builder (`buildLibrary` in `src/library/tag-map.ts`) is shared by the app and the tests.
-- **Checks on the map:** the test suite fails if any setting and intensity bucket is empty, if the number of unmapped tracks exceeds `maxUnmapped`, or if the map names a tag, genre or track id that doesn't exist in the data (catching typos). So a weekly index update that brings in unmapped tracks fails its tests and opens no pull request until the map is updated.
+- **Checks on the map:** the test suite fails if any setting and intensity has no tracks of its own or in a nearby setting, if the number of unmapped tracks exceeds `maxUnmapped`, or if the map names a tag, genre or track id that doesn't exist in the data (catching typos). So a weekly index update that brings in unmapped tracks fails its tests and opens no pull request until the map is updated.
 - **Tuning:** `bazel run //scripts:library_report` prints the bucket sizes and the unmapped tracks; `bazel run //scripts:library_report -- town/tense` lists one bucket.
 - **Library status:** the UI shows when the index was generated, and the number of tracks in each setting and intensity bucket. It also shows how many tracks were excluded because their tags aren't in the map. Some exclusions are expected (non-fantasy genres).
 
@@ -214,7 +214,7 @@ All parameters are configurable, and the defaults below are starting points to t
 **Which tracks are allowed** (`src/scene/selector.ts`):
 
 - The bucket matching the current setting and intensity. **Empty buckets** fall back first to the same intensity in a nearby setting (`NEARBY` in `src/scene/selector.ts`: a tavern borrows from interiors and towns, not dungeons), keeping only tracks that belong nowhere further away (no temple that's also a dungeon); then to any nearby track, then any setting, then the same setting with any intensity.
-- **Missing files:** a track whose audio fails to load (four of Tabletop Audio's files return 403 as of 2026-10-11) is skipped for the rest of the session and another is picked.
+- **Missing files:** the weekly index update sends a HEAD request for every audio file and leaves out tracks the host refuses (403 or 404; four as of 2026-10-11: Alien Machine Shop, Goblin's Cave, Industrial Shipyard, Yuletide). Any other failure counts as present, and more than 20 missing stops the update, in case the host itself is down. A track that still fails to load in a session is skipped for the rest of it and another is picked.
 - **Recent repeats:** the last five tracks are avoided; in a pool of five or fewer, only the track just played.
 - **Intensity changes always switch track**, preferring tracks not also tagged with the intensity being left, so calm to combat sounds different: first from the scene's bucket; if none there is distinct, the bucket's own tracks together with distinct ones borrowed from nearby settings (a tense tavern track that can also be calm beats a haunted temple: "Cavern of Lost Souls" was once picked for a tense tavern); then distinct tracks from any setting; and only then any track in the bucket.
 - **Setting-only changes** keep the current track if it's also in the new bucket.

@@ -1,15 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-  buildTracks,
-  checkResult,
-  parseHomepage,
-  parseKeywords,
-  parseTags,
-  readObjectLiteral,
-  text,
-  type BuildResult,
-} from "./scrape.js";
+import { buildTracks, checkResult, findMissingFiles, parseHomepage, parseKeywords, parseTags, readObjectLiteral, text, type BuildResult } from "./scrape.js";
 
 // Invented tiles in the shape of the homepage's markup.
 const tile = (id: number, classes: string, title: string, flavor: string, file?: string, type = "ambience + music") => `
@@ -111,4 +102,15 @@ test("checks reject suspicious scrapes", () => {
 
   const duplicate: BuildResult = { ...result, tracks: [...result.tracks, result.tracks[0]!] };
   assert.match(checkResult(duplicate, 0, limits).join(), /used by more than one track/);
+});
+
+test("tracks whose audio file the host refuses are found; other failures count as present", async () => {
+  const track = (id: number) => ({ id, title: `T${id}`, description: "", genres: [], hasMusic: false, type: "", tags: { civ: [], biome: [], mood: [], action: [] }, keywords: [], file: `${id}_T` });
+  const statuses: Record<number, number | Error> = { 1: 200, 2: 403, 3: 404, 4: 500, 5: new Error("network down"), 6: 403 };
+  const missing = await findMissingFiles([1, 2, 3, 4, 5, 6].map(track), async (t) => {
+    const s = statuses[t.id]!;
+    if (s instanceof Error) throw s;
+    return s;
+  });
+  assert.deepEqual(missing.map((t) => t.id), [2, 3, 6]);
 });
