@@ -1,0 +1,100 @@
+{
+  "about": "Reference labels for the Bardo 'Call of the Wild' episodes (lucasnfe/bardo-composer, data/dnd/epN.csv), written by Claude from reading the captions (experiments/E13.md). Each stretch runs from its time (m:ss into the episode) to the next stretch, or the episode's end. Every acceptable label is listed; the first is the best fit, and more than one means a judgement call. Notes are our own summaries; no caption text is kept here.",
+  "episodes": {
+    "1": [
+      { "from": "0:00", "intensity": ["calm"], "setting": ["wilderness"], "note": "introductions round the tribe's campfire" },
+      { "from": "6:00", "intensity": ["calm", "tense"], "setting": ["wilderness"], "note": "a trader arrives with gifts; the tribe is wary" },
+      { "from": "7:48", "intensity": ["calm"], "setting": ["wilderness"], "note": "setting out to hunt; talking to a bird" },
+      { "from": "10:07", "intensity": ["tense"], "setting": ["wilderness"], "note": "stalking and shooting an elk (a hunt, not a fight)" },
+      { "from": "11:57", "intensity": ["combat"], "setting": ["wilderness"], "note": "a bear attacks; initiative" },
+      { "from": "16:00", "intensity": ["calm", "tense"], "setting": ["wilderness"], "note": "after the bear: banter, then a sickness" },
+      { "from": "18:14", "intensity": ["tense"], "setting": ["wilderness"], "note": "running back to find the camp raided and families dead" },
+      { "from": "19:22", "intensity": ["combat"], "setting": ["wilderness"], "note": "fight with the soldiers in camp" },
+      { "from": "28:00", "intensity": ["calm", "tense"], "setting": ["wilderness"], "note": "grief, a dying elder" },
+      { "from": "30:00", "intensity": ["calm"], "setting": ["wilderness"], "note": "the elder's gifts, burying the dead" }
+    ],
+    "2": [
+      { "from": "2:06", "intensity": ["calm"], "setting": ["wilderness"], "note": "planning at the forest edge; gathering herbs" },
+      { "from": "4:05", "intensity": ["tense"], "setting": ["wilderness", "town"], "note": "night; creeping up on the farms" },
+      { "from": "5:10", "intensity": ["tense"], "setting": ["town"], "note": "sneaking round the farmhouses, scouting as a cat" },
+      { "from": "14:03", "intensity": ["tense"], "setting": ["interior", "town"], "note": "inside a sleeping family's house" },
+      { "from": "15:25", "intensity": ["combat", "tense"], "setting": ["interior", "town"], "note": "killing the woken mother and child (brief)" },
+      { "from": "16:33", "intensity": ["tense"], "setting": ["interior", "town"], "note": "looting, creeping into the next house" },
+      { "from": "18:41", "intensity": ["combat"], "setting": ["interior"], "note": "the household wakes; initiative" },
+      { "from": "25:39", "intensity": ["tense"], "setting": ["town", "interior"], "note": "searching for the son" },
+      { "from": "26:16", "intensity": ["calm"], "setting": ["town", "interior"], "note": "reunited with the son" }
+    ],
+    "3": [
+      { "from": "0:00", "intensity": ["calm"], "setting": ["town"], "note": "recap" },
+      { "from": "0:32", "intensity": ["tense"], "setting": ["town"], "note": "midnight; scouting the bridge and trading post" },
+      { "from": "5:11", "intensity": ["tense"], "setting": ["town", "tavern"], "note": "one character invisible in the tavern, poisoning the drinks; the others outside" },
+      { "from": "10:25", "intensity": ["tense"], "setting": ["town"], "note": "a guard drinks the poison; readying an ambush" },
+      { "from": "12:05", "intensity": ["combat"], "setting": ["town"], "note": "a missed shot starts a long fight with guards, a paladin and a cleric" },
+      { "from": "33:09", "intensity": ["calm"], "setting": ["town"], "note": "looting the bodies" },
+      { "from": "33:56", "intensity": ["tense", "calm"], "setting": ["town", "tavern"], "note": "a bill of sale; finishing off the last drunk" }
+    ],
+    "4": [
+      { "from": "0:00", "intensity": ["calm"], "setting": ["town", "tavern"], "note": "recap outside the tavern; a druid's story" },
+      { "from": "3:13", "intensity": ["calm"], "setting": ["travel", "town"], "note": "by cart to the mayor's house" },
+      { "from": "4:47", "intensity": ["calm", "tense"], "setting": ["town"], "note": "watching guests arrive at the mansion" },
+      { "from": "5:09", "intensity": ["tense"], "setting": ["town", "wilderness"], "note": "a fumbled sneak in the trees by the estate; luring a guard" },
+      { "from": "8:33", "intensity": ["combat", "tense"], "setting": ["town", "wilderness"], "note": "a failed strangle (brief)" },
+      { "from": "9:21", "intensity": ["tense"], "setting": ["town"], "note": "a stand-off with a paladin guard" },
+      { "from": "10:23", "intensity": ["combat"], "setting": ["town"], "note": "fight with the guard" },
+      { "from": "11:43", "intensity": ["calm", "tense"], "setting": ["town"], "note": "planning how to lure the next guard" },
+      { "from": "14:26", "intensity": ["tense"], "setting": ["town"], "note": "luring the guard" },
+      { "from": "15:18", "intensity": ["combat"], "setting": ["town"], "note": "chokehold and kill" },
+      { "from": "16:36", "intensity": ["tense"], "setting": ["town"], "note": "round the back of the mansion; bluffing guards; turning into a deer" },
+      { "from": "24:53", "intensity": ["combat"], "setting": ["town"], "note": "fight with the armoured guard" },
+      { "from": "30:52", "intensity": ["tense"], "setting": ["town"], "note": "searching the body" },
+      { "from": "31:36", "intensity": ["combat"], "setting": ["town"], "note": "two workers come out and are attacked" },
+      { "from": "32:30", "intensity": ["tense"], "setting": ["interior", "town"], "note": "slipping inside" }
+    ],
+    "5": [
+      { "from": "0:00", "intensity": ["tense"], "setting": ["interior", "dungeon"], "note": "a foul back room of the mansion; keys and locked doors" },
+      { "from": "4:47", "intensity": ["combat"], "setting": ["interior", "dungeon"], "note": "fight with the slave keeper" },
+      { "from": "7:51", "intensity": ["tense"], "setting": ["interior", "dungeon"], "note": "questioning him; finding the wife" },
+      { "from": "10:03", "intensity": ["tense", "combat"], "setting": ["interior", "dungeon"], "note": "he is shot dead" },
+      { "from": "10:27", "intensity": ["tense"], "setting": ["interior", "dungeon"], "note": "a charm breaks; freeing prisoners; caged monsters" },
+      { "from": "16:52", "intensity": ["combat"], "setting": ["interior", "dungeon"], "note": "fight with the beast keeper" },
+      { "from": "20:37", "intensity": ["tense"], "setting": ["interior", "dungeon"], "note": "talking to the caged creatures" },
+      { "from": "24:45", "intensity": ["tense", "combat"], "setting": ["interior", "dungeon"], "note": "the keeper is fed to a creature" },
+      { "from": "25:28", "intensity": ["tense"], "setting": ["interior", "dungeon"], "note": "a creature whispers lies in their minds" }
+    ],
+    "6": [
+      { "from": "0:00", "intensity": ["calm", "tense"], "setting": ["interior"], "note": "in the mansion" },
+      { "from": "0:49", "intensity": ["tense"], "setting": ["interior"], "note": "a secret door; scouting as a spider; luring a guard" },
+      { "from": "9:56", "intensity": ["combat"], "setting": ["interior"], "note": "heated armour; fight with the guard" },
+      { "from": "12:24", "intensity": ["tense"], "setting": ["interior"], "note": "a vision; confronting the mayor by his children's beds" },
+      { "from": "16:54", "intensity": ["combat"], "setting": ["interior"], "note": "fight with the mayor" },
+      { "from": "22:44", "intensity": ["tense"], "setting": ["interior"], "note": "keeping the children asleep" },
+      { "from": "25:01", "intensity": ["calm"], "setting": ["interior"], "note": "looting the mayor's chest" },
+      { "from": "26:54", "intensity": ["tense", "calm"], "setting": ["interior"], "note": "showing the mayor's head to the guests; taking over" },
+      { "from": "31:18", "intensity": ["calm"], "setting": ["interior"], "note": "freeing everyone; the family together" },
+      { "from": "32:38", "intensity": ["calm", "tense"], "setting": ["interior"], "note": "closing narration" }
+    ],
+    "7": [
+      { "from": "0:00", "intensity": ["calm"], "setting": ["wilderness"], "note": "recap at the home tree; the week's news" },
+      { "from": "10:39", "intensity": ["tense"], "setting": ["wilderness"], "note": "menacing cultists arrive" },
+      { "from": "12:17", "intensity": ["calm", "tense"], "setting": ["wilderness"], "note": "their offer; the elder returns as a bird" },
+      { "from": "13:51", "intensity": ["tense"], "setting": ["wilderness"], "note": "an army is coming; arguing over allies" },
+      { "from": "19:38", "intensity": ["calm"], "setting": ["wilderness"], "note": "the druid's advice; preparing to leave" }
+    ],
+    "8": [
+      { "from": "0:00", "intensity": ["calm"], "setting": ["wilderness"], "note": "walking through the woods to a cave" },
+      { "from": "2:05", "intensity": ["tense"], "setting": ["wilderness", "dungeon"], "note": "approaching the cave mouth" },
+      { "from": "3:46", "intensity": ["combat"], "setting": ["wilderness", "dungeon"], "note": "fungus and a rock elemental" },
+      { "from": "14:40", "intensity": ["calm"], "setting": ["wilderness"], "note": "the elemental calms; healing; tracking" },
+      { "from": "20:18", "intensity": ["tense"], "setting": ["wilderness"], "note": "an owlbear in the trees" },
+      { "from": "25:14", "intensity": ["combat"], "setting": ["wilderness"], "note": "wrestling the owlbear; initiative" },
+      { "from": "27:21", "intensity": ["calm"], "setting": ["wilderness"], "note": "a truce; naming the allies" }
+    ],
+    "9": [
+      { "from": "0:00", "intensity": ["calm"], "setting": ["wilderness"], "note": "recap" },
+      { "from": "1:24", "intensity": ["tense"], "setting": ["wilderness"], "note": "hunting for the army; scouting" },
+      { "from": "5:14", "intensity": ["combat"], "setting": ["wilderness"], "note": "archers in the trees" },
+      { "from": "8:49", "intensity": ["tense"], "setting": ["wilderness"], "note": "giants seen over the river; sneaking up underwater" },
+      { "from": "17:12", "intensity": ["combat"], "setting": ["wilderness"], "note": "the battle at the bridge" }
+    ]
+  }
+}
