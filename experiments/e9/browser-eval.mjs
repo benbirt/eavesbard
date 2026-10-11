@@ -79,5 +79,7 @@ writeFileSync(out, JSON.stringify({ repo: args.repo, dtype: args.dtype, variants
 const perScene = Object.fromEntries(args.variants.split(",").map((v) => [v, (results.reduce((a, r) => a + r.llm[v].ms, 0) / results.length / 1000).toFixed(2) + " s"]));
 console.log(`saved ${out}: ${results.length} scenes in ${((Date.now() - started) / 1000).toFixed(0)} s; per scene:`, perScene);
 finished = true;
-await context.close();
+// Closing Chrome can hang after a large model; the results are saved, so don't wait long.
+await Promise.race([context.close(), new Promise((r) => setTimeout(r, 10_000))]);
 server.close();
+process.exit(0);

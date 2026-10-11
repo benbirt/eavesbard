@@ -25,9 +25,11 @@ const page = await context.newPage();
 page.setDefaultTimeout(5 * 60_000);
 page.on("pageerror", (e) => console.error("page error:", e.message));
 await page.goto("http://localhost:8765/llm-eval.html");
-await page.evaluate(() => window.evalLoad({ repo: "onnx-community/gemma-4-E2B-it-ONNX" }));
+await page.evaluate((repo) => window.evalLoad({ repo }), process.env.REPO ?? "onnx-community/gemma-4-E2B-it-ONNX");
 
-const cases = {
+const cases = process.env.CASE === "calm" ? {
+  "card game at the inn": { lines: ["there's a card game going on at the corner table", "can i join in i want to play a few hands", "sure it's three card dragon, the dwarf dealing looks pretty drunk", "i'm gonna use sleight of hand to cheat. no don't do that we need these people"], current: { setting: "tavern", intensity: "calm" } },
+} : {
   "first check": { lines: ["Roll for initiative"], current: { setting: "tavern", intensity: "calm" } },
   "second check": { lines: ["Roll for initiative", "Role for initiative", "Let's fight"], current: { setting: "tavern", intensity: "calm" } },
   "first check, had the scene been tense": { lines: ["Roll for initiative"], current: { setting: "tavern", intensity: "tense" } },
@@ -45,5 +47,6 @@ for (const [name, input] of Object.entries(cases)) {
   }
 }
 clearTimeout(watchdog);
-await context.close();
+await Promise.race([context.close(), new Promise((r) => setTimeout(r, 10_000))]);
 server.close();
+process.exit(0);

@@ -3,7 +3,7 @@
 
 import { signal } from "@preact/signals";
 import type { LlmAnswer } from "../classify/local-classifier.js";
-import { ANSWER_PREFIX, fightOverQuestion, llmQuestions, type LlmInput } from "../classify/llm-prompt.js";
+import { ANSWER_PREFIX, fightOverQuestion, fightQuestion, llmQuestions, mixIntensity, type LlmInput } from "../classify/llm-prompt.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
 import { LlmClient } from "./llm-client.js";
 import { hasWebGpu } from "../gpu.js";
@@ -58,17 +58,15 @@ export async function askSceneLlm(input: LlmInput): Promise<LlmAnswer | undefine
   if (sceneLlm.value.phase !== "ready") return undefined;
   const [settingQ, intensityQ] = llmQuestions(input);
   const setting = await ask(settingQ);
-  const intensity = await ask(intensityQ);
   const record = <L extends string>(labels: readonly L[], probs: number[]) =>
     Object.fromEntries(labels.map((l, i) => [l, probs[i] ?? 0])) as Record<L, number>;
+  let intensity = record(INTENSITIES, await ask(intensityQ));
   let fightOver: number | undefined;
-  if ("lines" in input && input.current.intensity === "combat") {
-    fightOver = (await ask(fightOverQuestion(input.lines)))[1];
+  if ("lines" in input) {
+    // The chance of combat comes from asking whether a fight has started (or ended).
+    const yes = (await ask(fightQuestion(input.lines, input.current)))[0]!;
+    intensity = mixIntensity(intensity, input.current.intensity === "combat" ? 1 - yes : yes);
+    if (input.current.intensity === "combat") fightOver = (await ask(fightOverQuestion(input.lines)))[1];
   }
-  return {
-    model: SCENE_LLM.name,
-    setting: record(SETTINGS, setting),
-    intensity: record(INTENSITIES, intensity),
-    fightOver,
-  };
+  return { model: SCENE_LLM.name, setting: record(SETTINGS, setting), intensity, fightOver };
 }

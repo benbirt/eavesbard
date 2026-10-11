@@ -29,17 +29,33 @@ let emptyThought = false;
 
 async function load(spec: LlmLoad): Promise<void> {
   emptyThought = spec.emptyThought ?? false;
+  // Models split into several files (Gemma 4 E4B has nine) download one after another.
+  // transformers.js reports overall progress ("progress_total") across every file it
+  // expects; without that, add up the files seen so far.
   const files = new Map<string, { loaded: number; total: number }>();
+  let overall = false;
+  let preparing = false;
   const progress_callback = (info: { status: string; file?: string; loaded?: number; total?: number }) => {
-    if (info.status !== "progress" || !info.file) return;
-    files.set(info.file, { loaded: info.loaded ?? 0, total: info.total ?? 0 });
     let loaded = 0;
     let total = 0;
-    for (const f of files.values()) {
-      loaded += f.loaded;
-      total += f.total;
+    if (info.status === "progress_total") {
+      overall = true;
+      loaded = info.loaded ?? 0;
+      total = info.total ?? 0;
+    } else if (info.status === "progress" && info.file && !overall) {
+      files.set(info.file, { loaded: info.loaded ?? 0, total: info.total ?? 0 });
+      for (const f of files.values()) {
+        loaded += f.loaded;
+        total += f.total;
+      }
+    } else {
+      return;
     }
     post({ type: "progress", loaded, total });
+    if (overall && total > 0 && loaded >= total && !preparing) {
+      preparing = true;
+      post({ type: "preparing" });
+    }
   };
   const options = {
     device: "webgpu" as const,
@@ -47,7 +63,11 @@ async function load(spec: LlmLoad): Promise<void> {
     dtype: (spec.dtype ?? ((await hasShaderF16()) ? "q4f16" : "q4")) as "q4",
     progress_callback: (info: { status: string; file?: string; loaded?: number; total?: number }) => {
       progress_callback(info);
-      if (info.status === "done" && info.file?.includes("onnx")) post({ type: "preparing" });
+      // Without overall progress, the first model file finishing is the best sign.
+      if (!overall && !preparing && info.status === "done" && info.file?.includes("onnx")) {
+        preparing = true;
+        post({ type: "preparing" });
+      }
     },
   };
   if (spec.audio) {

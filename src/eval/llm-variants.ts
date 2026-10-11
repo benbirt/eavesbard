@@ -1,7 +1,16 @@
 // Ways of asking an LLM about a scene, for comparing in the evaluation page
 // (experiment E9). "current" is what the app does; the others are candidates.
 
-import { ANSWER_PREFIX, fightOverQuestion, LLM_INTENSITIES, LLM_SETTINGS, llmQuestions } from "../classify/llm-prompt.js";
+import {
+  ANSWER_PREFIX,
+  FIGHT_QUESTIONS,
+  fightOverQuestion,
+  fightQuestion,
+  LLM_INTENSITIES,
+  LLM_SETTINGS,
+  llmQuestions,
+  mixIntensity,
+} from "../classify/llm-prompt.js";
 import { lastWords } from "../classify/local-classifier.js";
 import { INTENSITIES, SETTINGS, type Intensity, type Setting } from "../library/scenes.js";
 import type { LlmClient } from "../llm/llm-client.js";
@@ -24,7 +33,7 @@ const asRecord = <L extends string>(labels: readonly L[], probs: number[]) =>
 
 const spaced = (labels: readonly string[]) => labels.map((l) => [` ${l}`, ` ${l[0]!.toUpperCase()}${l.slice(1)}`]);
 
-/** The app's questions (src/llm/scene-llm.ts). */
+/** The app's questions before round 5. */
 const current: Variant = async (llm, input) => {
   const [s, i] = llmQuestions(input);
   const answer: VariantAnswer = {
@@ -166,13 +175,11 @@ function variant(o: Options): Variant {
 
 /** Questions about what has changed, each answered yes or no. */
 export const CHANGE_QUESTIONS = {
-  fightStarted:
-    "Has a fight started? Say yes if the game master has called for initiative, or someone in the story is attacking, being attacked or taking damage. Rules questions, plans, and stories about other fights don't count.",
+  fightStarted: FIGHT_QUESTIONS.started,
   danger:
     "Are the characters in danger right now, even if nobody is fighting: a threat, a chase, sneaking past enemies, a trap, a standoff, something hunting them?",
   dangerPassed: "Has the danger passed, so the scene is calm again?",
-  fightEnded:
-    "Has the fight ended? Say yes if the enemies are dead, have fled or surrendered, or the game master has said the fight is over.",
+  fightEnded: FIGHT_QUESTIONS.ended,
   moved:
     "Have the characters just arrived somewhere new or set off for somewhere new? Only count actually moving: talking about another place doesn't count.",
 };
@@ -254,7 +261,17 @@ function changeVariant(calibrate: boolean): Variant {
 
 const ANCHOR_ANY = /\n\nUntil now the scene was: [^\n]*/;
 
+/** What the app asks (round 5): the current questions, with the chance of combat from "has a fight started / ended?". */
+const mix: Variant = async (llm, input) => {
+  const base = await current(llm, input);
+  if ("description" in input) return base;
+  const q = fightQuestion(input.lines, input.current);
+  const yes = (await llm.ask(q.content, ANSWER_PREFIX, spaced(q.labels)))[0]!;
+  return { ...base, intensity: mixIntensity(base.intensity, input.current.intensity === "combat" ? 1 - yes : yes) };
+};
+
 export const VARIANTS: Record<string, Variant> = {
+  mix,
   change: changeVariant(false),
   "change-cal": changeVariant(true),
   current,

@@ -117,3 +117,47 @@ function logSumExp(xs: number[]): number {
   if (!Number.isFinite(top)) return top;
   return top + Math.log(xs.reduce((sum, x) => sum + Math.exp(x - top), 0));
 }
+
+// --- Has a fight started or ended? (round 5, experiments/E9.md) ---
+
+/** Yes/no questions about combat, asked according to the current scene. */
+export const FIGHT_QUESTIONS = {
+  started:
+    "Has a fight started? Say yes if the game master has called for initiative, or someone in the story is attacking, being attacked or taking damage. Rules questions, plans, and stories about other fights don't count.",
+  ended:
+    "Has the fight ended? Say yes if the enemies are dead, have fled or surrendered, or the game master has said the fight is over.",
+};
+
+/** The transcript, with the newest line apart from the earlier ones. */
+export function transcriptBlock(lines: readonly string[], words: number): string {
+  const newest = lines.at(-1) ?? "";
+  const earlier = lastWords(lines.slice(0, -1), Math.max(0, words - newest.split(/\s+/).length));
+  return (earlier ? `Earlier:\n"${earlier}"\n\n` : "") + `Just now:\n"${newest}"`;
+}
+
+/** A yes/no question about the transcript, given the scene so far. */
+export function yesNoQuestion(current: { setting: Setting; intensity: Intensity }, lines: readonly string[], question: string): LlmQuestion {
+  return {
+    axis: "intensity",
+    content:
+      "You are following a tabletop role-playing game (like D&D) from a speech transcript (speech recognition, may contain errors).\n\n" +
+      `The scene so far: ${current.setting}, ${current.intensity}.\n\n${transcriptBlock(lines, INTENSITY_WORDS)}\n\nQuestion: ${question}\nAnswer yes or no.`,
+    labels: ["yes", "no"],
+  };
+}
+
+/** "Has a fight started?" outside a fight, "has it ended?" during one. */
+export function fightQuestion(lines: readonly string[], current: { setting: Setting; intensity: Intensity }): LlmQuestion {
+  return yesNoQuestion(current, lines, current.intensity === "combat" ? FIGHT_QUESTIONS.ended : FIGHT_QUESTIONS.started);
+}
+
+/**
+ * The intensity: the chance of combat from the fight question, and calm
+ * against tense from the three-way question. The yes/no question catches
+ * fights starting far more often; the three-way one is better at tension.
+ */
+export function mixIntensity(threeWay: Record<Intensity, number>, combat: number): Record<Intensity, number> {
+  const rest = threeWay.calm + threeWay.tense;
+  const calmShare = rest > 0 ? threeWay.calm / rest : 0.5;
+  return { calm: (1 - combat) * calmShare, tense: (1 - combat) * (1 - calmShare), combat };
+}
