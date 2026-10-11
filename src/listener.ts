@@ -5,8 +5,9 @@ import { signal } from "@preact/signals";
 import { assetUrl } from "./assets.js";
 import { startMic, type Mic } from "./audio/mic.js";
 import { gpuAdapter } from "./gpu.js";
+import { markDownloaded, mayLoad } from "./downloads.js";
 import { loadSetting, saveSetting } from "./settings.js";
-import { isWebSpeech, SPEECH_MODELS, type FromWorker, type SpeechModel, type ToWorker, type WhisperModel } from "./stt/protocol.js";
+import { isWebSpeech, SPEECH_MODELS, whisperRepo, type FromWorker, type SpeechModel, type ToWorker, type WhisperModel } from "./stt/protocol.js";
 import { startWebSpeech } from "./stt/web-speech.js";
 import { record } from "./timeline.js";
 
@@ -60,7 +61,7 @@ let failed: ((err: Error) => void) | undefined;
 export function setModel(next: SpeechModel): void {
   model.value = next;
   saveSetting("whisperModel", next);
-  prepareSpeech();
+  prepareSpeech(true);
 }
 
 /**
@@ -68,12 +69,14 @@ export function setModel(next: SpeechModel): void {
  * the scene model, so starting a session doesn't wait for it. Web Speech
  * needs nothing.
  */
-export function prepareSpeech(): void {
+export function prepareSpeech(onlyCached = false): void {
   const chosen = model.value;
   if (isWebSpeech(chosen) || state.value.phase === "listening" || state.value.phase === "loading") return;
-  void gpuAdapter()
-    .then((gpu) => (gpu ? loadWorker(chosen) : undefined))
-    .catch(() => undefined); // Shown in speechModel; start() tries again.
+  void (async () => {
+    // Without the user's agreement, only a model the browser already has.
+    if (onlyCached && !(await mayLoad(whisperRepo(chosen)))) return;
+    if (await gpuAdapter()) await loadWorker(chosen);
+  })().catch(() => undefined); // Shown in speechModel; start() tries again.
 }
 
 function send(message: ToWorker, transfer: Transferable[] = []): void {
@@ -110,6 +113,7 @@ function onMessage(message: FromWorker): void {
       break;
     case "ready":
       speechModel.value = { phase: "ready" };
+      if (workerModel) markDownloaded(whisperRepo(workerModel));
       ready?.();
       break;
     case "speaking":

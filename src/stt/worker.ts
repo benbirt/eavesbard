@@ -5,7 +5,7 @@ import "../ml-env.js";
 import { AutoModel, pipeline, Tensor } from "@huggingface/transformers";
 import type { AutomaticSpeechRecognitionPipeline, PreTrainedModel } from "@huggingface/transformers";
 import { hallucinationReason } from "./hallucination.js";
-import type { FromWorker, ToWorker, WhisperModel } from "./protocol.js";
+import { whisperRepo, type FromWorker, type ToWorker, type WhisperModel } from "./protocol.js";
 import { SAMPLE_RATE, Segmenter, type Segment } from "./segmenter.js";
 
 const post = (message: FromWorker) => self.postMessage(message);
@@ -37,7 +37,7 @@ async function load(model: WhisperModel): Promise<void> {
     dtype: "fp32",
     progress_callback,
   });
-  transcriber = (await pipeline("automatic-speech-recognition", `onnx-community/whisper-${model}`, {
+  transcriber = (await pipeline("automatic-speech-recognition", whisperRepo(model), {
     device: "webgpu",
     dtype: { encoder_model: "fp32", decoder_model_merged: "q4" },
     progress_callback,

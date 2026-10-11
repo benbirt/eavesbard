@@ -4,6 +4,9 @@ export const WHISPER_MODELS = ["tiny.en", "base.en", "small.en"] as const;
 export type WhisperModel = (typeof WHISPER_MODELS)[number];
 
 /** Approximate one-off download sizes, for the model chooser. */
+/** Where a Whisper model is downloaded from. */
+export const whisperRepo = (model: WhisperModel) => `onnx-community/whisper-${model}`;
+
 export const WHISPER_DOWNLOAD_MB: Record<WhisperModel, number> = { "tiny.en": 120, "base.en": 205, "small.en": 590 };
 
 /** Speech-to-text choices: Whisper here, or the browser's own Web Speech recognition. */

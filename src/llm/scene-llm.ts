@@ -5,6 +5,7 @@ import { signal } from "@preact/signals";
 import type { LlmAnswer } from "../classify/local-classifier.js";
 import { ANSWER_PREFIX, fightOverQuestion, fightQuestion, llmQuestions, mixIntensity, type LlmInput } from "../classify/llm-prompt.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
+import { markDownloaded } from "../downloads.js";
 import { LlmClient } from "./llm-client.js";
 import { hasWebGpu } from "../gpu.js";
 import { SCENE_LLM } from "./llm-protocol.js";
@@ -32,6 +33,7 @@ export function prepareSceneLlm(): Promise<void> {
         sceneLlm.value = p.preparing ? { ...sceneLlm.value, preparing: true } : { phase: "loading", ...p };
       });
       sceneLlm.value = { phase: "ready" };
+      markDownloaded(SCENE_LLM.repo);
     } catch (err) {
       const message = `${SCENE_LLM.name}: ${err instanceof Error ? err.message : String(err)}`;
       client.terminate();

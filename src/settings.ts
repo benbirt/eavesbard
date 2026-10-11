@@ -40,8 +40,9 @@ export function saveSetting(name: string, value: string): void {
   }
 }
 
-/** Settings kept by a reset: the user's own text rather than an option. */
+/** Settings kept by a reset: the user's own text, and which models are downloaded (the models stay). */
 const KEPT_ON_RESET = ["eavesbard.openingDescription"];
+const KEPT_PREFIX_ON_RESET = "eavesbard.downloaded.";
 
 /**
  * Clears stored options and the API key, so the defaults apply after a
@@ -50,7 +51,7 @@ const KEPT_ON_RESET = ["eavesbard.openingDescription"];
 export function resetSettings(): boolean {
   try {
     const keys = Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)).filter(
-      (k): k is string => k !== null && k.startsWith("eavesbard.") && !KEPT_ON_RESET.includes(k),
+      (k): k is string => k !== null && k.startsWith("eavesbard.") && !KEPT_ON_RESET.includes(k) && !k.startsWith(KEPT_PREFIX_ON_RESET),
     );
     for (const k of keys) localStorage.removeItem(k);
     return true;

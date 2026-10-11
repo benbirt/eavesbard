@@ -3,7 +3,8 @@
 
 import { signal } from "@preact/signals";
 import { assetUrl } from "../assets.js";
-import type { FromEmbedWorker, ToEmbedWorker } from "./embed-protocol.js";
+import { markDownloaded } from "../downloads.js";
+import { EMBEDDING_MODEL, type FromEmbedWorker, type ToEmbedWorker } from "./embed-protocol.js";
 
 export type LocalModelState =
   | { phase: "off" }
@@ -83,6 +84,7 @@ export function prepareEmbeddings(first: () => Doc[], rest: () => Doc[]): { firs
   };
   send({ type: "load" });
   const firstDone = indexDocs(first()).then(() => {
+    markDownloaded(EMBEDDING_MODEL);
     localModel.value = { phase: "indexing", done: 0, total: rest().length };
   });
   const allDone = firstDone.then(async () => {

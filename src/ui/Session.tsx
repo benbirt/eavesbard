@@ -16,6 +16,7 @@ import {
   startSession,
   stopSession,
 } from "../director.js";
+import { allowDownloads, downloadsAllowed } from "../downloads.js";
 import { hasWebGpu } from "../gpu.js";
 import { library } from "../library-data.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
@@ -61,7 +62,7 @@ export function StartCard() {
         onInput={(e) => setDescription(e.currentTarget.value)}
       />
       <button type="submit" class="begin">
-        Begin session
+        {pendingDownloadMb() > 0 ? `Download ${size(pendingDownloadMb())} and begin` : "Begin session"}
       </button>
       <ul class="ready">
         <li>{library.tracks.length} ambiences from Tabletop Audio</li>
@@ -79,9 +80,38 @@ export function StartCard() {
         )}
         {!auto.value && <li class="wait">Automatic music is off: pick tracks below, or turn it on in Setup</li>}
       </ul>
+      <DownloadOffer />
     </form>
   );
 }
+
+/**
+ * Nothing large downloads just from opening the page: this offers the
+ * downloads still needed, which Begin session would also start.
+ */
+function DownloadOffer() {
+  const mb = pendingDownloadMb();
+  if (mb === 0) return null;
+  return (
+    <div class="download-offer">
+      <button type="button" class="btn" onClick={allowDownloads}>
+        Download now ({size(mb)})
+      </button>
+      <p class="small">Or with Begin. Only once: the browser keeps them.</p>
+    </div>
+  );
+}
+
+/** How much the session would download that the user hasn't chosen to yet (0 if nothing). */
+function pendingDownloadMb(): number {
+  if (downloadsAllowed.value) return 0;
+  const speech = model.value;
+  const speechMb = !isWebSpeech(speech) && speechModel.value.phase === "off" ? WHISPER_DOWNLOAD_MB[speech] : 0;
+  const sceneMb = auto.value && effectiveEngine() === "local" && hasWebGpu && sceneLlm.value.phase === "off" ? SCENE_LLM.downloadMb : 0;
+  return speechMb + sceneMb;
+}
+
+const size = (mb: number) => (mb >= 1000 ? `${(mb / 1000).toFixed(1)} GB` : `${mb} MB`);
 
 /** The speech model's line in the readiness list. */
 function SpeechReadiness() {

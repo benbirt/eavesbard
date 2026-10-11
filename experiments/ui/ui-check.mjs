@@ -54,6 +54,16 @@ try {
   });
   await step("1-before", async () => {
     await page.goto("http://localhost:8765/");
+    await page.locator(".card.start").waitFor();
+    // Models load by themselves only once they've fully downloaded here before.
+    await page.waitForTimeout(3000);
+    const offer = page.getByRole("button", { name: /^Download now/ });
+    if (await offer.count()) {
+      console.log("   download offered:", await offer.innerText());
+      await offer.click();
+    } else {
+      console.log("   no download offered: the models load from the browser by themselves");
+    }
     await page.getByRole("button", { name: "Begin session" }).waitFor();
     await page.locator(".chip.model.ok").waitFor({ timeout: 120_000 }); // Gemma loaded from cache
   });

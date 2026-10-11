@@ -13,7 +13,9 @@ import type { Intensity, Setting } from "./library/scenes.js";
 import type { LibraryTrack } from "./library/tag-map.js";
 import { onTranscriptLine, prepareSpeech, start as startListening, stop as stopListening } from "./listener.js";
 import { LOCAL_MODEL_NAME, localClassify, prepareLocalModels, prepareTrackIndex } from "./local-models.js";
+import { allowDownloads, mayLoad, onDownloadsAllowed } from "./downloads.js";
 import { hasWebGpu } from "./gpu.js";
+import { EMBEDDING_MODEL } from "./pick/embed-protocol.js";
 import { SCENE_LLM } from "./llm/llm-protocol.js";
 import { prepareSceneLlm } from "./llm/scene-llm.js";
 import { claudePick } from "./pick/claude-picker.js";
@@ -85,18 +87,27 @@ export function setCompare(on: boolean): void {
 
 export const ENGINE_NAMES: Record<Engine, string> = { claude: "Claude", local: "Local model" };
 
-// Start downloading the local model as soon as the page opens if it will be
-// needed, so it's ready by the time a session starts.
+// When the page opens, load the models a session will need if the browser
+// already has them, so they're ready in time; anything that would download
+// waits until the user agrees (Begin session, or the start card's button).
 if (auto.value && effectiveEngine() === "local") {
-  setTimeout(prepareLocal, 1000);
+  setTimeout(() => void prepareLocal(true), 1000);
 }
 // Likewise the speech model (Whisper; Web Speech needs nothing).
-setTimeout(prepareSpeech, 1500);
+setTimeout(() => prepareSpeech(true), 1500);
+onDownloadsAllowed(() => {
+  if (auto.value && effectiveEngine() === "local") void prepareLocal();
+  prepareSpeech();
+});
 
-/** Starts the local models downloading: embeddings, and the helper LLM if chosen. */
-function prepareLocal(): void {
-  prepareLocalModels().catch(() => undefined);
+/**
+ * Starts the local models loading: embeddings, and the helper LLM if chosen.
+ * With `onlyCached`, only those already in the browser, unless downloads are agreed to.
+ */
+async function prepareLocal(onlyCached = false): Promise<void> {
+  if (!onlyCached || (await mayLoad(EMBEDDING_MODEL))) prepareLocalModels().catch(() => undefined);
   if (!hasWebGpu) return;
+  if (onlyCached && !(await mayLoad(SCENE_LLM.repo))) return;
   prepareSceneLlm().catch((err: unknown) => {
     if (sessionActive.value) {
       record({ kind: "error", text: `The scene LLM couldn't load, so the embeddings decide alone: ${err instanceof Error ? err.message : String(err)}` });
@@ -129,6 +140,7 @@ export function setDescription(text: string): void {
 /** Starts a session: listening, and (if automatic) the opening scene and its music. */
 export async function startSession(): Promise<void> {
   if (sessionActive.value) return;
+  allowDownloads(); // Beginning a session agrees to the downloads it needs.
   newSession();
   sessionActive.value = true;
   const opening = description.value.trim();
@@ -163,9 +175,9 @@ async function startAuto(opening: string): Promise<void> {
       (engine.value === "claude" && primary === "local" ? " (no Anthropic API key, so local models are used)" : "") +
       (other ? `; ${other === "claude" ? "Claude" : "the local model"} is also asked, for comparison.` : compare.value ? "; no comparison, as Claude needs an Anthropic API key." : "."),
   });
-  if (other === "local") prepareLocal();
+  if (other === "local") void prepareLocal();
   if (primary === "local") {
-    prepareLocal();
+    void prepareLocal();
     const llm = SCENE_LLM.name;
     record(
       hasWebGpu
