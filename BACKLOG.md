@@ -17,14 +17,9 @@ Kevin MacLeod's catalogue at incompetech.com: 1,443 tracks (87 hours, median 3 m
 
 Know roughly how many people use the app (and so how much traffic we send to incompetech and Tabletop Audio). A cookieless, privacy-friendly service that counts page views and sessions, never anything said at the table. About's Privacy section must say what is counted and by whom.
 
-## 4. Test the classifier on real play (Bardo transcripts)
+## 4. More labelled real play, for calm against tense
 
-A headless target (say `//experiments/e13:bardo`) that replays real actual play through the local classifier (embeddings plus Gemma 4 E2B, through the app's own code as in E9) and the state machine. Source: the "Call of the Wild" set from Bardo (Padovani, Ferreira and Lelis, AIIDE 2017), the only labelled data found for this task: 9 episodes of a YouTube D&D game, about 4.6 hours, as CSVs in https://github.com/lucasnfe/bardo-composer under `data/dnd/`. Each line is a YouTube auto-caption (real speech-recognition text) with a start time, a duration and a hand label: valence and arousal, 0 or 1, giving agitated, suspenseful, calm or happy. Labels run in long stretches, about 85 in all, with about 20 agitated stretches. The repo is MIT, but the words are the show's: download at run time, commit no text, report only numbers. Our own labels (below) are time ranges and can be committed. Notes:
-- **Labels, prepared by Claude from the transcripts:** check that agitated means a fight and suspenseful means tense, mark stretches that don't fit (a chase, an argument) to map differently or leave out, and add the setting for each stretch, with its own time ranges where the party moves. These are a reference, not ground truth; mark the uncertain ones. The intensity mapping to start from: agitated → combat, suspenseful → tense, calm and happy → calm.
-- **Replay:** group caption lines into 15-second checks by start time, as the app checks every 15 seconds. Start each episode from its first labels, so the test is of changes rather than the opening guess.
-- **Scoring:** steady stretches apart from changes, since lag at a change is by design. Report intensity and setting accuracy away from changes; for fights, how many checks to call combat after one starts, how many are missed, and how long to leave combat after one ends; false combat per hour of calm and tense play; tense against calm confusions.
-- **Round 1:** all 9 episodes held out, nothing tuned. If the results are weak, split by episode: tune on about 4, score on the other 5, and report only those.
-- Not for now: running our Whisper on the real audio (YouTube's terms), and larger unlabelled sources. CRD3 (159 Critical Role episodes, clean text, no timestamps; "roll initiative" marks most fights), CritRoleStats' timestamped rolls and combat times, and FIREBALL (typed play with true combat state) stay options if 20 fights turn out too few.
+E13 replays Bardo's 9 episodes through the app (`//experiments/e13:bardo`). Fights are good on real play, but calm play is mostly heard as tense, and town as tavern; tuning on 4 episodes didn't hold on the other 5, as calm and fights traded off (experiments/E13.md, round 2). More varied labelled play would show whether calm can improve without costing fights: label more transcripts the same way (other groups and styles; CRD3's Critical Role transcripts lack timestamps, but its "roll initiative" calls mark fights), and judge any change on fights first.
 
 ## Smaller items
 
@@ -34,4 +29,5 @@ A headless target (say `//experiments/e13:bardo`) that replays real actual play 
 - More art per intensity, especially tense (three images), and a few with known artists.
 - Score Claude Haiku on the held-out set as a reference (needs an API key).
 - Grow the held-out set from real session logs, especially fights starting and ending.
+- Replay E13 on the Mac: Gemma's speed there against the RTX 5080, and confirm the memory-leak fix (the leak was in shared code, so long sessions on the Mac were likely affected too).
 - Remaining design experiments: Cast from desktop Chrome (E1), Whisper model choice and microphones (E5, E6), a full session's browser behaviour (E10).
