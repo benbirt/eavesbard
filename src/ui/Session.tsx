@@ -71,12 +71,12 @@ export function StartCard() {
         {auto.value && effectiveEngine() === "local" && (
           <li class={llm.phase === "ready" ? "" : "wait"}>
             {!hasWebGpu
-              ? "Scenes: embeddings only (no WebGPU here)"
+              ? "Scene model: embeddings only (no WebGPU here)"
               : llm.phase === "ready"
-                ? `Scenes: ${SCENE_LLM.name}, ready`
+                ? `Scene model: ${SCENE_LLM.name}, downloaded`
                 : llm.phase === "loading"
-                  ? `Scenes: downloading ${SCENE_LLM.name} (${(llm.loaded / 1e9).toFixed(1)} of ${(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB); the embeddings decide until it's ready`
-                  : `Scenes: ${SCENE_LLM.name}, about ${(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB the first time`}
+                  ? `Scene model: downloading ${SCENE_LLM.name} (${(llm.loaded / 1e9).toFixed(1)} of ${(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB); the embeddings decide until it's ready`
+                  : `Scene model: ${SCENE_LLM.name}, about ${(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB the first time`}
           </li>
         )}
         {!auto.value && <li class="wait">Automatic music is off: pick tracks yourself in Setup</li>}
@@ -88,19 +88,19 @@ export function StartCard() {
 /** The speech model's line in the readiness list. */
 function SpeechReadiness() {
   const speech = model.value;
-  if (isWebSpeech(speech)) return <li>Listening: Web Speech</li>;
+  if (isWebSpeech(speech)) return <li>Speech model: Web Speech (the browser's own)</li>;
   const name = `Whisper ${speech.replace(".en", "")}`;
   const m = speechModel.value;
-  if (m.phase === "ready") return <li>Listening: {name}, ready</li>;
-  if (m.phase === "error") return <li class="wait">Listening: {name} didn't load ({m.message}); Begin session tries again</li>;
+  if (m.phase === "ready") return <li>Speech model: {name}, downloaded</li>;
+  if (m.phase === "error") return <li class="wait">Speech model: {name} didn't load ({m.message}); Begin session tries again</li>;
   if (m.phase === "loading") {
     return (
       <li class="wait">
-        Listening: {m.preparing ? `preparing ${name}` : `downloading ${name} (${(m.loaded / 1e6).toFixed(0)} of ${((m.total || WHISPER_DOWNLOAD_MB[speech] * 1e6) / 1e6).toFixed(0)} MB)`}
+        Speech model: {m.preparing ? `preparing ${name}` : `downloading ${name} (${(m.loaded / 1e6).toFixed(0)} of ${((m.total || WHISPER_DOWNLOAD_MB[speech] * 1e6) / 1e6).toFixed(0)} MB)`}
       </li>
     );
   }
-  return <li>Listening: {name}, about {WHISPER_DOWNLOAD_MB[speech]} MB the first time</li>;
+  return <li>Speech model: {name}, about {WHISPER_DOWNLOAD_MB[speech]} MB the first time</li>;
 }
 
 /** The last thing heard, as a hint of why the scene is what it is. */
