@@ -27,6 +27,7 @@ export class CastAdapter implements PlaybackAdapter {
   private readonly player = new cast.framework.RemotePlayer();
   private readonly controller = new cast.framework.RemotePlayerController(this.player);
   private readonly listeners: PlaybackListener[] = [];
+  private readonly endedListeners: (() => void)[] = [];
 
   constructor() {
     const context = cast.framework.CastContext.getInstance();
@@ -34,9 +35,11 @@ export class CastAdapter implements PlaybackAdapter {
       receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APP_ID,
       autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
     });
-    context.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, (e) =>
-      this.emit("info", `Cast session ${e.sessionState.toLowerCase()}`),
-    );
+    context.addEventListener(cast.framework.CastContextEventType.SESSION_STATE_CHANGED, (e) => {
+      this.emit("info", `Cast session ${e.sessionState.toLowerCase()}`);
+      // Ended here or elsewhere (Chrome's menu, the device itself).
+      if (e.sessionState === "SESSION_ENDED") for (const listener of this.endedListeners) listener();
+    });
     context.addEventListener(cast.framework.CastContextEventType.CAST_STATE_CHANGED, (e) =>
       this.emit("info", `Cast state: ${describeCastState(e.castState)}`),
     );
@@ -65,6 +68,16 @@ export class CastAdapter implements PlaybackAdapter {
   /** Whether discovery has found no Cast devices at all. */
   hasNoDevices(): boolean {
     return cast.framework.CastContext.getInstance().getCastState() === "NO_DEVICES_AVAILABLE";
+  }
+
+  /** Calls `listener` whenever the Cast session ends, however it ended. */
+  onSessionEnded(listener: () => void): void {
+    this.endedListeners.push(listener);
+  }
+
+  /** Ends the Cast session and stops the receiver. */
+  disconnect(): void {
+    cast.framework.CastContext.getInstance().endCurrentSession(true);
   }
 
   /** Opens the browser's device chooser directly, without the Cast icon. */

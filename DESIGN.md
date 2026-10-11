@@ -214,10 +214,10 @@ All parameters are configurable, and the defaults below are starting points to t
 
 **Which tracks are allowed** (`src/scene/selector.ts`):
 
-- The bucket matching the current setting and intensity. **Empty buckets** fall back first to the same intensity in a nearby setting (`NEARBY` in `src/scene/selector.ts`: a tavern borrows from interiors and towns, not dungeons), then in any setting, then to the same setting with any intensity.
+- The bucket matching the current setting and intensity. **Empty buckets** fall back first to the same intensity in a nearby setting (`NEARBY` in `src/scene/selector.ts`: a tavern borrows from interiors and towns, not dungeons), keeping only tracks that belong nowhere further away (no temple that's also a dungeon); then to any nearby track, then any setting, then the same setting with any intensity.
 - **Missing files:** a track whose audio fails to load (four of Tabletop Audio's files return 403 as of 2026-10-11) is skipped for the rest of the session and another is picked.
 - **Recent repeats:** the last five tracks are avoided; in a pool of five or fewer, only the track just played.
-- **Intensity changes always switch track**, preferring tracks not also tagged with the intensity being left, so calm to combat sounds different: first from the scene's bucket, then from the same intensity in any setting, and only then any track in the bucket.
+- **Intensity changes always switch track**, preferring tracks not also tagged with the intensity being left, so calm to combat sounds different: first from the scene's bucket; if none there is distinct, the bucket's own tracks together with distinct ones borrowed from nearby settings (a tense tavern track that can also be calm beats a haunted temple: "Cavern of Lost Souls" was once picked for a tense tavern); then distinct tracks from any setting; and only then any track in the bucket.
 - **Setting-only changes** keep the current track if it's also in the new bucket.
 - **Track end:** when a track finishes (each is ten minutes long), another is chosen for the same scene.
 
@@ -269,11 +269,11 @@ Designed for a GM mid-session, glancing at the screen from across the table: the
 
 - **Art first** (`src/ui/SceneArt.tsx`, `src/art/`): official D&D illustrations grouped by intensity (experiments/E12.md). The current image sits whole in a frame, never cropped or covered, because the Fan Content Policy forbids removing notices and signatures. A heavily blurred copy fills the whole page as an ambient background, and the controls sit on glass cards over the blur, never over the art. A new image is picked only when the intensity changes; calm when there's no session.
 - **Colour:** the intensity colours the controls (green when calm, amber when tense, red in combat), never the art. Dark only, for a dim room. Cinzel (self-hosted, SIL Open Font License) for scene and track names, the system font for the rest.
-- **Top bar:** the name; status chips for listening (loading, listening, hearing speech, problems) and the scene model (download progress, ready, problems, or Claude's running cost); Log and Setup buttons.
-- **Before a session**, the side column is a "Set the scene" card: an opening description, Begin session, where to play, and a readiness checklist (tracks, speech model, scene model download).
+- **Top bar:** the name; status chips for listening (loading, listening, hearing speech, problems) and the scene model (download progress, ready, problems, or Claude's running cost); the Cast button (the standard Cast symbol: music plays on this computer unless casting is on; choosing a device moves the current track there, and if casting ends elsewhere it comes back; the tooltip says what to check when no devices are found); Log and Setup buttons.
+- **Before a session**, the side column is a "Set the scene" card: an opening description, Begin session, and a readiness checklist (tracks, speech model, scene model download).
 - **During a session**, the side column has two cards and a Stop button:
   - **The scene:** setting and intensity, the last line heard and why, how long it has lasted, the next check, what's pending, and buttons to set the setting or intensity yourself. A change set by hand restarts that axis's clock, so the minimum durations (7.6) keep the classifier from undoing it at once.
-  - **Now playing:** the track and progress (click or drag to seek), pause, a different track, volume, and this computer or Cast (the standard Cast symbol; with what to check, collapsed, when no Cast devices are found). Where to play lives only here and on the start card, not in Setup.
+  - **Now playing:** the track and progress (click or drag to seek), pause, a different track, and volume.
 - **Side panels** (`src/ui/Drawer.tsx`) slide over from the right, with tabs to switch between them; Escape or a click outside closes them (the outside click does nothing else).
   - **Pick a track:** shown only when automatic music is off, before or during a session: setting, intensity and track, play it or any track from that bucket.
   - **Session log** (7.9): speech, scene changes and music by default, and model details, playback details (what the audio element or Cast receiver reported) and dropped speech on request; save to a file or copy to the clipboard.

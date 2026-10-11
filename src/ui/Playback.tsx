@@ -1,42 +1,32 @@
-import { castStatus, connectCast, output, setOutput } from "../player.js";
+import { castStatus, output, startCasting, stopCasting } from "../player.js";
 
-/** Where the music plays: this computer or a Cast device. */
-export function OutputSwitch() {
+/**
+ * The Cast button, as in other apps: music plays on this computer unless
+ * casting is on. Its tooltip says what Cast discovery has found, or what
+ * to check when it finds nothing.
+ */
+export function CastButton() {
   const cast = castStatus.value;
-  const castTitle =
-    cast.available === undefined
+  const casting = output.value === "cast";
+  const title = casting
+    ? `Casting (${cast.state}). Click to play on this computer.`
+    : cast.available === undefined
       ? "Loading Cast support…"
-      : cast.available
-        ? `Cast: ${cast.state}`
-        : "Casting isn't available in this browser";
+      : !cast.available
+        ? "Casting isn't available in this browser"
+        : cast.hint || `Cast to a speaker or TV (${cast.state})`;
   return (
-    <>
-      <div class="output" role="group" aria-label="Play on">
-        <button type="button" class="seg" aria-pressed={output.value === "local"} onClick={() => void setOutput("local")}>
-          This computer
-        </button>
-        <button
-          type="button"
-          class="seg cast"
-          aria-pressed={output.value === "cast"}
-          disabled={!cast.available}
-          title={castTitle}
-          onClick={() => {
-            void setOutput("cast");
-            void connectCast();
-          }}
-        >
-          <CastIcon />
-          <span class="sr-only">Cast</span>
-        </button>
-      </div>
-      {cast.hint && (
-        <details class="cast-hint small">
-          <summary>No Cast devices found</summary>
-          {cast.hint}
-        </details>
-      )}
-    </>
+    <button
+      type="button"
+      class="iconbtn cast"
+      aria-pressed={casting}
+      aria-label={casting ? "Stop casting" : "Cast"}
+      title={title}
+      disabled={!cast.available}
+      onClick={() => void (casting ? stopCasting() : startCasting())}
+    >
+      <CastIcon />
+    </button>
   );
 }
 

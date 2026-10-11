@@ -26,15 +26,27 @@ export const NEARBY: Record<Setting, Setting[]> = {
 };
 
 /**
- * The tracks to choose from for a scene. Empty buckets fall back to the same
- * intensity in a nearby setting, then in any setting, then to the same
- * setting at any intensity.
+ * Tracks of `intensity` borrowed for `setting`: from its nearby settings,
+ * and only tracks that belong nowhere further away (a tavern doesn't borrow
+ * a temple that's also a dungeon). Falls back to any nearby track.
+ */
+function borrowed(library: Library, setting: Setting, intensity: Intensity): LibraryTrack[] {
+  const near = [setting, ...NEARBY[setting]];
+  const nearby = [...new Set(NEARBY[setting].flatMap((s) => bucket(library, s, intensity)))];
+  const close = nearby.filter((t) => t.settings.every((s) => near.includes(s)));
+  return close.length > 0 ? close : nearby;
+}
+
+/**
+ * The tracks to choose from for a scene. Empty buckets borrow the same
+ * intensity from nearby settings, then from any setting, then fall back to
+ * the same setting at any intensity.
  */
 export function candidates(library: Library, scene: Scene): LibraryTrack[] {
   const exact = bucket(library, scene.setting, scene.intensity);
   if (exact.length > 0) return exact;
-  const nearby = NEARBY[scene.setting].flatMap((s) => bucket(library, s, scene.intensity));
-  if (nearby.length > 0) return [...new Set(nearby)];
+  const nearby = borrowed(library, scene.setting, scene.intensity);
+  if (nearby.length > 0) return nearby;
   const sameIntensity = library.tracks.filter((t) => t.intensities.includes(scene.intensity));
   if (sameIntensity.length > 0) return sameIntensity;
   return library.tracks.filter((t) => t.settings.includes(scene.setting));
@@ -46,9 +58,11 @@ export function candidates(library: Library, scene: Scene): LibraryTrack[] {
  * just played is avoided; a pool of one keeps that track.
  *
  * `leavingIntensity`, on an intensity change, prefers tracks not also tagged
- * with the intensity being left, so the change is audible: first from the
- * scene's own candidates, then from the same intensity in a nearby setting,
- * then in any setting, and only then any candidate.
+ * with the intensity being left, so the change is audible. If the scene's
+ * own setting has none, its tracks stay in the pool alongside distinct
+ * tracks borrowed from nearby settings: a tense tavern track that can also
+ * be calm beats a haunted temple. Then distinct tracks from any setting, and
+ * only then any candidate.
  */
 export function choices(
   library: Library,
@@ -60,9 +74,10 @@ export function choices(
   let pool = all;
   if (leavingIntensity) {
     const distinct = (tracks: LibraryTrack[]) => tracks.filter((t) => !t.intensities.includes(leavingIntensity));
-    const nearby = NEARBY[scene.setting].flatMap((s) => bucket(library, s, scene.intensity));
+    const exact = bucket(library, scene.setting, scene.intensity);
+    const homeAndBorrowed = [...new Set([...exact, ...distinct(borrowed(library, scene.setting, scene.intensity))])];
     const sameIntensity = library.tracks.filter((t) => t.intensities.includes(scene.intensity));
-    pool = [distinct(all), distinct(nearby), distinct(sameIntensity), all].find((p) => p.length > 0) ?? all;
+    pool = [distinct(all), homeAndBorrowed, distinct(sameIntensity), all].find((p) => p.length > 0) ?? all;
   }
   const avoid = new Set(pool.length > RECENT_LIMIT ? recent.slice(0, RECENT_LIMIT) : recent.slice(0, 1));
   const fresh = pool.filter((t) => !avoid.has(t.track.id));

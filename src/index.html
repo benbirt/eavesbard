@@ -80,13 +80,6 @@
       .warning {
         color: var(--warn);
       }
-      .cast-hint {
-        margin-top: 8px;
-      }
-      .cast-hint summary {
-        cursor: pointer;
-        color: var(--warn);
-      }
       [hidden] {
         display: none !important;
       }
@@ -206,6 +199,20 @@
       .iconbtn svg {
         width: 17px;
         height: 17px;
+      }
+      .iconbtn.cast {
+        padding: 7px 10px;
+      }
+      .iconbtn.cast svg {
+        width: 20px;
+        height: 20px;
+      }
+      .iconbtn.cast[aria-pressed="true"] {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .iconbtn:disabled {
+        opacity: 0.45;
       }
 
       /* Stage: the art, and the column beside it. */
@@ -438,33 +445,6 @@
         accent-color: var(--accent);
         flex: 1;
         min-width: 60px;
-      }
-      .output {
-        display: flex;
-        gap: 6px;
-        margin-top: 12px;
-      }
-      .seg.cast {
-        flex: 0 0 auto;
-        padding: 4px 16px;
-      }
-      .cast-icon {
-        width: 20px;
-        height: 20px;
-        vertical-align: middle;
-      }
-      .seg {
-        flex: 1;
-        padding: 6px 8px;
-        border-radius: 8px;
-        border: 1px solid var(--line);
-        background: transparent;
-        font-size: 13px;
-        color: var(--muted);
-      }
-      .seg[aria-pressed="true"] {
-        border-color: var(--accent);
-        color: var(--fg);
       }
       .stop {
         width: 100%;

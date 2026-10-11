@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { Intensity, Setting } from "../library/scenes.js";
 import type { Library, LibraryTrack } from "../library/tag-map.js";
-import { candidates, pickTrack, suits } from "./selector.js";
+import { candidates, choices, pickTrack, suits } from "./selector.js";
 
 function entry(id: number, settings: Setting[], intensities: Intensity[]): LibraryTrack {
   return {
@@ -69,9 +69,14 @@ test("on an intensity change, tracks also tagged with the old intensity are avoi
   for (let i = 0; i < 10; i++) {
     assert.equal(pickTrack(library, { setting: "travel", intensity: "combat" }, [], () => i / 10, "calm")?.track.id, 31);
   }
-  // A bucket with nothing distinct borrows from the same intensity elsewhere...
+  // A bucket with nothing distinct keeps its own tracks (with any distinct ones from nearby settings)...
+  assert.deepEqual(choices(library, { setting: "tavern", intensity: "combat" }, [], "calm").map((t) => t.track.id), [40]);
+  const nearby: Library = { ...library, tracks: [...library.tracks, entry(50, ["town"], ["combat"]), entry(51, ["town", "dungeon"], ["combat"])] };
+  // ...but not a track that also belongs somewhere far (51 is also a dungeon).
+  assert.deepEqual(choices(nearby, { setting: "tavern", intensity: "combat" }, [], "calm").map((t) => t.track.id), [40, 50]);
+  // With nothing of its own or nearby, it borrows distinct tracks from anywhere.
   for (let i = 0; i < 10; i++) {
-    const id = pickTrack(library, { setting: "tavern", intensity: "combat" }, [], () => i / 10, "calm")?.track.id;
+    const id = pickTrack(library, { setting: "wilderness", intensity: "combat" }, [], () => i / 10, "calm")?.track.id;
     assert.ok([20, 31].includes(id!), String(id));
   }
   // ...and settles for any candidate only when nothing else fits.

@@ -25,7 +25,6 @@ import { sceneLlm } from "../llm/scene-llm.js";
 import { loading, nowPlaying, paused, playbackPosition, seekTo, setPaused, setVolume, volume } from "../player.js";
 import { pendingChanges } from "../scene/state-machine.js";
 import { isWebSpeech, WHISPER_DOWNLOAD_MB } from "../stt/protocol.js";
-import { OutputSwitch } from "./Playback.js";
 
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
@@ -64,7 +63,6 @@ export function StartCard() {
       <button type="submit" class="begin">
         Begin session
       </button>
-      <OutputSwitch />
       <ul class="ready">
         <li>{library.tracks.length} ambiences from Tabletop Audio</li>
         <SpeechReadiness />
@@ -261,7 +259,6 @@ export function MusicCard() {
           onInput={(e) => void setVolume(Number(e.currentTarget.value))}
         />
       </div>
-      <OutputSwitch />
     </section>
   );
 }

@@ -4,6 +4,7 @@ import { auto, scene, sessionActive } from "../director.js";
 import { nowPlaying } from "../player.js";
 import { ListeningChip, ModelChip } from "./Chips.js";
 import { Drawer, Scrim, toggleDrawer } from "./Drawer.js";
+import { CastButton } from "./Playback.js";
 import { Ambient, ArtCredits, ArtFrame } from "./SceneArt.js";
 import { MusicCard, SceneCard, StartCard, StopButton } from "./Session.js";
 import { Settings } from "./Settings.js";
@@ -27,6 +28,7 @@ export function App() {
           <div class="brand">Eavesbard</div>
           <ListeningChip />
           <ModelChip />
+          <CastButton />
           <button type="button" class="iconbtn" onClick={() => toggleDrawer("log")}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M4 6h16M4 12h16M4 18h10" />

@@ -97,6 +97,10 @@ loadCastSdk().then((available) => {
     if (e.type === "error") trackFailed("cast");
     update();
   });
+  // Casting ended elsewhere (Chrome's menu, the device): bring the music back here.
+  adapter.onSessionEnded(() => {
+    if (output.value === "cast") void moveTo("local");
+  });
   setTimeout(update, CAST_HINT_DELAY_MS);
   update();
 });
@@ -185,4 +189,33 @@ export const setPaused = (on: boolean) =>
     paused.value = on;
     adapter().setPaused(on);
   });
-export const connectCast = () => run("cast", () => cast?.connect());
+/** Switches output, taking the current track along (it restarts there). */
+async function moveTo(next: Output): Promise<void> {
+  const playing = nowPlaying.value;
+  const wasPaused = paused.value;
+  await setOutput(next);
+  if (playing && !wasPaused) await play(playing);
+}
+
+/**
+ * Asks the browser for a Cast device, then moves the music there. If the
+ * chooser is cancelled or fails, the music stays on this computer.
+ */
+export async function startCasting(): Promise<void> {
+  try {
+    if (!cast) throw new Error("Cast isn't ready");
+    await cast.connect();
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    // Closing the chooser isn't an error.
+    log("cast", { type: message.includes("cancel") ? "info" : "error", detail: message });
+    return;
+  }
+  await moveTo("cast");
+}
+
+/** Brings the music back to this computer and ends the Cast session. */
+export async function stopCasting(): Promise<void> {
+  await moveTo("local");
+  cast?.disconnect();
+}
