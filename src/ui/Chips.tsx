@@ -1,5 +1,6 @@
 import type { ComponentChildren } from "preact";
 import { effectiveEngine, sessionActive, sessionCost } from "../director.js";
+import { downloadsPaused, setDownloadsPaused } from "../downloads.js";
 import { hasWebGpu } from "../gpu.js";
 import { model, speaking, speechModel, state, wakeLock } from "../listener.js";
 import { SCENE_LLM } from "../llm/llm-protocol.js";
@@ -47,7 +48,7 @@ export function ListeningChip() {
   if (!isWebSpeech(model.value) && m.phase === "loading") {
     return (
       <Chip tone="busy">
-        <b>Not listening</b> · {speechName()} {m.preparing ? "preparing" : m.total ? `${(m.loaded / MB).toFixed(0)} of ${(m.total / MB).toFixed(0)} MB` : "downloading"}
+        <b>Not listening</b> · {speechName()} {m.preparing ? "preparing" : `${downloadsPaused.value ? "paused at " : ""}${m.total ? `${(m.loaded / MB).toFixed(0)} of ${(m.total / MB).toFixed(0)} MB` : "downloading"}`}
       </Chip>
     );
   }
@@ -72,7 +73,7 @@ export function ModelChip() {
   if (llm.phase === "loading") {
     return (
       <Chip tone="busy" extra="model">
-        <b>{SCENE_LLM.name}</b> · {llm.preparing ? "preparing" : `${(llm.loaded / GB).toFixed(1)} of ${(Math.max(llm.total, SCENE_LLM.downloadMb * MB) / GB).toFixed(1)} GB`}
+        <b>{SCENE_LLM.name}</b> · {llm.preparing ? "preparing" : `${downloadsPaused.value ? "paused at " : ""}${(llm.loaded / GB).toFixed(1)} of ${(Math.max(llm.total, SCENE_LLM.downloadMb * MB) / GB).toFixed(1)} GB`}
       </Chip>
     );
   }
@@ -89,4 +90,31 @@ export function ModelChip() {
   }
   if (llm.phase === "ready") return <Chip tone="ok" extra="model"><b>{SCENE_LLM.name}</b> + embeddings · ready</Chip>;
   return <Chip tone="off" extra="model"><b>{SCENE_LLM.name}</b> · {sessionActive.value ? "starting" : "downloads when needed"}</Chip>;
+}
+
+/** Whether any model is downloading right now (not just preparing on the GPU). */
+function downloading(): boolean {
+  const speech = speechModel.value;
+  const llm = sceneLlm.value;
+  return (
+    (speech.phase === "loading" && !speech.preparing) ||
+    (llm.phase === "loading" && !llm.preparing) ||
+    localModel.value.phase === "loading"
+  );
+}
+
+/** Pause or resume model downloads, shown while any is under way. A resumed download carries on where it stopped. */
+export function DownloadControl() {
+  if (!downloadsPaused.value && !downloading()) return null;
+  const paused = downloadsPaused.value;
+  return (
+    <button
+      type="button"
+      class="iconbtn"
+      title={paused ? "Resume downloading the models, from where they stopped" : "Pause the model downloads; resume later, even after a reload"}
+      onClick={() => setDownloadsPaused(!paused)}
+    >
+      {paused ? "▶ Resume downloads" : "⏸ Pause downloads"}
+    </button>
+  );
 }

@@ -46,7 +46,7 @@ export function About() {
         <p>
           The models download once and the browser keeps them: speech recognition (Whisper, {WHISPER_DOWNLOAD_MB["tiny.en"]}–
           {WHISPER_DOWNLOAD_MB["small.en"]} MB) and the scene model ({SCENE_LLM.name}, about{" "}
-          {(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB). Nothing downloads until you start a session or ask for it.
+          {(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB). Nothing downloads until you choose to, and downloads can be paused and resumed, even after a reload.
         </p>
       </section>
 

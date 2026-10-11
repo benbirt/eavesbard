@@ -3,7 +3,7 @@
 
 import { signal } from "@preact/signals";
 import { assetUrl } from "../assets.js";
-import { markDownloaded } from "../downloads.js";
+import { markDownloaded, registerDownloader } from "../downloads.js";
 import { EMBEDDING_MODEL, type FromEmbedWorker, type ToEmbedWorker } from "./embed-protocol.js";
 
 export type LocalModelState =
@@ -51,6 +51,7 @@ export function prepareEmbeddings(first: () => Doc[], rest: () => Doc[]): { firs
   failure.catch(() => undefined);
   localModel.value = { phase: "loading", loaded: 0, total: 0 };
   worker = new Worker(assetUrl("embed-worker.js"), { type: "module" });
+  registerDownloader(worker);
   const fail = (message: string) => {
     localModel.value = { phase: "error", message };
     prepared = undefined;

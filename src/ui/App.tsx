@@ -1,7 +1,7 @@
 import { useEffect } from "preact/hooks";
 import { auto, scene, sessionActive } from "../director.js";
 import { nowPlaying } from "../player.js";
-import { ListeningChip, ModelChip } from "./Chips.js";
+import { DownloadControl, ListeningChip, ModelChip } from "./Chips.js";
 import { Drawer, Scrim, toggleDrawer } from "./Drawer.js";
 import { CastButton } from "./Playback.js";
 import { About, TAGLINE } from "./About.js";
@@ -28,6 +28,7 @@ export function App() {
           </button>
           <ListeningChip />
           <ModelChip />
+          <DownloadControl />
           <CastButton />
           <button type="button" class="iconbtn" onClick={() => toggleDrawer("log")}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">

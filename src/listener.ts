@@ -5,7 +5,7 @@ import { signal } from "@preact/signals";
 import { assetUrl } from "./assets.js";
 import { startMic, type Mic } from "./audio/mic.js";
 import { gpuAdapter } from "./gpu.js";
-import { markDownloaded, mayLoad } from "./downloads.js";
+import { markDownloaded, mayLoad, registerDownloader, unregisterDownloader } from "./downloads.js";
 import { loadSetting, saveSetting } from "./settings.js";
 import { isWebSpeech, SPEECH_MODELS, whisperRepo, type FromWorker, type SpeechModel, type ToWorker, type WhisperModel } from "./stt/protocol.js";
 import { startWebSpeech } from "./stt/web-speech.js";
@@ -147,7 +147,9 @@ function onMessage(message: FromWorker): void {
 function loadWorker(whisper: WhisperModel): Promise<void> {
   if (worker && workerModel === whisper && workerReady) return workerReady;
   worker?.terminate();
+  if (worker) unregisterDownloader(worker);
   worker = new Worker(assetUrl("stt-worker.js"), { type: "module" });
+  registerDownloader(worker);
   workerModel = whisper;
   speechModel.value = { phase: "loading", loaded: 0, total: 0, preparing: false };
   worker.onmessage = (e: MessageEvent<FromWorker>) => onMessage(e.data);

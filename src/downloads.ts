@@ -55,3 +55,24 @@ export async function isDownloaded(repo: string): Promise<boolean> {
 export async function mayLoad(repo: string): Promise<boolean> {
   return downloadsAllowed.value || (await isDownloaded(repo));
 }
+
+/** Whether model downloads are paused. */
+export const downloadsPaused = signal(false);
+
+const workers = new Set<Worker>();
+
+/** A model worker whose downloads Pause and Resume control. */
+export function registerDownloader(worker: Worker): void {
+  workers.add(worker);
+  if (downloadsPaused.value) worker.postMessage({ type: "downloads", paused: true });
+}
+
+export function unregisterDownloader(worker: Worker): void {
+  workers.delete(worker);
+}
+
+/** Pauses or resumes every model download; a resumed download carries on from its last saved piece. */
+export function setDownloadsPaused(paused: boolean): void {
+  downloadsPaused.value = paused;
+  for (const w of workers) w.postMessage({ type: "downloads", paused });
+}

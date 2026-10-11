@@ -2,6 +2,7 @@
 // generate text. Used by the app (scene-llm.ts) and the evaluation page.
 
 import { assetUrl } from "../assets.js";
+import { registerDownloader, unregisterDownloader } from "../downloads.js";
 import type { ChatOptions, FromLlmWorker, LlmLoad, ToLlmWorker } from "./llm-protocol.js";
 
 export interface LoadProgress {
@@ -22,6 +23,7 @@ export class LlmClient {
 
   constructor() {
     this.worker = new Worker(assetUrl("llm-worker.js"), { type: "module" });
+    registerDownloader(this.worker);
     this.worker.onerror = (e) => this.failAll(e.message || "The LLM worker failed to start");
     this.worker.onmessage = (e: MessageEvent<FromLlmWorker>) => this.receive(e.data);
   }
@@ -51,6 +53,7 @@ export class LlmClient {
   }
 
   terminate(): void {
+    unregisterDownloader(this.worker);
     this.worker.terminate();
     this.failAll("the model was switched off");
   }
