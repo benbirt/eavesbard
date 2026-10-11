@@ -1,12 +1,18 @@
 // Scores a replay run (bardo.mjs) against the reference labels (labels.json):
 // the scene the app was in after each scene check, and what the classifier
 // said before the state machine (experiments/E13.md).
-//   bazel run //experiments/e13:score -- experiments/e13/results/run1.json
+//   bazel run //experiments/e13:score -- experiments/e13/results/run1.json [--episodes 1,3]
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { parseArgs } from "node:util";
 import { given, source } from "../paths.mjs";
 
-const run = JSON.parse(readFileSync(given(process.argv[2] ?? "experiments/e13/results/run1.json"), "utf8"));
+const { values: args, positionals } = parseArgs({ options: { episodes: { type: "string" } }, allowPositionals: true });
+const run = JSON.parse(readFileSync(given(positionals[0] ?? "experiments/e13/results/run1.json"), "utf8"));
+if (args.episodes) {
+  const keep = new Set(args.episodes.split(","));
+  run.episodes = Object.fromEntries(Object.entries(run.episodes).filter(([ep]) => keep.has(ep)));
+}
 const labels = JSON.parse(readFileSync(join(source("experiments/e13"), "labels.json"), "utf8")).episodes;
 
 /** Checks this soon after a label change aren't counted as steady: lag there is by design. */
