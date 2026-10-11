@@ -5,6 +5,7 @@ import {
   description,
   differentTrack,
   effectiveEngine,
+  engine,
   lastChange,
   newSpeech,
   nextCheckAt,
@@ -21,6 +22,9 @@ import { hasWebGpu } from "../gpu.js";
 import { library } from "../library-data.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
 import { model, speechModel } from "../listener.js";
+import { localModel } from "../local-models.js";
+import { loadApiKey } from "../settings.js";
+import { hasWebSpeech } from "../stt/web-speech.js";
 import { SCENE_LLM } from "../llm/llm-protocol.js";
 import { sceneLlm } from "../llm/scene-llm.js";
 import { loading, nowPlaying, paused, playbackPosition, seekTo, setPaused, setVolume, volume } from "../player.js";
@@ -61,8 +65,8 @@ export function StartCard() {
         aria-label="Opening scene"
         onInput={(e) => setDescription(e.currentTarget.value)}
       />
-      <button type="submit" class="begin">
-        {pendingDownloadMb() > 0 ? `Download ${size(pendingDownloadMb())} and begin` : "Begin session"}
+      <button type="submit" class="begin" disabled={beginBlocker() !== undefined}>
+        {beginBlocker() ?? "Begin session"}
       </button>
       <ul class="ready">
         <li>{library.tracks.length} ambiences from Tabletop Audio</li>
@@ -99,9 +103,36 @@ function DownloadOffer() {
       <button type="button" class="btn" onClick={allowDownloads}>
         Download now ({size(mb)})
       </button>
-      <p class="small">Or with Begin. Only once: the browser keeps them.</p>
+      <p class="small">Only once: the browser keeps them.</p>
     </div>
   );
+}
+
+/**
+ * Why a session can't begin yet, if it can't: the models it needs must be
+ * loaded (or, for Claude, an API key saved), so it starts working at once.
+ */
+function beginBlocker(): string | undefined {
+  const speech = model.value;
+  const m = speechModel.value;
+  const local = auto.value && effectiveEngine() === "local";
+  if (auto.value && engine.value === "claude" && !loadApiKey()) return "Add an Anthropic API key in Setup first";
+  const notDownloaded =
+    (!isWebSpeech(speech) && m.phase === "off" && knownDownloaded(whisperRepo(speech)) === false) ||
+    (local && hasWebGpu && sceneLlm.value.phase === "off" && knownDownloaded(SCENE_LLM.repo) === false);
+  if (notDownloaded && !downloadsAllowed.value) return "Download the models to begin";
+  if (isWebSpeech(speech) ? !hasWebSpeech : m.phase !== "ready") {
+    if (isWebSpeech(speech)) return "This browser has no speech recognition";
+    return m.phase === "error" ? "The speech model didn't load" : "Waiting for the speech model…";
+  }
+  if (local) {
+    const embed = localModel.value.phase;
+    if (embed !== "ready" && embed !== "indexing") return "Waiting for the scene model…";
+    if (hasWebGpu && sceneLlm.value.phase !== "ready") {
+      return sceneLlm.value.phase === "error" ? "The scene model didn't load" : "Waiting for the scene model…";
+    }
+  }
+  return undefined;
 }
 
 /**

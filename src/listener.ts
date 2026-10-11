@@ -185,6 +185,8 @@ export async function start(): Promise<void> {
         state.value = m.phase === "loading" && workerModel === chosen ? { ...m } : { phase: "loading", loaded: 0, total: 0, preparing: false };
       }
       await loadWorker(chosen);
+      // The model's ready; the microphone may still need the user's permission.
+      state.value = { phase: "loading", loaded: 0, total: 0, preparing: true };
       startedAt = Date.now();
       mic = await startMic((frame) => send({ type: "audio", samples: frame }, [frame.buffer]));
       state.value = { phase: "listening" };

@@ -58,11 +58,13 @@ try {
     // and the offer must not flash up while that's being checked.
     let samples = 0;
     const said = new Set();
+    const begin = new Set();
     // Each model line's ticks over time: once ticked (ready), it must stay ticked.
     const ticks = { Speech: [], Scene: [] };
     for (let i = 0; i < 30; i++) {
       if (await page.getByRole("button", { name: /^Download now/ }).count()) samples++;
       for (const t of await page.locator(".top").allInnerTexts()) said.add(t.replace(/\s+/g, " "));
+      begin.add(await page.locator("button.begin").innerText().catch(() => "?"));
       for (const [k, ticked] of await page.locator(".ready li").evaluateAll((lis) => lis.map((li) => [li.textContent.split(" ")[0], !li.classList.contains("wait")]))) {
         ticks[k]?.push(ticked);
       }
@@ -75,6 +77,7 @@ try {
     const offer = page.getByRole("button", { name: /^Download now/ });
     if (samples > 0 && !(await offer.count())) throw new Error("the Download button flashed up and went away by itself");
     // Already downloaded: loading reads the cache, so the chips mustn't say "downloading" nor offer a pause.
+    console.log("   begin button:", [...begin].join(" → "));
     console.log("   chips seen:", [...new Set([...said].map((t) => t.replace(/^Eavesbard .*? scene /, "")))].join(" | "));
     const misleading = [...said].filter((t) => /downloading|not downloaded|Pause downloads/.test(t));
     if (!(await offer.count()) && misleading.length) throw new Error(`cached models shown as downloading: ${misleading[0]}`);
@@ -91,6 +94,11 @@ try {
     await page.getByLabel("Opening scene").fill("sailing to the islands on a merchant ship");
     await page.getByRole("button", { name: "Begin session" }).click();
     await page.locator(".track").waitFor({ timeout: 60_000 });
+    // The fake microphone (Chrome flags above) is granted, but headless Chrome never
+    // loads an AudioWorklet (any worklet, even a trivial one), so listening can't
+    // start here: the chip must say so ("starting"), not "ready". In a real browser
+    // it then turns red ("listening").
+    await page.locator(".chip", { hasText: /Listener · (starting|listening|hearing speech)/ }).waitFor({ timeout: 30_000 });
   });
   await step("3-combat", async () => {
     await page.locator('.pills[aria-label="Intensity"] .pill', { hasText: "Combat" }).click();

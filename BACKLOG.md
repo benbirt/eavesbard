@@ -23,7 +23,7 @@ Done, not adopted: Gemma 4 E2B transcribes worse than Whisper (21% word errors o
 ## 4. UI cleanup, and make it pretty
 
 Done: a redesign around the scene art (DESIGN.md 7.10), with setting the scene by hand. Follow-ups:
-- Check listening on a real Chrome after the redesign: in headless Chrome, Whisper's warm-up never finished, with or without Gemma loaded (the speech code didn't change).
+- Listening can only be checked by hand: headless Chrome never loads an AudioWorklet (not even a trivial one), so the automated UI check can't start the microphone capture. It checks that the Listener chip says "starting" meanwhile.
 - More art per intensity, especially tense (three images), and a few with known artists.
 
 ## Smaller items

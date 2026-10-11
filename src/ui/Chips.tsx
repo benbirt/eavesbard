@@ -10,7 +10,8 @@ import { EMBEDDING_MODEL } from "../pick/embed-protocol.js";
 import { isWebSpeech, whisperRepo, type WhisperModel } from "../stt/protocol.js";
 
 
-type Tone = "ok" | "busy" | "warn" | "off";
+/** "rec": listening, shown red like a browser's recording indicator. */
+type Tone = "ok" | "busy" | "warn" | "off" | "rec";
 
 function Chip({ tone, pulse = false, children, title, extra }: { tone: Tone; pulse?: boolean; children: ComponentChildren; title?: string; extra?: string }) {
   return (
@@ -48,7 +49,7 @@ export function ListeningChip() {
     if (wakeLock.value === "lost") {
       return <Chip tone="warn" pulse={speaking.value} title="The screen may sleep and stop the listening: keep this tab visible"><b>Listener</b> · listening, keep this tab visible</Chip>;
     }
-    return <Chip tone="ok" pulse={speaking.value} title={name}><b>Listener</b> · {speaking.value ? "hearing speech" : "listening"}</Chip>;
+    return <Chip tone="rec" pulse={speaking.value} title={name}><b>Listener</b> · {speaking.value ? "hearing speech" : "listening"}</Chip>;
   }
   if (isWebSpeech(model.value)) return <Chip tone="ok" title={name}><b>Listener</b> · ready</Chip>;
   const m = speechModel.value;
