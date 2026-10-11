@@ -17,7 +17,7 @@ import {
   startSession,
   stopSession,
 } from "../director.js";
-import { allowDownloads, downloadsAllowed, knownDownloaded } from "../downloads.js";
+import { allowDownloads, downloadsAllowed, knownDownloaded, refreshStoredBytes, storedModelBytes } from "../downloads.js";
 import { hasWebGpu } from "../gpu.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
 import { model, speechModel } from "../listener.js";
@@ -76,12 +76,14 @@ export function StartCard() {
  * downloads still needed, which Begin session would also start.
  */
 function DownloadOffer() {
-  const mb = pendingDownloadMb();
-  if (mb === 0) return null;
+  const { total, remaining } = pendingDownload();
+  if (total === 0) return null;
+  // Part already stored (an earlier, unfinished download): say how much is left.
+  const label = remaining < total * 0.98 ? `${size(remaining)} of ${size(total)} remaining` : size(total);
   return (
     <div class="download-offer">
       <button type="button" class="btn" onClick={allowDownloads}>
-        Download now ({size(mb)})
+        Download now ({label})
       </button>
       <p class="small">Only once: the browser keeps them.</p>
     </div>
@@ -120,14 +122,24 @@ function beginBlocker(): string | undefined {
  * only models known not to be fully downloaded (0 while that's still being
  * checked, so a downloaded model never flashes up an offer).
  */
-function pendingDownloadMb(): number {
-  if (downloadsAllowed.value) return 0;
+function pendingDownload(): { total: number; remaining: number } {
+  if (downloadsAllowed.value) return { total: 0, remaining: 0 };
   const missing = (repo: string, phase: string) => phase === "off" && knownDownloaded(repo) === false;
+  const models: [string, number][] = [];
   const speech = model.value;
-  const speechMb = !isWebSpeech(speech) && missing(whisperRepo(speech), speechModel.value.phase) ? WHISPER_DOWNLOAD_MB[speech] : 0;
-  const sceneMb =
-    auto.value && effectiveEngine() === "local" && hasWebGpu && missing(SCENE_LLM.repo, sceneLlm.value.phase) ? SCENE_LLM.downloadMb : 0;
-  return speechMb + sceneMb;
+  if (!isWebSpeech(speech) && missing(whisperRepo(speech), speechModel.value.phase)) models.push([whisperRepo(speech), WHISPER_DOWNLOAD_MB[speech]]);
+  if (auto.value && effectiveEngine() === "local" && hasWebGpu && missing(SCENE_LLM.repo, sceneLlm.value.phase)) {
+    models.push([SCENE_LLM.repo, SCENE_LLM.downloadMb]);
+  }
+  let total = 0;
+  let remaining = 0;
+  for (const [repo, mb] of models) {
+    const stored = storedModelBytes.value.get(repo);
+    if (stored === undefined) void refreshStoredBytes(repo);
+    total += mb;
+    remaining += Math.max(0, mb - (stored ?? 0) / 1e6);
+  }
+  return { total, remaining: Math.round(remaining) };
 }
 
 const size = (mb: number) => (mb >= 1000 ? `${(mb / 1000).toFixed(1)} GB` : `${mb} MB`);

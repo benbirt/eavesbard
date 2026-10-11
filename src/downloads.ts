@@ -100,3 +100,49 @@ export function setDownloadsPaused(paused: boolean): void {
   downloadsPaused.value = paused;
   for (const w of workers) w.postMessage({ type: "downloads", paused });
 }
+
+/** Bytes of each model already in the browser (finished files and saved pieces), for "… remaining". */
+export const storedModelBytes = signal<ReadonlyMap<string, number>>(new Map());
+
+/** The resumable fetch's piece size and store (src/llm/resumable-fetch.ts). */
+const PIECE_BYTES = 16 * 1024 * 1024;
+
+/**
+ * Counts what's already stored of a model: whole files in transformers.js's
+ * cache (their recorded sizes) and saved pieces of unfinished ones (16 MB
+ * each, near enough). Updates storedModelBytes.
+ */
+export async function refreshStoredBytes(repo: string): Promise<void> {
+  let bytes = 0;
+  try {
+    if (typeof caches !== "undefined") {
+      const cache = await caches.open("transformers-cache");
+      for (const request of await cache.keys()) {
+        if (!request.url.includes(`/${repo}/`)) continue;
+        bytes += Number((await cache.match(request))?.headers.get("Content-Length") ?? 0) || 0;
+      }
+    }
+  } catch {
+    // No cache: nothing stored there.
+  }
+  bytes += (await savedPieces(repo)) * PIECE_BYTES;
+  storedModelBytes.value = new Map(storedModelBytes.value).set(repo, bytes);
+}
+
+/** How many saved pieces of unfinished files there are for a model. */
+function savedPieces(repo: string): Promise<number> {
+  return new Promise((resolve) => {
+    if (typeof indexedDB === "undefined") return resolve(0);
+    const open = indexedDB.open("eavesbard-downloads", 1);
+    open.onupgradeneeded = () => open.result.createObjectStore("pieces");
+    open.onerror = () => resolve(0);
+    open.onsuccess = () => {
+      const keys = open.result.transaction("pieces").objectStore("pieces").getAllKeys();
+      keys.onsuccess = () => {
+        resolve(keys.result.filter((k) => String(k).includes(`/${repo}/`)).length);
+        open.result.close();
+      };
+      keys.onerror = () => resolve(0);
+    };
+  });
+}

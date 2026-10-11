@@ -58,7 +58,13 @@ try {
   console.log("resumed 3 s:", await chip(), "|", mb());
   const before = bytes;
   await page.reload();
-  await page.getByRole("button", { name: /^Download now/ }).click();
+  // Part is stored already: the button says how much is left.
+  const offer = page.getByRole("button", { name: /^Download now/ });
+  await page.waitForFunction(() => /remaining/.test(document.querySelector(".download-offer button")?.textContent ?? ""), null, { timeout: 10_000 }).catch(() => undefined);
+  const label = await offer.innerText();
+  console.log("after reload, the button reads:", label);
+  if (!/remaining/.test(label)) throw new Error(`expected "… remaining" after a partial download, got "${label}"`);
+  await offer.click();
   await page.waitForTimeout(2000);
   console.log("after reload + Download:", await chip(), `| fetched since reload: ${((bytes - before) / 1e6).toFixed(0)} MB`);
   // Downloading to the end (another few hundred MB) checks the resumed file reassembles; only with --finish.
