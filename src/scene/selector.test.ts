@@ -36,8 +36,14 @@ const library: Library = {
   unmapped: [],
 };
 
-test("empty buckets fall back to the same intensity, then the same setting", () => {
-  assert.deepEqual(candidates(library, { setting: "wilderness", intensity: "combat" }).map((t) => t.track.id), [20, 30, 31, 40]);
+test("empty buckets borrow from nearby settings, then any setting, then the same setting", () => {
+  // Wilderness borrows from travel, then dungeon.
+  assert.deepEqual(candidates(library, { setting: "wilderness", intensity: "combat" }).map((t) => t.track.id), [30, 31, 20]);
+  // Interior borrows from tavern, town, then dungeon, nearest first.
+  assert.deepEqual(candidates(library, { setting: "interior", intensity: "combat" }).map((t) => t.track.id), [40, 20]);
+  // Town has no combat nearby (tavern 40, interior none, travel 30 and 31): those three.
+  assert.deepEqual(candidates(library, { setting: "town", intensity: "combat" }).map((t) => t.track.id), [40, 30, 31]);
+  assert.deepEqual(candidates(library, { setting: "tavern", intensity: "tense" }).map((t) => t.track.id), [10, 11, 40]);
   assert.deepEqual(candidates(library, { setting: "dungeon", intensity: "tense" }).map((t) => t.track.id), [20]);
 });
 

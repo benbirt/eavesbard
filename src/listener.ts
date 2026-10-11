@@ -34,6 +34,14 @@ export const model = signal<SpeechModel>(
   (SPEECH_MODELS as readonly string[]).includes(savedModel ?? "") ? (savedModel as SpeechModel) : "small.en",
 );
 export const state = signal<ListenState>({ phase: "idle" });
+
+export type SpeechModelState =
+  | { phase: "off" }
+  | { phase: "loading"; loaded: number; total: number; preparing: boolean }
+  | { phase: "ready" }
+  | { phase: "error"; message: string };
+/** The Whisper model's download, which starts before listening does (prepareSpeech). */
+export const speechModel = signal<SpeechModelState>({ phase: "off" });
 export const speaking = signal(false);
 /** Oldest first. */
 export const transcript = signal<TranscriptLine[]>([]);
@@ -45,12 +53,27 @@ let mic: Mic | undefined;
 let webSpeech: { stop(): void } | undefined;
 let startedAt = 0;
 let nextId = 0;
+let workerReady: Promise<void> | undefined;
 let ready: (() => void) | undefined;
 let failed: ((err: Error) => void) | undefined;
 
 export function setModel(next: SpeechModel): void {
   model.value = next;
   saveSetting("whisperModel", next);
+  prepareSpeech();
+}
+
+/**
+ * Downloads and prepares the chosen Whisper model in the background, like
+ * the scene model, so starting a session doesn't wait for it. Web Speech
+ * needs nothing.
+ */
+export function prepareSpeech(): void {
+  const chosen = model.value;
+  if (isWebSpeech(chosen) || state.value.phase === "listening" || state.value.phase === "loading") return;
+  void gpuAdapter()
+    .then((gpu) => (gpu ? loadWorker(chosen) : undefined))
+    .catch(() => undefined); // Shown in speechModel; start() tries again.
 }
 
 function send(message: ToWorker, transfer: Transferable[] = []): void {
@@ -77,11 +100,16 @@ function onMessage(message: FromWorker): void {
       if (state.value.phase === "loading") {
         state.value = { ...state.value, loaded: message.loaded, total: message.total };
       }
+      if (speechModel.value.phase === "loading") {
+        speechModel.value = { ...speechModel.value, loaded: message.loaded, total: message.total };
+      }
       break;
     case "preparing":
       if (state.value.phase === "loading") state.value = { ...state.value, preparing: true };
+      if (speechModel.value.phase === "loading") speechModel.value = { ...speechModel.value, preparing: true };
       break;
     case "ready":
+      speechModel.value = { phase: "ready" };
       ready?.();
       break;
     case "speaking":
@@ -104,19 +132,20 @@ function onMessage(message: FromWorker): void {
       });
       break;
     case "error":
-      if (state.value.phase === "loading") failed?.(new Error(message.message));
+      if (speechModel.value.phase === "loading") failed?.(new Error(message.message));
       else state.value = { phase: "error", message: message.message };
       record({ kind: "error", text: `Speech-to-text: ${message.message}` });
       break;
   }
 }
 
-/** Starts (or reuses) the worker with the chosen model and waits until it's ready. */
+/** Starts (or reuses) the worker with the chosen model; resolves when it's ready, even if loading began earlier. */
 function loadWorker(whisper: WhisperModel): Promise<void> {
-  if (worker && workerModel === whisper) return Promise.resolve();
+  if (worker && workerModel === whisper && workerReady) return workerReady;
   worker?.terminate();
   worker = new Worker(assetUrl("stt-worker.js"), { type: "module" });
   workerModel = whisper;
+  speechModel.value = { phase: "loading", loaded: 0, total: 0, preparing: false };
   worker.onmessage = (e: MessageEvent<FromWorker>) => onMessage(e.data);
   worker.onerror = (e) => failed?.(new Error(e.message || "The speech-to-text worker failed to start"));
   const loaded = new Promise<void>((resolve, reject) => {
@@ -124,9 +153,12 @@ function loadWorker(whisper: WhisperModel): Promise<void> {
     failed = (err) => {
       worker?.terminate();
       worker = undefined;
+      workerReady = undefined;
+      speechModel.value = { phase: "error", message: err.message };
       reject(err);
     };
   });
+  workerReady = loaded;
   send({ type: "load", model: whisper });
   return loaded;
 }
@@ -141,7 +173,11 @@ export async function start(): Promise<void> {
       if (!(await gpuAdapter())) {
         throw new Error("This browser has no WebGPU, which Whisper needs. Use an up-to-date Chrome, or try Web Speech.");
       }
-      state.value = { phase: "loading", loaded: 0, total: 0, preparing: false };
+      // Usually already downloaded in the background (prepareSpeech); otherwise wait here.
+      const m = speechModel.value;
+      if (!(m.phase === "ready" && workerModel === chosen)) {
+        state.value = m.phase === "loading" && workerModel === chosen ? { ...m } : { phase: "loading", loaded: 0, total: 0, preparing: false };
+      }
       await loadWorker(chosen);
       startedAt = Date.now();
       mic = await startMic((frame) => send({ type: "audio", samples: frame }, [frame.buffer]));

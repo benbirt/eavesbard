@@ -22,6 +22,9 @@ export class LocalAdapter implements PlaybackAdapter {
       el.addEventListener("playing", () => {
         if (this.isActive(el)) this.emit("playing", el.currentSrc);
       });
+      el.addEventListener("waiting", () => {
+        if (this.isActive(el)) this.emit("waiting", el.currentSrc);
+      });
       el.addEventListener("ended", () => {
         if (this.isActive(el)) this.emit("ended", el.currentSrc);
       });
@@ -99,7 +102,7 @@ export class LocalAdapter implements PlaybackAdapter {
     return el === this.elements[this.active];
   }
 
-  private emit(type: "playing" | "ended" | "error", detail: string): void {
+  private emit(type: "playing" | "waiting" | "ended" | "error", detail: string): void {
     for (const listener of this.listeners) listener({ type, detail });
   }
 }

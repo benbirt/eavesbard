@@ -92,3 +92,16 @@ test("parseTagMap rejects unknown buckets and rule keys", () => {
   const { travel: _, ...noTravel } = MAP.setting;
   assert.throws(() => parseTagMap({ ...MAP, setting: noTravel }), /setting\.travel: expected an object/);
 });
+
+test("an unless rule keeps a track out of a bucket", () => {
+  const map: TagMap = { ...MAP, intensity: { ...MAP.intensity, combat: { action: ["war"], unless: { mood: ["peaceful"] } } } };
+  const library = buildLibrary(
+    [
+      track(1, { tags: { civ: [], biome: ["forest"], mood: ["peaceful"], action: ["war"] } }),
+      track(2, { tags: { civ: [], biome: ["forest"], mood: ["tension"], action: ["war"] } }),
+    ],
+    map,
+  );
+  assert.deepEqual(library.tracks.map((t) => t.intensities), [["calm"], ["tense", "combat"]]);
+  assert.throws(() => parseTagMap({ ...map, intensity: { ...map.intensity, combat: { unless: { colour: ["red"] } } } }), /combat\.unless\.colour/);
+});

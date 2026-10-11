@@ -49,6 +49,8 @@ export class CastAdapter implements PlaybackAdapter {
         if (reason === chrome.cast.media.IdleReason.FINISHED) this.emit("ended", "receiver finished the track");
         else if (reason === chrome.cast.media.IdleReason.ERROR) this.emit("error", "receiver failed to play the track");
         else this.emit("info", `receiver idle (${reason ?? "no reason given"})`);
+      } else if (state === "BUFFERING") {
+        this.emit("waiting", "receiver is buffering");
       } else if (state) {
         this.emit("info", `receiver ${state.toLowerCase()}`);
       }
@@ -125,7 +127,7 @@ export class CastAdapter implements PlaybackAdapter {
     this.listeners.push(listener);
   }
 
-  private emit(type: "playing" | "ended" | "error" | "info", detail: string): void {
+  private emit(type: "playing" | "waiting" | "ended" | "error" | "info", detail: string): void {
     for (const listener of this.listeners) listener({ type, detail });
   }
 }

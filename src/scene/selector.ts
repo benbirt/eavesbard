@@ -12,12 +12,29 @@ export interface Scene {
 export const RECENT_LIMIT = 5;
 
 /**
- * The tracks to choose from for a scene. Empty buckets fall back first to the
- * same intensity in any setting, then to the same setting at any intensity.
+ * Where to borrow from when a setting has no track for an intensity, nearest
+ * first: a fight in a tavern sounds more like one in a town or a hall than
+ * one in a dungeon.
+ */
+export const NEARBY: Record<Setting, Setting[]> = {
+  tavern: ["interior", "town"],
+  town: ["tavern", "interior", "travel"],
+  interior: ["tavern", "town", "dungeon"],
+  wilderness: ["travel", "dungeon"],
+  dungeon: ["interior", "wilderness"],
+  travel: ["wilderness", "town"],
+};
+
+/**
+ * The tracks to choose from for a scene. Empty buckets fall back to the same
+ * intensity in a nearby setting, then in any setting, then to the same
+ * setting at any intensity.
  */
 export function candidates(library: Library, scene: Scene): LibraryTrack[] {
   const exact = bucket(library, scene.setting, scene.intensity);
   if (exact.length > 0) return exact;
+  const nearby = NEARBY[scene.setting].flatMap((s) => bucket(library, s, scene.intensity));
+  if (nearby.length > 0) return [...new Set(nearby)];
   const sameIntensity = library.tracks.filter((t) => t.intensities.includes(scene.intensity));
   if (sameIntensity.length > 0) return sameIntensity;
   return library.tracks.filter((t) => t.settings.includes(scene.setting));
@@ -30,8 +47,8 @@ export function candidates(library: Library, scene: Scene): LibraryTrack[] {
  *
  * `leavingIntensity`, on an intensity change, prefers tracks not also tagged
  * with the intensity being left, so the change is audible: first from the
- * scene's own candidates, then from the same intensity in any setting, and
- * only then any candidate.
+ * scene's own candidates, then from the same intensity in a nearby setting,
+ * then in any setting, and only then any candidate.
  */
 export function choices(
   library: Library,
@@ -43,8 +60,9 @@ export function choices(
   let pool = all;
   if (leavingIntensity) {
     const distinct = (tracks: LibraryTrack[]) => tracks.filter((t) => !t.intensities.includes(leavingIntensity));
+    const nearby = NEARBY[scene.setting].flatMap((s) => bucket(library, s, scene.intensity));
     const sameIntensity = library.tracks.filter((t) => t.intensities.includes(scene.intensity));
-    pool = [distinct(all), distinct(sameIntensity), all].find((p) => p.length > 0) ?? all;
+    pool = [distinct(all), distinct(nearby), distinct(sameIntensity), all].find((p) => p.length > 0) ?? all;
   }
   const avoid = new Set(pool.length > RECENT_LIMIT ? recent.slice(0, RECENT_LIMIT) : recent.slice(0, 1));
   const fresh = pool.filter((t) => !avoid.has(t.track.id));

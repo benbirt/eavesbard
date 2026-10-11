@@ -14,7 +14,7 @@ export interface SceneOptions {
   combatExitConfidence: number;
   /** Results on an axis below this confidence are ignored on that axis. */
   minConfidence: number;
-  /** Consecutive agreeing results needed for a change (other than entering combat). */
+  /** Scene checks in a row that must agree before a change (other than entering combat). */
   agreeingResults: number;
   /** Minimum time on a setting before it can change. */
   minSettingMs: number;
@@ -111,7 +111,7 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
       Object.assign(next, { intensity, intensitySince: event.at, pendingIntensity: undefined });
       const why =
         streak.count >= options.agreeingResults
-          ? `${streak.count} results agree`
+          ? `${streak.count} checks in a row agree`
           : `${pct(event.intensityConfidence)} confident, combat over`;
       reasons.intensity = `classifier: ${intensity} (${why})`;
       notes.intensity = `${state.intensity} → ${intensity} (${why}).`;
@@ -120,8 +120,8 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
       notes.intensity =
         agreed
           ? `${intensity} held back: combat lasts at least ${options.minCombatMs / 1000} s, ${heldFor} s to go.`
-          : `${intensity}: ${streak.count} of ${options.agreeingResults} agreeing results` +
-            `${leavingCombat ? ` (or one at ${pct(options.combatExitConfidence)}+)` : ""}; waiting.`;
+          : `maybe ${intensity}: changes if ${options.agreeingResults - streak.count === 1 ? "the next scene check agrees" : `${options.agreeingResults - streak.count} more scene checks agree`}` +
+            `${leavingCombat ? ` (or one is ${pct(options.combatExitConfidence)}+ sure)` : ""}.`;
     }
   }
 
@@ -141,14 +141,14 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
     const heldFor = waitFor(state.settingSince, options.minSettingMs);
     if (streak.count >= options.agreeingResults && heldFor <= 0) {
       Object.assign(next, { setting, settingSince: event.at, pendingSetting: undefined });
-      reasons.setting = `classifier: ${setting} (${streak.count} results agree)`;
-      notes.setting = `${state.setting} → ${setting} (${streak.count} results agree).`;
+      reasons.setting = `classifier: ${setting} (${streak.count} checks in a row agree)`;
+      notes.setting = `${state.setting} → ${setting} (${streak.count} checks in a row agree).`;
     } else {
       next.pendingSetting = streak;
       notes.setting =
         streak.count >= options.agreeingResults
           ? `${setting} held back: a setting lasts at least ${options.minSettingMs / 60_000} minutes, ${heldFor} s to go.`
-          : `${setting}: ${streak.count} of ${options.agreeingResults} agreeing results; waiting.`;
+          : `maybe ${setting}: changes if ${options.agreeingResults - streak.count === 1 ? "the next scene check agrees" : `${options.agreeingResults - streak.count} more scene checks agree`}.`;
     }
   }
 
@@ -160,8 +160,10 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
 /** Changes under consideration, for the "now" display: e.g. "dungeon (1 of 2)". */
 export function pendingChanges(state: SceneState, now: number, options = DEFAULT_SCENE_OPTIONS): string[] {
   const out: string[] = [];
-  if (state.pendingSetting) out.push(`→ ${state.pendingSetting.value} (${state.pendingSetting.count} of ${options.agreeingResults})`);
-  if (state.pendingIntensity) out.push(`→ ${state.pendingIntensity.value} (${state.pendingIntensity.count} of ${options.agreeingResults})`);
+  const maybe = (value: string, count: number) =>
+    `maybe ${value}: ${count} of ${options.agreeingResults} checks in a row say so`;
+  if (state.pendingSetting) out.push(maybe(state.pendingSetting.value, state.pendingSetting.count));
+  if (state.pendingIntensity) out.push(maybe(state.pendingIntensity.value, state.pendingIntensity.count));
   if (state.intensity === "combat") {
     const left = Math.ceil((options.minCombatMs - (now - state.intensitySince)) / 1000);
     if (left > 0) out.push(`combat stays at least ${left} s more`);

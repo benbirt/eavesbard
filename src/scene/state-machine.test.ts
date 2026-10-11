@@ -38,12 +38,12 @@ test("starts in the default scene, or a chosen one", () => {
 test("notes explain each decision in plain words", () => {
   let s = initialScene(0);
   let t = nextScene(s, classify(MIN, "dungeon", "tense"));
-  assert.match(t.notes.setting, /dungeon: 1 of 2 agreeing results; waiting/);
-  assert.match(t.notes.intensity, /tense: 1 of 2/);
+  assert.match(t.notes.setting, /maybe dungeon: changes if the next scene check agrees/);
+  assert.match(t.notes.intensity, /maybe tense: changes if the next scene check agrees/);
   s = t.state;
   t = nextScene(s, classify(2 * MIN, "dungeon", "tense"));
   assert.match(t.notes.setting, /dungeon held back: a setting lasts at least 3 minutes, 60 s to go/);
-  assert.match(t.notes.intensity, /calm → tense \(2 results agree\)/);
+  assert.match(t.notes.intensity, /calm → tense \(2 checks in a row agree\)/);
   t = nextScene(t.state, classify(3 * MIN, "unknown", "combat", 0.9, 0.3));
   assert.equal(t.notes.setting, "unknown: no change.");
   assert.match(t.notes.intensity, /combat ignored: only 30% confident/);
@@ -51,7 +51,7 @@ test("notes explain each decision in plain words", () => {
   assert.match(combat.notes.intensity, /calm → combat at once \(90% confident\)/);
   const held = nextScene(combat.state, classify(MIN + 20_000, "tavern", "calm", 0.9, 0.95));
   assert.match(held.notes.intensity, /calm held back: combat lasts at least 60 s, 40 s to go/);
-  assert.deepEqual(pendingChanges(held.state, MIN + 20_000), ["→ calm (1 of 2)", "combat stays at least 40 s more"]);
+  assert.deepEqual(pendingChanges(held.state, MIN + 20_000), ["maybe calm: 1 of 2 checks in a row say so", "combat stays at least 40 s more"]);
 });
 
 test("a confident combat result enters combat immediately; a hesitant one needs agreement", () => {

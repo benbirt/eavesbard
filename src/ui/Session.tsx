@@ -19,10 +19,10 @@ import {
 import { hasWebGpu } from "../gpu.js";
 import { library } from "../library-data.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
-import { model, transcript } from "../listener.js";
+import { model, speechModel, transcript } from "../listener.js";
 import { SCENE_LLM } from "../llm/llm-protocol.js";
 import { sceneLlm } from "../llm/scene-llm.js";
-import { nowPlaying, paused, playbackPosition, seekTo, setPaused, setVolume, volume } from "../player.js";
+import { loading, nowPlaying, paused, playbackPosition, seekTo, setPaused, setVolume, volume } from "../player.js";
 import { pendingChanges } from "../scene/state-machine.js";
 import { isWebSpeech, WHISPER_DOWNLOAD_MB } from "../stt/protocol.js";
 import { OutputSwitch } from "./Playback.js";
@@ -67,9 +67,7 @@ export function StartCard() {
       <OutputSwitch />
       <ul class="ready">
         <li>{library.tracks.length} ambiences from Tabletop Audio</li>
-        <li>
-          Listening: {isWebSpeech(speech) ? "Web Speech" : `Whisper ${speech.replace(".en", "")}, about ${WHISPER_DOWNLOAD_MB[speech]} MB the first time`}
-        </li>
+        <SpeechReadiness />
         {auto.value && effectiveEngine() === "local" && (
           <li class={llm.phase === "ready" ? "" : "wait"}>
             {!hasWebGpu
@@ -85,6 +83,24 @@ export function StartCard() {
       </ul>
     </form>
   );
+}
+
+/** The speech model's line in the readiness list. */
+function SpeechReadiness() {
+  const speech = model.value;
+  if (isWebSpeech(speech)) return <li>Listening: Web Speech</li>;
+  const name = `Whisper ${speech.replace(".en", "")}`;
+  const m = speechModel.value;
+  if (m.phase === "ready") return <li>Listening: {name}, ready</li>;
+  if (m.phase === "error") return <li class="wait">Listening: {name} didn't load ({m.message}); Begin session tries again</li>;
+  if (m.phase === "loading") {
+    return (
+      <li class="wait">
+        Listening: {m.preparing ? `preparing ${name}` : `downloading ${name} (${(m.loaded / 1e6).toFixed(0)} of ${((m.total || WHISPER_DOWNLOAD_MB[speech] * 1e6) / 1e6).toFixed(0)} MB)`}
+      </li>
+    );
+  }
+  return <li>Listening: {name}, about {WHISPER_DOWNLOAD_MB[speech]} MB the first time</li>;
 }
 
 /** The last thing heard, as a hint of why the scene is what it is. */
@@ -196,9 +212,20 @@ export function MusicCard() {
         <>
           <p class="track">{playing.track.title}</p>
           <p class="src">
-            Tabletop Audio{position && ` · ${mmss(position.currentS)} / ${mmss(position.durationS)}`}
+            Tabletop Audio
+            {loading.value ? (
+              <span class="loading" role="status">
+                {" "}· loading…
+              </span>
+            ) : (
+              position && ` · ${mmss(position.currentS)} / ${mmss(position.durationS)}`
+            )}
           </p>
-          {position ? (
+          {loading.value && !position ? (
+            <div class="bar loading" aria-hidden="true">
+              <i />
+            </div>
+          ) : position ? (
             <SeekBar currentS={position.currentS} durationS={position.durationS} />
           ) : (
             <div class="bar" aria-hidden="true" />

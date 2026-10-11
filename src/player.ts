@@ -37,6 +37,8 @@ export const output = signal<Output>("local");
 export const nowPlaying = signal<LibraryTrack | undefined>(undefined);
 /** Whether the current track is paused. */
 export const paused = signal(false);
+/** Whether the current track has been asked for but isn't audible yet (loading or buffering). */
+export const loading = signal(false);
 /** Output level, 0 to 1. */
 export const volume = signal(1);
 export const castStatus = signal<CastStatus>({ available: undefined, state: "", hint: "" });
@@ -45,13 +47,35 @@ export const events = signal<LogEntry[]>([]);
 
 let nextId = 0;
 const endedListeners: (() => void)[] = [];
+const failedListeners: ((entry: LibraryTrack) => void)[] = [];
+/** Tracks that failed to play this session (e.g. the file is missing on the audio host). */
+const failed = new Set<number>();
 
 function log(source: Output, event: PlaybackEvent): void {
   events.value = [{ id: nextId++, time: new Date(), source, event }, ...events.value];
   if (event.type === "error") record({ kind: "error", text: `Playback (${source}): ${event.detail}` });
+  if (source !== output.value) return;
+  if (event.type === "waiting") loading.value = true;
+  if (event.type === "playing" || event.type === "ended") loading.value = false;
   // Only the active output's track ending matters.
-  if (event.type === "ended" && source === output.value) for (const listener of endedListeners) listener();
+  if (event.type === "ended") for (const listener of endedListeners) listener();
 }
+
+/** The playing track couldn't be played: remember it, and tell the director once. */
+function trackFailed(source: Output, entry = nowPlaying.value): void {
+  if (source !== output.value || !entry || failed.has(entry.track.id)) return;
+  loading.value = false;
+  failed.add(entry.track.id);
+  for (const listener of failedListeners) listener(entry);
+}
+
+/** Calls `listener` once for each track that fails to play. */
+export function onTrackFailed(listener: (entry: LibraryTrack) => void): void {
+  failedListeners.push(listener);
+}
+
+/** Whether a track has failed to play this session. */
+export const hasFailed = (id: number) => failed.has(id);
 
 /** Calls `listener` whenever the playing track reaches its end. */
 export function onTrackEnded(listener: () => void): void {
@@ -59,7 +83,10 @@ export function onTrackEnded(listener: () => void): void {
 }
 
 const local = new LocalAdapter();
-local.onEvent((e) => log("local", e));
+local.onEvent((e) => {
+  log("local", e);
+  if (e.type === "error") trackFailed("local");
+});
 let cast: CastAdapter | undefined;
 
 loadCastSdk().then((available) => {
@@ -77,6 +104,7 @@ loadCastSdk().then((available) => {
   };
   adapter.onEvent((e) => {
     log("cast", e);
+    if (e.type === "error") trackFailed("cast");
     update();
   });
   setTimeout(update, CAST_HINT_DELAY_MS);
@@ -121,15 +149,22 @@ export function setOutput(next: Output): Promise<void> {
   return run(previous, () => (previous === "cast" ? cast?.stop(0) : local.stop(0)));
 }
 
-export function play(entry: LibraryTrack | undefined): Promise<void> {
-  return run(output.value, () => {
+export async function play(entry: LibraryTrack | undefined): Promise<void> {
+  const source = output.value;
+  try {
     if (!entry) throw new Error("No track selected");
     const url = audioUrl(entry.track.file);
-    log(output.value, { type: "info", detail: `requesting ${entry.track.title} (${url})` });
+    log(source, { type: "info", detail: `requesting ${entry.track.title} (${url})` });
     nowPlaying.value = entry;
     paused.value = false;
-    return adapter().play(url, entry.track.title, FADE_MS);
-  });
+    loading.value = true;
+    await adapter().play(url, entry.track.title, FADE_MS);
+  } catch (err) {
+    // A missing file is reported by the adapter's own error event (trackFailed);
+    // other failures here, such as Cast not being ready, aren't the track's fault.
+    log(source, { type: "error", detail: err instanceof Error ? err.message : String(err) });
+    loading.value = false;
+  }
 }
 
 /** Where the playing track is, for progress display. */
@@ -145,6 +180,7 @@ export const stop = () =>
   run(output.value, () => {
     nowPlaying.value = undefined;
     paused.value = false;
+    loading.value = false;
     return adapter().stop(FADE_MS);
   });
 export const seekTo = (seconds: number) => run(output.value, () => adapter().seekTo(seconds));

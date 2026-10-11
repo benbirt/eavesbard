@@ -59,7 +59,8 @@
     },
     "combat": {
       "action": ["skirmish", "war", "boss"],
-      "words": ["battle", "fight", "combat"]
+      "words": ["battle", "fight", "combat"],
+      "unless": { "action": ["celebrate"] }
     }
   },
   "maxUnmapped": 24

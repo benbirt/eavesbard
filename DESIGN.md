@@ -128,7 +128,7 @@ The file also records when it was generated. Filenames are kept exactly as the s
 - **Tag mapping:** a hand-maintained `config/tag-map.json` maps Tabletop Audio's metadata onto our setting and intensity values:
   - **Scope:** a track is in scope if it has an included genre (`fantasy`, `historical`, `horror`, `nature`) and no excluded one (`scifi`, `scif`, `modern`). `includeTracks` and `excludeTracks` override this for individual track ids; for example, two jazz-age tracks filed as historical (1920s Speakeasy, Cotton Club) are excluded.
   - **Interior:** the `interior` rule uses the site's `temples` tag and words such as castle, throne and library, but not its broad `interiors` tag, which also covers every tavern and many dungeon rooms.
-  - **Buckets:** each setting and intensity has a rule listing tag values per facet (`civ`, `biome`, `mood`, `action`) and `words`. A track is in a bucket if it has any listed tag, or any listed word appears as a whole word in its title or keywords. A track may sit in several buckets.
+  - **Buckets:** each setting and intensity has a rule listing tag values per facet (`civ`, `biome`, `mood`, `action`) and `words`. A track is in a bucket if it has any listed tag, or any listed word appears as a whole word in its title or keywords, unless it matches the rule's `unless` (combat is `unless` the track is tagged `celebrate`: Tavern Celebration is tagged both "skirmish" and "celebrate"). A track may sit in several buckets.
   - **Unmapped:** in-scope tracks with no setting or no intensity are left out. `maxUnmapped` records how many that currently is.
   - As of 2026-10-09, 356 of 528 tracks are in scope, 332 are mapped and 24 are unmapped.
   - The library builder (`buildLibrary` in `src/library/tag-map.ts`) is shared by the app and the tests.
@@ -145,7 +145,7 @@ The file also records when it was generated. Filenames are kept exactly as the s
 
 - transformers.js running a Whisper model on WebGPU, in a Web Worker (`src/stt/worker.ts`) so inference never blocks the page. English-only models are fine to start with.
 - **Capture:** `getUserMedia` into an `AudioContext` running at 16 kHz (Chrome resamples), with an AudioWorklet (`src/audio/capture-worklet.ts`) posting 512-sample (32 ms) frames to the worker.
-- **Models:** Whisper `tiny.en`, `base.en` or `small.en` from `onnx-community`, with a full-precision encoder and 4-bit decoder (one-off downloads of about 120, 205 and 590 MB; cached by the browser afterwards). The default is `small.en`: in E11 it made about half Whisper base's word errors on clean speech, and far fewer with music playing, at a sixth of real time on an Apple M5. The page shows a progress bar while models download, then a "preparing" stage while WebGPU compiles shaders on a warm-up run.
+- **Models:** Whisper `tiny.en`, `base.en` or `small.en` from `onnx-community`, with a full-precision encoder and 4-bit decoder (one-off downloads of about 120, 205 and 590 MB; cached by the browser afterwards). The default is `small.en`: in E11 it made about half Whisper base's word errors on clean speech, and far fewer with music playing, at a sixth of real time on an Apple M5. The chosen model starts downloading shortly after the page opens (and again when another is chosen), like the scene model, so a session doesn't wait for it; the listening chip and the start card show progress, then a "preparing" stage while WebGPU compiles shaders on a warm-up run.
 - **ONNX Runtime:** its WebAssembly build (27 MB) is served from our own site (`ort/`), not from transformers.js's default CDN.
 - **WebGPU only:** no WASM fallback. Multithreaded WASM needs COOP/COEP headers, which GitHub Pages can't set, and the service-worker workaround would force CORS onto audio requests, which the audio host refuses (section 4). If WebGPU isn't available, the app says so and doesn't listen.
 - **Voice activity detection:** an in-browser VAD model (Silero, `onnx-community/silero-vad`, run through transformers.js so there's one ONNX Runtime) from the start. An energy threshold would trigger constantly once ambience is playing in the room.
@@ -214,7 +214,8 @@ All parameters are configurable, and the defaults below are starting points to t
 
 **Which tracks are allowed** (`src/scene/selector.ts`):
 
-- The bucket matching the current setting and intensity. **Empty buckets** fall back first to the same intensity with any setting, then to the same setting with any intensity.
+- The bucket matching the current setting and intensity. **Empty buckets** fall back first to the same intensity in a nearby setting (`NEARBY` in `src/scene/selector.ts`: a tavern borrows from interiors and towns, not dungeons), then in any setting, then to the same setting with any intensity.
+- **Missing files:** a track whose audio fails to load (four of Tabletop Audio's files return 403 as of 2026-10-11) is skipped for the rest of the session and another is picked.
 - **Recent repeats:** the last five tracks are avoided; in a pool of five or fewer, only the track just played.
 - **Intensity changes always switch track**, preferring tracks not also tagged with the intensity being left, so calm to combat sounds different: first from the scene's bucket, then from the same intensity in any setting, and only then any track in the bucket.
 - **Setting-only changes** keep the current track if it's also in the new bucket.
@@ -256,7 +257,7 @@ One event stream (`src/timeline.ts`) is both what the page shows and what's stor
 - **session:** started (with the opening description), opening scene chosen, listening started, stopped;
 - **speech:** each transcript line, with its length and transcription time, including lines the hallucination filter dropped (and why);
 - **call:** each classifier request: purpose (opening or scene), model, the exact user message sent, the parsed answer with confidences and reason, latency, token usage and cost, or the error;
-- **decision:** after each scene call, the scene before and after, whether it changed, and a plain-words note for each axis from the state machine ("dungeon: 1 of 2 agreeing results; waiting", "calm held back: combat lasts at least 60 s, 40 s to go");
+- **decision:** after each scene call, the scene before and after, whether it changed, and a plain-words note for each axis from the state machine ("maybe dungeon: changes if the next scene check agrees", "calm held back: combat lasts at least 60 s, 40 s to go");
 - **music:** each track started and why (opening scene, intensity changed, setting changed, last track ended, borrowed from another setting), tracks carrying on, tracks ending;
 - **error:** anything that went wrong, from speech-to-text to playback.
 

@@ -321,6 +321,23 @@
         background: var(--accent);
         transition: width 1s linear;
       }
+      /* While a track loads: a band sweeping across the bar. */
+      .bar.loading i {
+        width: 30%;
+        transition: none;
+        animation: sweep 1.2s ease-in-out infinite;
+      }
+      @keyframes sweep {
+        from {
+          transform: translateX(-100%);
+        }
+        to {
+          transform: translateX(340%);
+        }
+      }
+      .src .loading {
+        color: var(--accent);
+      }
       /* An invisible range input over the progress bar, for seeking. */
       .seek {
         position: relative;
@@ -769,7 +786,8 @@
           transition: none;
         }
         .dot.hearing,
-        .chip.busy .dot {
+        .chip.busy .dot,
+        .bar.loading i {
           animation: none;
         }
       }

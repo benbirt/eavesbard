@@ -11,7 +11,7 @@ import type { Usage } from "./classify/cost.js";
 import { library } from "./library-data.js";
 import type { Intensity, Setting } from "./library/scenes.js";
 import type { LibraryTrack } from "./library/tag-map.js";
-import { onTranscriptLine, start as startListening, stop as stopListening } from "./listener.js";
+import { onTranscriptLine, prepareSpeech, start as startListening, stop as stopListening } from "./listener.js";
 import { LOCAL_MODEL_NAME, localClassify, localModel, prepareLocalModels } from "./local-models.js";
 import { hasWebGpu } from "./gpu.js";
 import { SCENE_LLM } from "./llm/llm-protocol.js";
@@ -19,7 +19,7 @@ import { prepareSceneLlm } from "./llm/scene-llm.js";
 import { claudePick } from "./pick/claude-picker.js";
 import { localPick } from "./pick/local-picker.js";
 import type { PickRequest } from "./pick/request.js";
-import { nowPlaying, onTrackEnded, play, stop as stopMusic } from "./player.js";
+import { hasFailed, nowPlaying, onTrackEnded, onTrackFailed, play, stop as stopMusic } from "./player.js";
 import { choices, suits } from "./scene/selector.js";
 import { initialScene, nextScene, type SceneState } from "./scene/state-machine.js";
 import { TranscriptBuffer } from "./scene/transcript-buffer.js";
@@ -70,6 +70,8 @@ export const ENGINE_NAMES: Record<Engine, string> = { claude: "Claude", local: "
 if (auto.value && effectiveEngine() === "local") {
   setTimeout(prepareLocal, 1000);
 }
+// Likewise the speech model (Whisper; Web Speech needs nothing).
+setTimeout(prepareSpeech, 1500);
 
 /** Starts the local models downloading: embeddings, and the helper LLM if chosen. */
 function prepareLocal(): void {
@@ -187,6 +189,12 @@ onTranscriptLine((line) => {
   if (!timer) return;
   buffer.add({ at: line.time.getTime(), text: line.text });
   newSpeech.value = true;
+});
+
+onTrackFailed((entry) => {
+  if (!timer) return;
+  record({ kind: "music", text: `${entry.track.title} couldn't be played (its file may be missing from Tabletop Audio), so trying another.` });
+  playForScene(true, "the last track couldn't be played");
 });
 
 onTrackEnded(() => {
@@ -352,7 +360,7 @@ function playForScene(fresh: boolean, why: string, leavingIntensity?: Intensity)
 const CHOOSER_NAMES: Record<TrackChooser, string> = { claude: "Claude", local: "Local model", random: "Random pick" };
 
 async function choose(seq: number, current: SceneState, why: string, leavingIntensity?: Intensity): Promise<void> {
-  const pool = choices(library, current, recent, leavingIntensity);
+  const pool = choices(library, current, recent, leavingIntensity).filter((e) => !hasFailed(e.track.id));
   if (pool.length === 0) {
     record({ kind: "error", text: `No track found for ${current.setting}, ${current.intensity}.` });
     return;
@@ -386,7 +394,9 @@ async function choose(seq: number, current: SceneState, why: string, leavingInte
 
   const { entry, by, reason } = picked;
   recent = [entry.track.id, ...recent.filter((id) => id !== entry.track.id)].slice(0, 20);
-  const fits = suits(entry, current) ? "" : `; no ${current.setting} track fits, so borrowed from elsewhere`;
+  const fits = suits(entry, current)
+    ? ""
+    : `; no ${current.setting} track fits, so borrowed from ${entry.settings.filter((s) => s !== current.setting).join(" or ") || "elsewhere"}`;
   record({
     kind: "music",
     text: `Playing ${entry.track.title} (${why}). ${CHOOSER_NAMES[by]}: ${reason}${fits}.`,
@@ -425,6 +435,7 @@ async function pickWith(
         usage: pick.answer.usage,
       });
       addCost(pick.answer.usage, pick.answer.costUsd);
+      if (hasFailed(pick.entry.track.id)) throw new Error(`it chose ${pick.entry.track.title}, which couldn't be played earlier`);
       if (!pick.entry.intensities.includes(request.scene.intensity)) {
         throw new Error(`it chose ${pick.entry.track.title}, which doesn't suit ${request.scene.intensity}`);
       }

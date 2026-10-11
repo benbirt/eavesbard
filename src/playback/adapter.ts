@@ -1,5 +1,6 @@
 export interface PlaybackEvent {
-  type: "playing" | "ended" | "error" | "info";
+  /** "waiting": the audio is loading or buffering and not yet audible. */
+  type: "playing" | "waiting" | "ended" | "error" | "info";
   detail: string;
 }
 

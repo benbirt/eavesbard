@@ -1,7 +1,7 @@
 import type { ComponentChildren } from "preact";
 import { effectiveEngine, sessionActive, sessionCost } from "../director.js";
 import { hasWebGpu } from "../gpu.js";
-import { model, speaking, state, wakeLock } from "../listener.js";
+import { model, speaking, speechModel, state, wakeLock } from "../listener.js";
 import { SCENE_LLM } from "../llm/llm-protocol.js";
 import { sceneLlm } from "../llm/scene-llm.js";
 import { localModel } from "../local-models.js";
@@ -43,7 +43,18 @@ export function ListeningChip() {
       </Chip>
     );
   }
-  return <Chip tone="off"><b>Not listening</b></Chip>;
+  const m = speechModel.value;
+  if (!isWebSpeech(model.value) && m.phase === "loading") {
+    return (
+      <Chip tone="busy">
+        <b>Not listening</b> · {speechName()} {m.preparing ? "preparing" : m.total ? `${(m.loaded / MB).toFixed(0)} of ${(m.total / MB).toFixed(0)} MB` : "downloading"}
+      </Chip>
+    );
+  }
+  if (!isWebSpeech(model.value) && m.phase === "error") {
+    return <Chip tone="warn" title={m.message}><b>Not listening</b> · {speechName()} didn't load</Chip>;
+  }
+  return <Chip tone="off"><b>Not listening</b>{!isWebSpeech(model.value) && m.phase === "ready" ? ` · ${speechName()} ready` : ""}</Chip>;
 }
 
 /** Who decides the scene, and whether it's ready. */

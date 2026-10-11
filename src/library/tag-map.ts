@@ -4,9 +4,11 @@ import { TAG_FACETS, type IndexedTrack, type TagFacet } from "./tracks-file.js";
 /**
  * A bucket matches a track if any listed tag is among the track's tags for
  * that facet, or any listed word appears as a whole word (ignoring case) in
- * the track's title or keywords.
+ * the track's title or keywords, unless it also matches `unless`.
  */
-export type BucketRule = Partial<Record<TagFacet | "words", string[]>>;
+export type BucketRule = Partial<Record<TagFacet | "words", string[]>> & {
+  unless?: Partial<Record<TagFacet | "words", string[]>>;
+};
 
 /** `config/tag-map.json`: how Tabletop Audio's metadata maps onto our scenes. */
 export interface TagMap {
@@ -81,6 +83,10 @@ export function bucket(library: Library, setting: Setting, intensity: Intensity)
 }
 
 function matches(track: IndexedTrack, rule: BucketRule): boolean {
+  return matchesAny(track, rule) && !(rule.unless && matchesAny(track, rule.unless));
+}
+
+function matchesAny(track: IndexedTrack, rule: Partial<Record<TagFacet | "words", string[]>>): boolean {
   for (const facet of TAG_FACETS) {
     if (rule[facet]?.some((tag) => track.tags[facet].includes(tag))) return true;
   }
@@ -120,11 +126,13 @@ function rules(value: unknown, where: string, names: readonly string[]): void {
   }
   for (const name of names) {
     const rule = object(buckets[name], `${where}.${name}`);
-    for (const key of Object.keys(rule)) {
-      if (!(RULE_KEYS as readonly string[]).includes(key)) {
-        throw new Error(`${where}.${name}.${key}: not one of ${RULE_KEYS.join(", ")}`);
+    const check = (r: Record<string, unknown>, at: string, allowUnless: boolean) => {
+      for (const key of Object.keys(r)) {
+        if (allowUnless && key === "unless") check(object(r[key], `${at}.unless`), `${at}.unless`, false);
+        else if (!(RULE_KEYS as readonly string[]).includes(key)) throw new Error(`${at}.${key}: not one of ${RULE_KEYS.join(", ")}`);
+        else strings(r[key], `${at}.${key}`);
       }
-      strings(rule[key], `${where}.${name}.${key}`);
-    }
+    };
+    check(rule, `${where}.${name}`, true);
   }
 }
