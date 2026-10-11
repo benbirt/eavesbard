@@ -47,6 +47,11 @@ export const speaking = signal(false);
 /** Oldest first. */
 export const transcript = signal<TranscriptLine[]>([]);
 export const wakeLock = signal<WakeLockState>("off");
+/**
+ * Whether a recorded transcript is replayed instead of listening (src/replay.ts):
+ * only with ?replay in the page's address, for experiments.
+ */
+export const replaying = typeof location !== "undefined" && new URLSearchParams(location.search).has("replay");
 
 let worker: Worker | undefined;
 let workerModel: WhisperModel | undefined;
@@ -71,7 +76,7 @@ export function setModel(next: SpeechModel): void {
  */
 export function prepareSpeech(onlyCached = false): void {
   const chosen = model.value;
-  if (isWebSpeech(chosen) || state.value.phase === "listening" || state.value.phase === "loading") return;
+  if (replaying || isWebSpeech(chosen) || state.value.phase === "listening" || state.value.phase === "loading") return;
   void (async () => {
     // Without the user's agreement, only a model the browser already has.
     if (onlyCached && !(await mayLoad(whisperRepo(chosen)))) return;
@@ -88,6 +93,11 @@ const lineListeners: ((line: TranscriptLine) => void)[] = [];
 /** Calls `listener` with each new transcript line the hallucination filter kept. */
 export function onTranscriptLine(listener: (line: TranscriptLine) => void): void {
   lineListeners.push(listener);
+}
+
+/** A replayed transcript line that started at `at` (ms since the epoch), as if speech-to-text had just finished it. */
+export function replayLine(text: string, at: number, durationS: number): void {
+  if (replaying && state.value.phase === "listening") addLine({ time: new Date(at), text, durationS });
 }
 
 function addLine(line: Omit<TranscriptLine, "id">): void {
@@ -172,6 +182,11 @@ function loadWorker(whisper: WhisperModel): Promise<void> {
 export async function start(): Promise<void> {
   if (state.value.phase === "loading" || state.value.phase === "listening") return;
   const chosen = model.value;
+  if (replaying) {
+    state.value = { phase: "listening" };
+    record({ kind: "session", text: "Listening to a replayed transcript." });
+    return;
+  }
   try {
     if (isWebSpeech(chosen)) {
       await startBrowserSpeech(chosen === "webspeech-device");

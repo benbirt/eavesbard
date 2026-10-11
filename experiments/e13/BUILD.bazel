@@ -1,0 +1,20 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary")
+
+# Experiment E13 (experiments/E13.md): the app on real play, Bardo's transcripts.
+#   bazel run //experiments/e13:bardo -- --name run1   # replay through the app on the GPU
+#   bazel run //experiments/e13:score -- experiments/e13/results/run1.json
+js_binary(
+    name = "bardo",
+    data = [
+        "//experiments:node_modules/playwright-core",
+        "//experiments:paths",
+        "//src:site",
+    ],
+    entry_point = "bardo.mjs",
+)
+
+js_binary(
+    name = "score",
+    data = ["//experiments:paths"],
+    entry_point = "score.mjs",
+)
