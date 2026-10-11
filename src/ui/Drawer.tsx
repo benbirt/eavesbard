@@ -2,9 +2,9 @@ import { signal } from "@preact/signals";
 import type { ComponentChildren } from "preact";
 import { useEffect, useRef } from "preact/hooks";
 
-export type DrawerName = "log" | "setup";
+export type DrawerName = "log" | "setup" | "about";
 
-const TITLES: Record<DrawerName, string> = { log: "Session log", setup: "Setup" };
+const TITLES: Record<DrawerName, string> = { log: "Session log", setup: "Setup", about: "About" };
 
 /** Which side panel is open, if any. */
 export const openDrawer = signal<DrawerName | undefined>(undefined);

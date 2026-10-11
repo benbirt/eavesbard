@@ -116,12 +116,12 @@ try {
     await page.waitForFunction(() => !document.querySelector(".drawer.open"));
     await page.locator(".track").waitFor(); // the click closed the panel and did nothing else
   });
-  await step("6c-footer", async () => {
-    await page.locator(".foot").scrollIntoViewIfNeeded();
-  });
-  await step("6d-credits", async () => {
-    await page.locator(".foot summary", { hasText: "credits" }).click();
-    await page.locator(".foot .credits li").first().waitFor();
+  await step("6d-about", async () => {
+    await page.getByRole("button", { name: /^Eavesbard/ }).click();
+    await page.locator(".drawer.open #credits .credits li").first().waitFor();
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: join(out, "6d-about.png") });
+    await page.keyboard.press("Escape");
   });
   await step("6e-short-window", async () => {
     // Wide but short: the page itself mustn't scroll.

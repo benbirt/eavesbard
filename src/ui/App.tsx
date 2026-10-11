@@ -1,18 +1,15 @@
 import { useEffect } from "preact/hooks";
-import { FAN_CONTENT_NOTICE, FAN_CONTENT_POLICY_URL } from "../art/scene-art.js";
 import { auto, scene, sessionActive } from "../director.js";
 import { nowPlaying } from "../player.js";
 import { ListeningChip, ModelChip } from "./Chips.js";
 import { Drawer, Scrim, toggleDrawer } from "./Drawer.js";
 import { CastButton } from "./Playback.js";
-import { Ambient, ArtCredits, ArtFrame } from "./SceneArt.js";
+import { About, TAGLINE } from "./About.js";
+import { Ambient, ArtFrame } from "./SceneArt.js";
 import { MusicCard, SceneCard, StartCard, StopButton } from "./Session.js";
 import { Settings } from "./Settings.js";
 import { Timeline } from "./Timeline.js";
 import { TrackPicker } from "./TrackPicker.js";
-
-// The notice must appear word for word; its mention of the policy becomes the link.
-const [before, after] = FAN_CONTENT_NOTICE.split("Fan Content Policy") as [string, string];
 
 export function App() {
   const intensity = scene.value?.intensity ?? "calm";
@@ -25,7 +22,10 @@ export function App() {
       <Ambient />
       <div class="app">
         <header class="top">
-          <div class="brand">Eavesbard</div>
+          <button type="button" class="brand-block" onClick={() => toggleDrawer("about")} title="About Eavesbard">
+            <span class="brand">Eavesbard</span>
+            <span class="tagline">{TAGLINE}</span>
+          </button>
           <ListeningChip />
           <ModelChip />
           <CastButton />
@@ -69,21 +69,6 @@ export function App() {
             )}
           </div>
         </main>
-        <footer class="foot">
-          <p>
-            Music: <a href="https://tabletopaudio.com/">Tabletop Audio</a>, licensed{" "}
-            <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>
-          </p>
-          <details class="art-credits">
-            <summary>Art: Wizards of the Coast · credits</summary>
-            <ArtCredits />
-          </details>
-          <p class="notice">
-            {before}
-            <a href={FAN_CONTENT_POLICY_URL}>Fan Content Policy</a>
-            {after}
-          </p>
-        </footer>
       </div>
       <Scrim />
       <Drawer name="log" title="Session log">
@@ -91,6 +76,9 @@ export function App() {
       </Drawer>
       <Drawer name="setup" title="Setup">
         <Settings />
+      </Drawer>
+      <Drawer name="about" title="About">
+        <About />
       </Drawer>
     </>
   );
