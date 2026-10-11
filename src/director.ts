@@ -282,6 +282,7 @@ async function tick(): Promise<void> {
     settingConfidence: c.settingConfidence,
     intensity: c.intensity,
     intensityConfidence: c.intensityConfidence,
+    tableTalk: c.tableTalk,
   });
   scene.value = t.state;
   const sceneOf = (s: SceneState) => ({ setting: s.setting, intensity: s.intensity });

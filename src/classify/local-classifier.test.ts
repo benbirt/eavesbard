@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { classifyFromScores, labelKey, lastWords, latest, scoreAxis, soften } from "./local-classifier.js";
+import { BLEND, classifyFromScores, labelKey, lastWords, latest, scoreAxis, soften } from "./local-classifier.js";
 
 const scores = (entries: [string, number][]) => new Map(entries.map(([label, s]) => [labelKey(label, 0), s]));
 
@@ -51,16 +51,19 @@ test("an LLM answer is blended in: the more certain side wins", () => {
   assert.match(c.reason, /test llm: town, calm/);
 });
 
-test("with an LLM, a weak setting match isn't unknown, and off-topic still keeps the intensity", () => {
-  const c = classifyFromScores(
-    scores([["tavern", 0.3], ["dungeon", 0.29]]),
-    scores([["combat", 0.5], ["offtopic", 0.7]]),
-    { intensity: "tense" },
-    llm("dungeon", "combat"),
-  );
-  assert.equal(c.setting, "dungeon");
-  assert.equal(c.intensity, "tense");
-  assert.equal(c.intensityConfidence, 0);
+test("with an LLM, a weak setting match isn't unknown, and table talk keeps the intensity only if the LLM hears no change", () => {
+  const embeddings = [scores([["tavern", 0.3], ["dungeon", 0.29]]), scores([["combat", 0.5], ["offtopic", 0.7]])] as const;
+  const same = classifyFromScores(...embeddings, { intensity: "tense" }, llm("dungeon", "tense"));
+  assert.equal(same.setting, "dungeon");
+  assert.equal(same.intensity, "tense");
+  assert.equal(same.intensityConfidence, 0);
+  assert.equal(same.tableTalk, true);
+  // The real case: "Where's our money?" sounded like table talk, but Gemma heard tension.
+  const changed = classifyFromScores(...embeddings, { intensity: "tense" }, llm("dungeon", "combat"));
+  assert.equal(changed.intensity, "combat");
+  assert.equal(changed.tableTalk, undefined);
+  const vetoed = classifyFromScores(...embeddings, { intensity: "tense" }, llm("dungeon", "combat"), { ...BLEND, offtopic: "veto" });
+  assert.equal(vetoed.intensity, "tense");
 });
 
 test("an LLM's 'fight over' ends combat even when the embeddings still hear a fight", () => {

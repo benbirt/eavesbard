@@ -15,6 +15,8 @@ export interface Classification {
   intensity: Intensity;
   intensityConfidence: number;
   reason: string;
+  /** The latest talk sounded like table talk (rules, food, chat), so the intensity was kept. */
+  tableTalk?: boolean;
 }
 
 export interface ClassifyResult {

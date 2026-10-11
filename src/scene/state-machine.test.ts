@@ -133,3 +133,11 @@ test("setting and intensity changing together is one transition", () => {
   assert.equal(state.intensity, "tense");
   assert.match(state.reason, /dungeon.*tense/);
 });
+
+test("table talk says so, and keeps a pending change", () => {
+  let s = initialScene(0);
+  s = nextScene(s, { type: "classification", at: 1000, setting: "tavern", settingConfidence: 0.9, intensity: "tense", intensityConfidence: 0.8 }).state;
+  const t = nextScene(s, { type: "classification", at: 2000, setting: "tavern", settingConfidence: 0.9, intensity: "calm", intensityConfidence: 0, tableTalk: true });
+  assert.equal(t.notes.intensity, "sounds like table talk, so no change; still maybe tense.");
+  assert.equal(t.state.pendingIntensity?.value, "tense");
+});

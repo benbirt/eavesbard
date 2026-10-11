@@ -31,7 +31,10 @@ function alone(s, a, fightOver) {
   }
   return { setting, settingConfidence, intensity, intensityConfidence };
 }
-function blended(s, r, a, fightOver, options = LC.BLEND) {
+/** --offtopic=veto|unless-llm-changes|ignore: what table talk heard by the embeddings does to the blend. */
+const OFFTOPIC = process.argv.find((a) => a.startsWith("--offtopic="))?.slice(11);
+const SHIPPED = OFFTOPIC ? { ...LC.BLEND, offtopic: OFFTOPIC } : LC.BLEND;
+function blended(s, r, a, fightOver, options = SHIPPED) {
   return LC.classifyFromScores(new Map(r.embed.setting), new Map(r.embed.intensity), { intensity: current(s)?.intensity ?? "calm" }, { model: "llm", setting: a.setting, intensity: a.intensity, fightOver }, options);
 }
 const embeddingsAlone = (s, r) => LC.classifyFromScores(new Map(r.embed.setting), new Map(r.embed.intensity), { intensity: current(s)?.intensity ?? "calm" });

@@ -151,12 +151,20 @@ export interface BlendOptions {
   weight: { setting: number; intensity: number };
   temperature: number;
   fightOverThreshold: number;
+  /**
+   * When the embeddings hear table talk: "veto" keeps the current intensity
+   * whatever the LLM says; "unless-llm-changes" only when the LLM also sees
+   * no change; "ignore" blends as usual.
+   */
+  offtopic: "veto" | "unless-llm-changes" | "ignore";
 }
 
 export const BLEND: BlendOptions = {
   weight: LLM_WEIGHT,
   temperature: LLM_TEMPERATURE,
   fightOverThreshold: FIGHT_OVER_THRESHOLD,
+  // Round 5 (E9): the veto cost tension (82% against 94% of tense scenes) and gained nothing at table talk.
+  offtopic: "unless-llm-changes",
 };
 
 /** Raises probabilities to the power 1/T and renormalises. */
@@ -188,6 +196,7 @@ export function classifyFromScores(
     // Table talk: keep the current intensity, with a confidence low enough to be ignored.
     intensity: offtopic ? current.intensity : (i.label as Intensity),
     intensityConfidence: offtopic ? 0 : i.confidence,
+    ...(offtopic ? { tableTalk: true } : {}),
     reason:
       `closest descriptions: ${s.label} (similarity ${s.similarity.toFixed(2)}), ` +
       `${i.label} (similarity ${i.similarity.toFixed(2)})`,
@@ -214,6 +223,9 @@ function blend(
   const top = <L extends string>(d: Record<L, number>) =>
     (Object.entries(d) as [L, number][]).reduce((x, y) => (y[1] > x[1] ? y : x))[0];
   const llmSaid = `${llm.model}: ${top(llm.setting)}, ${top(llm.intensity)}`;
+  const veto =
+    offtopic &&
+    (options.offtopic === "veto" || (options.offtopic === "unless-llm-changes" && top(llm.intensity) === current.intensity));
 
   if (current.intensity === "combat" && llm.fightOver !== undefined && llm.fightOver > options.fightOverThreshold) {
     const after = best(intensities.filter((x) => x.label !== "combat"));
@@ -231,12 +243,13 @@ function blend(
     setting: setting.label,
     settingConfidence: setting.p,
     // Table talk: keep the current intensity, with a confidence low enough to be ignored.
-    intensity: offtopic ? current.intensity : intensity.label,
-    intensityConfidence: offtopic ? 0 : intensity.p,
+    intensity: veto ? current.intensity : intensity.label,
+    intensityConfidence: veto ? 0 : intensity.p,
+    ...(veto ? { tableTalk: true } : {}),
     reason:
       `embeddings: ${s.label}, ${i.label}; ${llmSaid}` +
       `${llm.fightOver !== undefined ? `, fight over (${Math.round(llm.fightOver * 100)}%)` : ""}; ` +
-      `blended: ${setting.label}, ${offtopic ? "off-topic" : intensity.label}`,
+      `blended: ${setting.label}, ${veto ? "off-topic" : intensity.label}`,
   };
 }
 

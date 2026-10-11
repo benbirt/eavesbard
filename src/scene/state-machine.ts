@@ -39,6 +39,8 @@ export interface SceneEvent {
   settingConfidence: number;
   intensity: Intensity;
   intensityConfidence: number;
+  /** The classifier heard table talk and kept the intensity. */
+  tableTalk?: boolean;
   at: number;
 }
 
@@ -91,7 +93,9 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
   const intensity = event.intensity;
   if (event.intensityConfidence < options.minConfidence) {
     // Low confidence: ignored, so the streak neither grows nor resets.
-    notes.intensity = `${intensity} ignored: only ${pct(event.intensityConfidence)} confident.`;
+    notes.intensity = event.tableTalk
+      ? `sounds like table talk, so no change${state.pendingIntensity ? `; still maybe ${state.pendingIntensity.value}` : ""}.`
+      : `${intensity} ignored: only ${pct(event.intensityConfidence)} confident.`;
   } else if (intensity === state.intensity) {
     notes.intensity = state.pendingIntensity
       ? `still ${intensity}; dropped the pending change to ${state.pendingIntensity.value}.`
