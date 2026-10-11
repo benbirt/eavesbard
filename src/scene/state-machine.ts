@@ -10,7 +10,11 @@ export interface SceneOptions {
   startIntensity: Intensity;
   /** Classifier confidence needed to enter combat immediately. */
   combatEntryConfidence: number;
-  /** Confidence needed to change intensity on one result (leaving combat, or calm and tense), rather than waiting for agreement. */
+  /**
+   * Confidence needed to change on one result rather than waiting for
+   * agreement: any setting or intensity change, except entering combat
+   * (combatEntryConfidence).
+   */
   oneCheckConfidence: number;
   /** Results on an axis below this confidence are ignored on that axis. */
   minConfidence: number;
@@ -144,16 +148,18 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
   } else {
     const streak = bump(state.pendingSetting, setting);
     const heldFor = waitFor(state.settingSince, options.minSettingMs);
-    if (streak.count >= options.agreeingResults && heldFor <= 0) {
+    const agreedByStreak = streak.count >= options.agreeingResults;
+    const agreed = agreedByStreak || event.settingConfidence >= options.oneCheckConfidence;
+    if (agreed && heldFor <= 0) {
       Object.assign(next, { setting, settingSince: event.at, pendingSetting: undefined });
-      reasons.setting = `classifier: ${setting} (${streak.count} checks in a row agree)`;
-      notes.setting = `${state.setting} → ${setting} (${streak.count} checks in a row agree).`;
+      const why = agreedByStreak ? `${streak.count} checks in a row agree` : `${pct(event.settingConfidence)} confident`;
+      reasons.setting = `classifier: ${setting} (${why})`;
+      notes.setting = `${state.setting} → ${setting} (${why}).`;
     } else {
       next.pendingSetting = streak;
-      notes.setting =
-        streak.count >= options.agreeingResults
-          ? `${setting} held back: a setting lasts at least ${options.minSettingMs / 60_000} minutes, ${heldFor} s to go.`
-          : `maybe ${setting}: changes if ${options.agreeingResults - streak.count === 1 ? "the next scene check agrees" : `${options.agreeingResults - streak.count} more scene checks agree`}.`;
+      notes.setting = agreed
+        ? `${setting} held back: a setting lasts at least ${options.minSettingMs / 60_000} minutes, ${heldFor} s to go.`
+        : `maybe ${setting} (${pct(event.settingConfidence)} sure): changes if ${options.agreeingResults - streak.count === 1 ? "the next scene check agrees" : `${options.agreeingResults - streak.count} more scene checks agree`}, or one is ${pct(options.oneCheckConfidence)}+ sure.`;
     }
   }
 
