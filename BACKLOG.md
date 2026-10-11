@@ -19,7 +19,7 @@ Know roughly how many people use the app (and so how much traffic we send to inc
 
 ## 4. More labelled real play, for calm against tense
 
-E13 replays Bardo's 9 episodes through the app (`//experiments/e13:bardo`). Fights are good on real play, but calm play is mostly heard as tense, and town as tavern; tuning on 4 episodes didn't hold on the other 5, as calm and fights traded off (experiments/E13.md, round 2). More varied labelled play would show whether calm can improve without costing fights: label more transcripts the same way (other groups and styles; CRD3's Critical Role transcripts lack timestamps, but its "roll initiative" calls mark fights), and judge any change on fights first.
+E13 replays Bardo's 9 episodes through the app (`//experiments/e13:replay`). Fights are good on real play, but calm play is mostly heard as tense, and town as tavern; tuning on 4 episodes didn't hold on the other 5, as calm and fights traded off (experiments/E13.md, round 2). More varied labelled play would show whether calm can improve without costing fights: label more transcripts the same way (other groups and styles; CRD3's Critical Role transcripts lack timestamps, but its "roll initiative" calls mark fights), and judge any change on fights first.
 
 ## Smaller items
 

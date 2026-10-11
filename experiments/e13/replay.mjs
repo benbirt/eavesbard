@@ -1,9 +1,11 @@
-// Replays Bardo's "Call of the Wild" episodes through the real app (//src:site)
-// in headless Chrome on this computer's GPU (experiments/E13.md). The page runs
-// with ?replay (src/replay.ts): instead of the microphone, each caption line is
-// handed to the listener when its speech would have finished, and everything
-// after that is the app's own code: the director's 15-second scene checks,
-// the embeddings and the scene LLM, the state machine and the track picks.
+// Replays real play through the real app (//src:site) in headless Chrome on
+// this computer's GPU (experiments/E13.md): Bardo's "Call of the Wild" episodes
+// (YouTube captions with times), or Critical Role episodes from CRD3 (clean
+// transcripts, timed by word count, crd3.mjs). The page runs with ?replay
+// (src/replay.ts): instead of the microphone, each line is handed to the
+// listener when its speech would have finished, and everything after that is
+// the app's own code: the director's 15-second scene checks, the embeddings and
+// the scene LLM, the state machine and the track picks.
 //
 // The page's clock is Playwright's: time flows as usual, so the models and
 // workers behave normally, but between lines the clock jumps ahead to the next
@@ -11,9 +13,9 @@
 // finishes before the replay moves on. Tracks are served as silence, so
 // nothing is fetched from Tabletop Audio.
 //
-// The captions are downloaded at run time into .data/ (not committed: the words
-// are the show's). Results keep no transcript text: results/<name>.json.
-//   bazel run //experiments/e13:bardo -- --name run1 [--episodes 1,2] [--headed]
+// The transcripts are downloaded at run time into .data/ (not committed: the
+// words are the shows'). Results keep no transcript text: results/<name>.json.
+//   bazel run //experiments/e13:replay -- --name run1 [--set bardo|crd3] [--episodes 1,2] [--headed]
 // Then score it: bazel run //experiments/e13:score -- experiments/e13/results/run1.json
 import { chromium } from "playwright-core";
 import { createServer } from "node:http";
@@ -21,33 +23,45 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "no
 import { extname, join } from "node:path";
 import { parseArgs } from "node:util";
 import { built, chrome, source } from "../paths.mjs";
+import { crd3Lines, fetchCrd3 } from "./crd3.mjs";
 
 const { values: args } = parseArgs({
   options: {
     name: { type: "string" },
-    episodes: { type: "string", default: "1,2,3,4,5,6,7,8,9" },
+    set: { type: "string", default: "bardo" },
+    episodes: { type: "string" },
     headed: { type: "boolean", default: false },
     "max-minutes": { type: "string", default: "240" },
   },
 });
-if (!args.name) {
-  console.error("Give the run a --name.");
+if (!args.name || !["bardo", "crd3"].includes(args.set)) {
+  console.error("Give the run a --name, and --set bardo or crd3.");
   process.exit(2);
 }
 const here = source("experiments/e13");
-const labels = JSON.parse(readFileSync(join(here, "labels.json"), "utf8")).episodes;
-const episodes = args.episodes.split(",").map((s) => s.trim());
+const labels = JSON.parse(readFileSync(join(here, args.set === "crd3" ? "labels-crd3.json" : "labels.json"), "utf8")).episodes;
+const episodes = args.episodes ? args.episodes.split(",").map((s) => s.trim()) : Object.keys(labels);
 
-// --- Captions, from Bardo's repository (lucasnfe/bardo-composer, MIT). ---
-
-const CAPTIONS = "https://raw.githubusercontent.com/lucasnfe/bardo-composer/master/data/dnd";
 const sec = (mss) => {
   const [m, s] = mss.split(":");
   return Number(m) * 60 + Number(s);
 };
 
-/** Caption lines: start and duration in seconds, and the text. */
+/** An episode's lines: start and duration in seconds, and the text. */
 async function captions(ep) {
+  if (args.set === "crd3") {
+    const dir = join(here, ".data", "crd3");
+    fetchCrd3(dir);
+    return crd3Lines(dir, ep);
+  }
+  return bardoCaptions(ep);
+}
+
+// --- Bardo's captions, from its repository (lucasnfe/bardo-composer, MIT). ---
+
+const CAPTIONS = "https://raw.githubusercontent.com/lucasnfe/bardo-composer/master/data/dnd";
+
+async function bardoCaptions(ep) {
   const file = join(here, ".data", `ep${ep}.csv`);
   if (!existsSync(file)) {
     mkdirSync(join(here, ".data"), { recursive: true });
@@ -173,12 +187,13 @@ async function advanceTo(target) {
   await settle();
 }
 
-const results = { name: args.name, gpu, episodes: {} };
+const results = { name: args.name, set: args.set, gpu, episodes: {} };
 for (const ep of episodes) {
   const stretches = labels[ep];
   const lines = await captions(ep);
-  const startOffset = sec(stretches[0].from);
-  const first = stretches[0];
+  // Start at the first stretch that's scored (after any pre-show), from its scene.
+  const first = stretches.find((s) => !s.skip);
+  const startOffset = sec(first.from);
   t = Date.now();
   await page.evaluate(() => window.eavesbardReplay.start());
   await page.evaluate(([s, i]) => window.eavesbardReplay.setScene(s, i), [first.setting[0], first.intensity[0]]);

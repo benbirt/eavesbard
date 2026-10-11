@@ -1,4 +1,4 @@
-// Scores a replay run (bardo.mjs) against the reference labels (labels.json):
+// Scores a replay run (replay.mjs) against the reference labels (labels.json, or labels-crd3.json):
 // the scene the app was in after each scene check, and what the classifier
 // said before the state machine (experiments/E13.md).
 //   bazel run //experiments/e13:score -- experiments/e13/results/run1.json [--episodes 1,3]
@@ -13,7 +13,8 @@ if (args.episodes) {
   const keep = new Set(args.episodes.split(","));
   run.episodes = Object.fromEntries(Object.entries(run.episodes).filter(([ep]) => keep.has(ep)));
 }
-const labels = JSON.parse(readFileSync(join(source("experiments/e13"), "labels.json"), "utf8")).episodes;
+const labelFile = run.set === "crd3" ? "labels-crd3.json" : "labels.json";
+const labels = JSON.parse(readFileSync(join(source("experiments/e13"), labelFile), "utf8")).episodes;
 
 /** Checks this soon after a label change aren't counted as steady: lag there is by design. */
 const INTENSITY_GRACE_S = 60;
@@ -42,7 +43,8 @@ let allChecks = 0;
 const latencies = [];
 
 for (const [ep, data] of Object.entries(run.episodes)) {
-  const stretches = labels[ep].map((s) => ({ ...s, t: sec(s.from) }));
+  // "skip" stretches (pre-show, breaks) have no labels, and aren't scored.
+  const stretches = labels[ep].map((s) => ({ intensity: [], setting: [], ...s, t: sec(s.from) }));
   stretches.forEach((s, i) => (s.end = stretches[i + 1]?.t ?? data.end));
   const at = (t) => stretches.filter((s) => s.t <= t).at(-1) ?? stretches[0];
   /** Seconds since the best intensity (or setting) last changed, at time t. */
@@ -71,7 +73,7 @@ for (const [ep, data] of Object.entries(run.episodes)) {
         if (entering) {
           // A false alarm: combat where no fight is labelled, nor starts soon.
           const fightSoon = stretches.some((s) => s.intensity[0] === "combat" && s.t >= e.t && s.t - e.t <= EARLY_S);
-          if (!at(e.t).intensity.includes("combat") && !fightSoon) total.falseEntries++;
+          if (!at(e.t).skip && !at(e.t).intensity.includes("combat") && !fightSoon) total.falseEntries++;
         }
         pending = undefined;
       }
@@ -82,6 +84,7 @@ for (const [ep, data] of Object.entries(run.episodes)) {
   const ep_ = { ep, steadyI: 0, okI: 0, steadyS: 0, okS: 0 };
   for (const c of checks) {
     const s = at(c.t);
+    if (s.skip) continue;
     if (since(c.t, "intensity") >= INTENSITY_GRACE_S) {
       total.steadyI++;
       ep_.steadyI++;
