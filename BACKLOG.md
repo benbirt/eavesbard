@@ -17,6 +17,15 @@ Kevin MacLeod's catalogue at incompetech.com: 1,443 tracks (87 hours, median 3 m
 
 Know roughly how many people use the app (and so how much traffic we send to incompetech and Tabletop Audio). A cookieless, privacy-friendly service that counts page views and sessions, never anything said at the table. About's Privacy section must say what is counted and by whom.
 
+## 4. Test the classifier on real play (Critical Role transcripts)
+
+A headless target (say `//experiments/e13:realplay`) that runs the local classifier, and Haiku when there's a key, through the state machine on real actual-play transcripts rather than scripted scenes. Source: CRD3 (https://huggingface.co/datasets/microsoft/crd3), 159 Critical Role episodes, about 400,000 speaker turns, a single 117 MB zip of JSON, CC BY-SA 4.0. Download it at run time; don't commit excerpts (share-alike, and the words are Critical Role's). Notes:
+- No timestamps: slide a window through each episode at about 15 seconds of speech per step, by word count (about 150 words a minute).
+- No scene labels, so start with what needs none. "Roll initiative" appears in 108 of 140 episodes checked: report how many checks it takes to call combat after it, how long to drop back to calm afterwards, and how often calm stretches are called combat.
+- Later, settings from the Fandom wiki summaries CRD3 aligns to each stretch of turns, or windows labelled by a stronger Claude model as a reference rather than ground truth.
+- The transcripts are clean human ones; add Whisper-style noise, as the TEST set does, for realism.
+- FIREBALL (ACL 2023, about 25,000 D&D sessions on Discord) records true fight starts and ends from the Avrae bot's state: real labels for combat starting and ending, the weakest category. It is typed play-by-post, not speech.
+
 ## Smaller items
 
 - Test the Web Speech options (on-device and cloud) in Chrome on the phone and the laptop.
