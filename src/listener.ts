@@ -47,11 +47,8 @@ export const speaking = signal(false);
 /** Oldest first. */
 export const transcript = signal<TranscriptLine[]>([]);
 export const wakeLock = signal<WakeLockState>("off");
-/**
- * Whether a recorded transcript is replayed instead of listening (src/replay.ts):
- * only with ?replay in the page's address, for experiments.
- */
-export const replaying = typeof location !== "undefined" && new URLSearchParams(location.search).has("replay");
+export { replaying } from "./replay-flag.js";
+import { replaying } from "./replay-flag.js";
 
 let worker: Worker | undefined;
 let workerModel: WhisperModel | undefined;

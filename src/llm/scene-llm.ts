@@ -85,13 +85,17 @@ async function askReady(input: LlmInput): Promise<LlmAnswer> {
   const setting = await ask(settingQ);
   const byLabel = <L extends string>(labels: readonly L[], probs: number[]) =>
     Object.fromEntries(labels.map((l, i) => [l, probs[i] ?? 0])) as Record<L, number>;
-  let intensity = byLabel(INTENSITIES, await ask(intensityQ));
+  const threeWay = byLabel(INTENSITIES, await ask(intensityQ));
+  let intensity = threeWay;
   let fightOver: number | undefined;
+  let fight: { asked: "started" | "ended"; yes: number } | undefined;
   if ("lines" in input) {
     // The chance of combat comes from asking whether a fight has started (or ended).
     const yes = (await ask(fightQuestion(input.lines, input.current)))[0]!;
-    intensity = mixIntensity(intensity, input.current.intensity === "combat" ? 1 - yes : yes);
-    if (input.current.intensity === "combat") fightOver = (await ask(fightOverQuestion(input.lines)))[1];
+    const inFight = input.current.intensity === "combat";
+    fight = { asked: inFight ? "ended" : "started", yes };
+    intensity = mixIntensity(intensity, inFight ? 1 - yes : yes);
+    if (inFight) fightOver = (await ask(fightOverQuestion(input.lines)))[1];
   }
-  return { model: SCENE_LLM.name, setting: byLabel(SETTINGS, setting), intensity, fightOver };
+  return { model: SCENE_LLM.name, setting: byLabel(SETTINGS, setting), intensity, fightOver, parts: { threeWay, fight } };
 }

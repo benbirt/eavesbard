@@ -3,6 +3,7 @@ load("@aspect_rules_js//js:defs.bzl", "js_binary")
 # Experiment E13 (experiments/E13.md): the app on real play (Bardo, and Critical Role from CRD3).
 #   bazel run //experiments/e13:replay -- --name run1 [--set crd3]   # replay through the app on the GPU
 #   bazel run //experiments/e13:score -- experiments/e13/results/run1.json
+#   bazel run //experiments/e13:sim -- --runs run1   # other blends, offline, from a run's details
 js_binary(
     name = "replay",
     data = [
@@ -16,6 +17,19 @@ js_binary(
 
 js_binary(
     name = "score",
-    data = ["//experiments:paths"],
+    data = [
+        "score-lib.mjs",
+        "//experiments:paths",
+    ],
     entry_point = "score.mjs",
+)
+
+js_binary(
+    name = "sim",
+    data = [
+        "score-lib.mjs",
+        "//experiments:paths",
+        "//src:app",
+    ],
+    entry_point = "sim.mjs",
 )

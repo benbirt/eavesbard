@@ -188,6 +188,7 @@ async function advanceTo(target) {
 }
 
 const results = { name: args.name, set: args.set, gpu, episodes: {} };
+const allDetails = {};
 for (const ep of episodes) {
   const stretches = labels[ep];
   const lines = await captions(ep);
@@ -195,6 +196,7 @@ for (const ep of episodes) {
   const first = stretches.find((s) => !s.skip);
   const startOffset = sec(first.from);
   t = Date.now();
+  const detailsFrom = await page.evaluate(() => window.eavesbardReplay.details(0).length);
   await page.evaluate(() => window.eavesbardReplay.start());
   await page.evaluate(([s, i]) => window.eavesbardReplay.setScene(s, i), [first.setting[0], first.intensity[0]]);
   const t0 = await now();
@@ -217,6 +219,7 @@ for (const ep of episodes) {
   const end = arrivals.at(-1).arrive + 20;
   await advanceTo(fake(end));
   const entries = await page.evaluate(() => window.eavesbardReplay.timeline(0));
+  const details = await page.evaluate((from) => window.eavesbardReplay.details(from), detailsFrom);
   await page.evaluate(() => window.eavesbardReplay.stop());
 
   // Keep what the app decided, with times in seconds into the episode; no transcript text.
@@ -239,12 +242,15 @@ for (const ep of episodes) {
       `${ms.length ? Math.round(ms.reduce((a, b) => a + b, 0) / ms.length) : "–"} ms per check, ${((Date.now() - t) / 60_000).toFixed(1)} min`,
   );
   results.episodes[ep] = { startOffset, end, speech, events: kept };
+  // Each local check's raw scores, for offline blends (sim.mjs): large, kept apart from the results.
+  allDetails[ep] = details.map((d) => ({ ...d, t: offset(d.at) }));
 }
 
 finished = true;
 mkdirSync(join(here, "results"), { recursive: true });
 const out = join(here, "results", `${args.name}.json`);
 writeFileSync(out, JSON.stringify(results, null, 1));
+writeFileSync(out.replace(/\.json$/, ".details.json"), JSON.stringify(allDetails));
 console.log(`Saved ${out}`);
 await context.close();
 server.close();

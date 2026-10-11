@@ -130,6 +130,11 @@ export interface LlmAnswer {
   intensity: Record<Intensity, number>;
   /** Asked only during a fight: the probability that it's over. */
   fightOver?: number;
+  /**
+   * The answers `intensity` was made from, for experiments (E13): the
+   * three-way question's, and the yes/no fight question's (which one, and yes).
+   */
+  parts?: { threeWay: Record<Intensity, number>; fight?: { asked: "started" | "ended"; yes: number } };
 }
 
 /**

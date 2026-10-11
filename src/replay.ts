@@ -8,7 +8,7 @@ import { allowDownloads } from "./downloads.js";
 import { checking, scene, setSceneYourself, startSession, stopSession } from "./director.js";
 import type { Intensity, Setting } from "./library/scenes.js";
 import { replayLine, replaying } from "./listener.js";
-import { prepareLocalModels, prepareTrackIndex } from "./local-models.js";
+import { checkDetails, prepareLocalModels, prepareTrackIndex } from "./local-models.js";
 import { prepareSceneLlm } from "./llm/scene-llm.js";
 import { timeline, type TimelineEntry } from "./timeline.js";
 
@@ -23,6 +23,8 @@ export interface ReplayApi {
   setScene(setting: Setting, intensity: Intensity): void;
   /** Whether a scene check is running, and the current scene. */
   state(): { checking: boolean; setting?: Setting; intensity?: Intensity };
+  /** What each local scene check was made from, from the `from`th on (for offline blends). */
+  details(from: number): typeof checkDetails;
   /** Timeline entries from `from` on. */
   timeline(from: number): TimelineEntry[];
 }
@@ -44,6 +46,7 @@ if (replaying) {
     line: replayLine,
     setScene: (setting, intensity) => setSceneYourself({ setting, intensity }),
     state: () => ({ checking: checking.value, setting: scene.value?.setting, intensity: scene.value?.intensity }),
+    details: (from) => checkDetails.slice(from),
     timeline: (from) => timeline.value.slice(from),
   };
 }
