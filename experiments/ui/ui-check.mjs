@@ -77,6 +77,24 @@ try {
       return input && Math.abs(Number(input.value) / Number(input.max) - 0.5) < 0.05;
     });
   });
+  await step("3c-missing-file", async () => {
+    // The next audio file is refused, as Tabletop Audio does for a few: a replacement must play.
+    let refused = "";
+    await page.route("https://sounds.tabletopaudio.com/**", (route) => {
+      if (refused) return route.continue();
+      refused = route.request().url();
+      return route.fulfill({ status: 403, contentType: "application/xml", body: "<Error>AccessDenied</Error>" });
+    });
+    const before = await page.locator(".track").innerText();
+    await page.getByRole("button", { name: "A different track" }).click();
+    await page.waitForFunction((b) => {
+      const t = document.querySelector(".track")?.textContent ?? "";
+      return t && t !== b && !document.querySelector(".src .loading");
+    }, before, { timeout: 30_000 });
+    await page.unroute("https://sounds.tabletopaudio.com/**");
+    if (!refused) throw new Error("no audio request was refused");
+    console.log("   refused", refused.split("/").pop(), "; now playing", await page.locator(".track").innerText());
+  });
   await step("4-log", async () => {
     await page.getByRole("button", { name: "Log" }).click();
     await page.locator(".drawer.open .log").waitFor();

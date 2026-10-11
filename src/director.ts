@@ -156,7 +156,7 @@ async function startAuto(opening: string): Promise<void> {
     text:
       `${ENGINE_NAMES[primary]} decides the scene and picks the tracks` +
       (engine.value === "claude" && primary === "local" ? " (no Anthropic API key, so local models are used)" : "") +
-      (other ? `; ${ENGINE_NAMES[other].toLowerCase()} is also asked, for comparison.` : compare.value ? "; no comparison, as Claude needs an Anthropic API key." : "."),
+      (other ? `; ${other === "claude" ? "Claude" : "the local model"} is also asked, for comparison.` : compare.value ? "; no comparison, as Claude needs an Anthropic API key." : "."),
   });
   if (other === "local") prepareLocal();
   if (primary === "local") {

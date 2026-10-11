@@ -13,6 +13,8 @@ export class LocalAdapter implements PlaybackAdapter {
   private active = 0;
   private level = 1;
   private fadeGeneration = 0;
+  /** Bumped by each play(), so a late failure can't undo a newer request. */
+  private playGeneration = 0;
   private readonly listeners: PlaybackListener[] = [];
 
   constructor() {
@@ -37,7 +39,9 @@ export class LocalAdapter implements PlaybackAdapter {
   }
 
   async play(url: string, _title: string, fadeMs: number): Promise<void> {
-    const outgoing = this.elements[this.active]!;
+    const generation = ++this.playGeneration;
+    const outgoingIndex = this.active;
+    const outgoing = this.elements[outgoingIndex]!;
     this.active = 1 - this.active;
     const incoming = this.elements[this.active]!;
 
@@ -48,6 +52,14 @@ export class LocalAdapter implements PlaybackAdapter {
     } catch (err) {
       // Stopped or replaced before it started: not an error.
       if (err instanceof DOMException && err.name === "AbortError") return;
+      // It never started (e.g. the file is missing), so the outgoing track is still
+      // the one playing: make it current again, so the next track fades it out rather
+      // than taking over its element mid-play. (The element keeps its src, so its own
+      // error event, which picks a replacement, still fires.)
+      if (generation === this.playGeneration) {
+        this.active = outgoingIndex;
+        incoming.pause();
+      }
       throw err;
     }
     await this.fade(fadeMs, (p) => {
