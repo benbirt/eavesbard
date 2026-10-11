@@ -1,0 +1,706 @@
+{
+  "large: opening: the party wakes up in a cheap room above the inn": {
+    "ok": true
+  },
+  "large: opening: a bard is playing in the common room of the Yawning Portal": {
+    "ok": true
+  },
+  "large: opening: the adventurers are celebrating their last job at the pub": {
+    "ok": true
+  },
+  "large: opening: a tavern brawl is already under way when you walk in": {
+    "ok": true
+  },
+  "large: opening: a hooded stranger in the corner of the inn has been watching you all night": {
+    "ok": true
+  },
+  "large: opening: arriving at the gates of a walled city at dusk": {
+    "ok": true
+  },
+  "large: opening: the harvest fair in the village green": {
+    "ok": true
+  },
+  "large: opening: chasing a thief across the rooftops of the docks district": {
+    "note": "tense I think",
+    "ok": true
+  },
+  "large: opening: the town is on fire and orcs are in the streets": {
+    "ok": true
+  },
+  "large: opening: a public execution in the market square, the crowd is restless": {
+    "ok": true
+  },
+  "large: opening: a quiet morning in a fishing village": {
+    "ok": true
+  },
+  "large: opening: the duke's library, looking for an old map": {
+    "ok": true
+  },
+  "large: opening: a dinner party at the merchant's mansion": {
+    "ok": true
+  },
+  "large: opening: sneaking through the baron's manor at night": {
+    "ok": true
+  },
+  "large: opening: the temple is under attack by undead": {
+    "ok": true
+  },
+  "large: opening: an alchemist's shop full of bubbling flasks": {
+    "ok": true
+  },
+  "large: opening: a trial in the great hall of the castle": {
+    "ok": true
+  },
+  "large: opening: hiking through a sunny pine forest": {
+    "ok": true
+  },
+  "large: opening: tracking a wounded owlbear through the woods": {
+    "ok": true
+  },
+  "large: opening: the party is camped on a hill, watching the stars": {
+    "ok": true
+  },
+  "large: opening: trolls charge out of the mist on the moor": {
+    "ok": true
+  },
+  "large: opening: crossing a desert, water is running low": {
+    "ok": true
+  },
+  "large: opening: lost in a jungle full of strange noises": {
+    "ok": true
+  },
+  "large: opening: the entrance hall of an ancient tomb": {
+    "ok": true
+  },
+  "large: opening: deep in the Underdark, the drow patrol has spotted you": {
+    "note": "combat I think",
+    "ok": true
+  },
+  "large: opening: fighting skeletons in the catacombs": {
+    "ok": true
+  },
+  "large: opening: a flooded sewer tunnel beneath the city": {
+    "ok": true
+  },
+  "large: opening: resting in a cleared room of the dungeon": {
+    "ok": true
+  },
+  "large: opening: on a riverboat heading downstream": {
+    "ok": true
+  },
+  "large: opening: the caravan is three days out on the trade road": {
+    "ok": true
+  },
+  "large: opening: a storm hits the ship in the middle of the night": {
+    "ok": true
+  },
+  "large: opening: sky pirates attack the airship": {
+    "ok": true
+  },
+  "large: opening: riding through the mountain pass, wolves howling in the distance": {
+    "ok": true
+  },
+  "large: opening: we pick up where we left off: the fight with the bandit captain": {
+    "ok": true
+  },
+  "large: opening: last session ended mid-combat with the dragon": {
+    "ok": true
+  },
+  "large: opening: downtime in town, shopping and training": {
+    "ok": true
+  },
+  "large: opening: the party is in jail": {
+    "ok": true
+  },
+  "large: opening: negotiating with the goblin chief in his cave": {
+    "ok": true
+  },
+  "large: opening: a wedding at the elven palace": {
+    "ok": true
+  },
+  "large: opening: climbing the wizard's tower, something is following us up the stairs": {
+    "ok": true
+  },
+  "large: walking into the inn out of the rain": {
+    "ok": true
+  },
+  "large: renting rooms Web Speech": {
+    "ok": true
+  },
+  "large: back at the guild tavern": {
+    "ok": true
+  },
+  "large: tavern quest board": {
+    "ok": true
+  },
+  "large: stays in the tavern talking about the forest": {
+    "ok": true
+  },
+  "large: planning a dungeon trip at the inn": {
+    "ok": true
+  },
+  "large: leaving the inn for the market": {
+    "ok": true
+  },
+  "large: arriving in the city": {
+    "ok": true
+  },
+  "large: village visit Web Speech": {
+    "ok": true
+  },
+  "large: docks at sunset": {
+    "ok": true
+  },
+  "large: shopping for armour": {
+    "ok": true
+  },
+  "large: festival in the square": {
+    "ok": true
+  },
+  "large: audience at the keep": {
+    "ok": true
+  },
+  "large: temple visit": {
+    "ok": true
+  },
+  "large: library research": {
+    "ok": true
+  },
+  "large: magic shop": {
+    "ok": true
+  },
+  "large: mansion dinner": {
+    "ok": true
+  },
+  "large: back in the wizard's study": {
+    "ok": true
+  },
+  "large: into the forest": {
+    "ok": true
+  },
+  "large: making camp": {
+    "ok": true
+  },
+  "large: climbing the mountain": {
+    "ok": true
+  },
+  "large: swamp wading Web Speech": {
+    "ok": true,
+    "note": "I think this is calm or tense"
+  },
+  "large: desert oasis": {
+    "ok": true
+  },
+  "large: beach landing": {
+    "ok": true
+  },
+  "large: meadow picnic": {
+    "ok": true
+  },
+  "large: down the well": {
+    "ok": true
+  },
+  "large: entering the mine": {
+    "ok": true
+  },
+  "large: crypt below the church": {
+    "ok": true
+  },
+  "large: sewers shortcut": {
+    "ok": true,
+    "note": "probably just tense"
+  },
+  "large: exploring a cave": {
+    "ok": true
+  },
+  "large: ruins underground": {
+    "ok": true
+  },
+  "large: setting off on the road": {
+    "ok": true
+  },
+  "large: boarding the ship": {
+    "ok": true
+  },
+  "large: riding all day Web Speech": {
+    "ok": true
+  },
+  "large: river barge": {
+    "ok": true
+  },
+  "large: caravan days": {
+    "ok": true
+  },
+  "large: airship voyage": {
+    "ok": true
+  },
+  "large: town: hearing about the dungeon": {
+    "ok": true
+  },
+  "large: travel: talking about the city ahead": {
+    "ok": true
+  },
+  "large: dungeon: remembering the tavern": {
+    "ok": true
+  },
+  "large: interior: looking at a map of the forest": {
+    "ok": true
+  },
+  "large: wilderness: talking about the ship": {
+    "ok": true
+  },
+  "large: tavern: story about the castle": {
+    "ok": true,
+    "note": "calm or possibly tense"
+  },
+  "large: into the inn with dice talk": {
+    "ok": true
+  },
+  "large: leaving the dungeon": {
+    "ok": true
+  },
+  "large: ship arrives in port": {
+    "ok": true
+  },
+  "large: tavern to temple Web Speech": {
+    "ok": true
+  },
+  "large: town to tavern short": {
+    "ok": true
+  },
+  "large: wilderness to cave short": {
+    "ok": true
+  },
+  "large: into the castle Web Speech": {
+    "ok": true
+  },
+  "large: back on the road after the village": {
+    "ok": true
+  },
+  "large: forest to ruins above ground": {
+    "ok": true
+  },
+  "large: mansion to street": {
+    "ok": true
+  },
+  "large: noise in the crypt": {
+    "ok": true
+  },
+  "large: followed through the alleys": {
+    "ok": true
+  },
+  "large: sneaking past the guards": {
+    "ok": true
+  },
+  "large: tracks in the snow Web Speech": {
+    "ok": true
+  },
+  "large: threat in the tavern": {
+    "ok": true
+  },
+  "large: a trap triggered": {
+    "ok": true
+  },
+  "large: storm at sea": {
+    "ok": true
+  },
+  "large: standoff with bandits": {
+    "ok": true
+  },
+  "large: something in the water": {
+    "ok": true
+  },
+  "large: chase across rooftops": {
+    "ok": true,
+    "note": "tense rather than combat"
+  },
+  "large: hostage negotiation": {
+    "ok": true
+  },
+  "large: eyes in the dark": {
+    "ok": true
+  },
+  "large: poisoned drink suspicion": {
+    "ok": true
+  },
+  "large: the floor creaks": {
+    "ok": true
+  },
+  "large: ambush spotted Web Speech": {
+    "ok": true
+  },
+  "large: short: something is watching": {
+    "ok": true
+  },
+  "large: short: the dragon wakes": {
+    "ok": true
+  },
+  "large: guards demand papers": {
+    "ok": true
+  },
+  "large: spider webs": {
+    "ok": true
+  },
+  "large: still hiding from the patrol": {
+    "ok": true
+  },
+  "large: negotiation goes on": {
+    "ok": true
+  },
+  "large: creeping through the haunted house": {
+    "ok": true
+  },
+  "large: storm still raging": {
+    "ok": true
+  },
+  "large: following the tracks Web Speech": {
+    "ok": true
+  },
+  "large: rules check during the standoff": {
+    "ok": true
+  },
+  "large: patrol leaves": {
+    "ok": true
+  },
+  "large: bluff works at the gate": {
+    "ok": true
+  },
+  "large: eyes were deer": {
+    "ok": true
+  },
+  "large: storm passes": {
+    "ok": true
+  },
+  "large: trap disarmed": {
+    "ok": true
+  },
+  "large: cloaks leave the tavern": {
+    "ok": true
+  },
+  "large: hostage released Web Speech": {
+    "ok": true
+  },
+  "large: bandits accept the toll": {
+    "ok": true
+  },
+  "large: short: roll for initiative": {
+    "ok": true
+  },
+  "large: short: role for initiative (misheard)": {
+    "ok": true
+  },
+  "large: short: roll initiative everyone": {
+    "ok": true
+  },
+  "large: short: they attack": {
+    "ok": true
+  },
+  "large: short: let's fight": {
+    "ok": true
+  },
+  "large: short: i attack him": {
+    "ok": true
+  },
+  "large: short: what did everyone get": {
+    "ok": true
+  },
+  "large: short: the goblins charge": {
+    "ok": true
+  },
+  "large: bar fight breaks out": {
+    "ok": true
+  },
+  "large: wolves at the camp": {
+    "ok": true
+  },
+  "large: ambush on the road Web Speech": {
+    "ok": true
+  },
+  "large: skeletons rise in the crypt": {
+    "ok": true
+  },
+  "large: mimic chest": {
+    "ok": true
+  },
+  "large: pirates board the ship": {
+    "ok": true
+  },
+  "large: street brawl with thugs": {
+    "ok": true
+  },
+  "large: the duke's guards attack": {
+    "ok": true
+  },
+  "large: owlbear charges": {
+    "ok": true
+  },
+  "large: the mayor was a vampire": {
+    "ok": true
+  },
+  "large: dragon attacks the village": {
+    "ok": true
+  },
+  "large: Web Speech no punctuation": {
+    "ok": true
+  },
+  "large: negotiation fails": {
+    "ok": true
+  },
+  "large: patrol spots us": {
+    "ok": true
+  },
+  "large: the creature in the river attacks": {
+    "ok": true
+  },
+  "large: bandits open fire": {
+    "ok": true
+  },
+  "large: ghost attacks": {
+    "ok": true
+  },
+  "large: the thief turns to fight": {
+    "ok": true
+  },
+  "large: spiders drop from the ceiling": {
+    "ok": true
+  },
+  "large: standoff breaks Web Speech": {
+    "ok": true
+  },
+  "large: hostage taker lunges": {
+    "ok": true
+  },
+  "large: the dragon was awake": {
+    "ok": true
+  },
+  "large: with snack talk": {
+    "ok": true
+  },
+  "large: with rules talk first": {
+    "ok": true
+  },
+  "large: trading blows with orcs": {
+    "ok": true
+  },
+  "large: spells flying": {
+    "ok": true
+  },
+  "large: whose turn Web Speech": {
+    "ok": true
+  },
+  "large: healing mid fight": {
+    "ok": true
+  },
+  "large: rules question mid fight": {
+    "ok": true
+  },
+  "large: dragon fight continues": {
+    "ok": true
+  },
+  "large: pirate battle on deck": {
+    "ok": true
+  },
+  "large: dice maths during combat": {
+    "ok": true
+  },
+  "large: running away mid fight": {
+    "ok": true
+  },
+  "large: concentration check": {
+    "ok": true
+  },
+  "large: boss phase two": {
+    "ok": true
+  },
+  "large: mid fight with snack crosstalk": {
+    "ok": true
+  },
+  "large: short: damage call": {
+    "ok": true
+  },
+  "large: short: your turn": {
+    "ok": true
+  },
+  "large: the fight gets worse": {
+    "ok": true
+  },
+  "large: one enemy left but fighting": {
+    "ok": true
+  },
+  "large: fight around the tavern bar Web Speech": {
+    "ok": true
+  },
+  "large: enemies flee but some still fight": {
+    "ok": true
+  },
+  "large: combat in the throne room": {
+    "ok": true
+  },
+  "large: big damage roll": {
+    "ok": true
+  },
+  "large: short: that's the last of them": {
+    "ok": true
+  },
+  "large: short: combat over": {
+    "ok": true
+  },
+  "large: short: we can stop initiative": {
+    "ok": true
+  },
+  "large: bandits surrender": {
+    "note": "tense I think",
+    "ok": true
+  },
+  "large: wolves flee": {
+    "note": "calm",
+    "ok": true
+  },
+  "large: last orc dies, looting": {
+    "ok": true
+  },
+  "large: short rest after the fight": {
+    "ok": true
+  },
+  "large: after the bar fight Web Speech": {
+    "ok": true
+  },
+  "large: dragon dies": {
+    "ok": true
+  },
+  "large: pirates driven off": {
+    "ok": true
+  },
+  "large: looting with dice talk": {
+    "ok": true
+  },
+  "large: vampire turned to dust": {
+    "ok": true
+  },
+  "large: thugs run away": {
+    "ok": true
+  },
+  "large: enemies dead but danger remains": {
+    "ok": true
+  },
+  "large: healing up Web Speech": {
+    "ok": true
+  },
+  "large: guards captured": {
+    "ok": true
+  },
+  "large: after the ambush, burying the dead": {
+    "ok": true
+  },
+  "large: spider nest cleared": {
+    "ok": true
+  },
+  "large: fight over, talking to the rescued": {
+    "ok": true
+  },
+  "large: short: last enemy killed": {
+    "ok": true
+  },
+  "large: GM ends combat, then levelling up": {
+    "ok": true
+  },
+  "large: enemy flees, party wary": {
+    "ok": true
+  },
+  "large: fight over Web Speech short lines": {
+    "ok": true
+  },
+  "large: won, now shopping talk": {
+    "ok": true
+  },
+  "large: pizza order": {
+    "ok": true
+  },
+  "large: scheduling next session": {
+    "ok": true
+  },
+  "large: levelling up talk": {
+    "ok": true
+  },
+  "large: initiative rules question": {
+    "ok": true
+  },
+  "large: do we roll for initiative question": {
+    "ok": true
+  },
+  "large: film chat": {
+    "ok": true
+  },
+  "large: character sheet fixing Web Speech": {
+    "ok": true
+  },
+  "large: toilet break": {
+    "ok": true
+  },
+  "large: talking about a fight in another game": {
+    "ok": true
+  },
+  "large: dice superstition": {
+    "ok": true
+  },
+  "large: spell lookup": {
+    "ok": true
+  },
+  "large: short: snack talk": {
+    "ok": true
+  },
+  "large: rules check while sneaking": {
+    "ok": true
+  },
+  "large: phone call during the standoff": {
+    "ok": true
+  },
+  "large: joking during the chase Web Speech": {
+    "ok": true
+  },
+  "large: what's my passive perception": {
+    "ok": true
+  },
+  "large: debating a plan out of character": {
+    "ok": true
+  },
+  "large: pizza arrives mid fight": {
+    "ok": true
+  },
+  "large: rules argument mid fight": {
+    "ok": true
+  },
+  "large: player late mid fight": {
+    "ok": true
+  },
+  "large: dice maths mid fight Web Speech": {
+    "ok": true
+  },
+  "large: music too loud mid fight": {
+    "ok": true
+  },
+  "large: short: break mid fight": {
+    "ok": true
+  },
+  "large: map drawing chat": {
+    "ok": true
+  },
+  "large: talking about the real weather": {
+    "ok": true
+  },
+  "large: work talk Web Speech": {
+    "ok": true
+  },
+  "large: recap of last session's fight": {
+    "ok": true
+  },
+  "large: planning a fight": {
+    "ok": true
+  },
+  "large: telling a war story in character": {
+    "ok": true
+  },
+  "large: talking about the boss coming up": {
+    "ok": true
+  }
+}

@@ -2,7 +2,7 @@
 // generate text. Used by the app (scene-llm.ts) and the evaluation page.
 
 import { assetUrl } from "../assets.js";
-import type { FromLlmWorker, LlmLoad, ToLlmWorker } from "./llm-protocol.js";
+import type { ChatOptions, FromLlmWorker, LlmLoad, ToLlmWorker } from "./llm-protocol.js";
 
 export interface LoadProgress {
   loaded: number;
@@ -36,8 +36,8 @@ export class LlmClient {
   }
 
   /** Probabilities of each label (given as its spellings) after `prefill`. */
-  ask(content: string, prefill: string, spellings: string[][]): Promise<number[]> {
-    return this.request((requestId) => ({ type: "ask", requestId, content, prefill, spellings })) as Promise<number[]>;
+  ask(content: string, prefill: string, spellings: string[][], chat?: ChatOptions): Promise<number[]> {
+    return this.request((requestId) => ({ type: "ask", requestId, content, prefill, spellings, chat })) as Promise<number[]>;
   }
 
   /** Speech to text (16 kHz mono, at most 30 s); the model must be loaded with `audio`. */
@@ -45,9 +45,9 @@ export class LlmClient {
     return this.request((requestId) => ({ type: "transcribe", requestId, audio, instruction, maxTokens })) as Promise<string>;
   }
 
-  /** What the model writes, greedily, up to `maxTokens`. */
-  generate(content: string, maxTokens: number): Promise<string> {
-    return this.request((requestId) => ({ type: "generate", requestId, content, maxTokens })) as Promise<string>;
+  /** What the model writes, greedily, up to `maxTokens`, after `prefill`; special tokens are kept. */
+  generate(content: string, maxTokens: number, prefill?: string, chat?: ChatOptions): Promise<string> {
+    return this.request((requestId) => ({ type: "generate", requestId, content, maxTokens, prefill, chat })) as Promise<string>;
   }
 
   terminate(): void {

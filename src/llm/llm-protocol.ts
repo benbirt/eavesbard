@@ -22,6 +22,14 @@ export interface LlmLoad {
   audio?: boolean;
 }
 
+/** How the one-message chat is framed (experiment E9, round 4). */
+export interface ChatOptions {
+  /** A system message before the user's. */
+  system?: string;
+  /** Gemma 4's thinking mode: the model writes a thought channel before answering. */
+  thinking?: boolean;
+}
+
 export type ToLlmWorker =
   | { type: "load"; model: LlmLoad }
   /**
@@ -29,9 +37,9 @@ export type ToLlmWorker =
    * starts with `prefill`; each label lists its spellings (e.g. " dungeon",
    * " Dungeon"), whose probabilities are added.
    */
-  | { type: "ask"; requestId: number; content: string; prefill: string; spellings: string[][] }
-  /** Free text, for checking what the model would write unprompted. */
-  | { type: "generate"; requestId: number; content: string; maxTokens: number }
+  | { type: "ask"; requestId: number; content: string; prefill: string; spellings: string[][]; chat?: ChatOptions }
+  /** Free text, starting with `prefill` if given; special tokens are kept, so a thought channel can be found. */
+  | { type: "generate"; requestId: number; content: string; maxTokens: number; prefill?: string; chat?: ChatOptions }
   /** Speech to text: 16 kHz mono audio (at most 30 s), with an instruction. Needs `audio` at load. */
   | { type: "transcribe"; requestId: number; audio: Float32Array; instruction: string; maxTokens: number };
 

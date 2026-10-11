@@ -20,6 +20,7 @@ const { values: args } = parseArgs({
     sets: { type: "string", default: "dev,test" },
     name: { type: "string" },
     headed: { type: "boolean", default: false },
+    "max-minutes": { type: "string", default: "90" },
   },
 });
 const here = new URL(".", import.meta.url).pathname;
@@ -37,6 +38,11 @@ const context = await chromium.launchPersistentContext(join(here, ".chrome-profi
   channel: "chrome",
   headless: !args.headed,
 });
+// Give up rather than hang: a run that stalls (e.g. a lost GPU device) never finishes on its own.
+setTimeout(() => {
+  console.error(`gave up after ${args["max-minutes"]} minutes`);
+  process.exit(1);
+}, Number(args["max-minutes"]) * 60_000).unref();
 const page = await context.newPage();
 page.setDefaultTimeout(0);
 page.on("pageerror", (e) => console.error("page error:", e.message));

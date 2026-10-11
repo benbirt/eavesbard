@@ -17,7 +17,7 @@ import {
 } from "@huggingface/transformers";
 import { labelProbabilities } from "../classify/llm-prompt.js";
 import { gpuAdapter } from "../gpu.js";
-import type { FromLlmWorker, LlmLoad, ToLlmWorker } from "./llm-protocol.js";
+import type { ChatOptions, FromLlmWorker, LlmLoad, ToLlmWorker } from "./llm-protocol.js";
 
 const post = (message: FromLlmWorker) => self.postMessage(message);
 
@@ -90,17 +90,20 @@ async function forward(text: string, lastOnly: boolean): Promise<{ rows: number;
   return { rows, vocab, data: logits.to("float32").data as Float32Array };
 }
 
-function chatPrompt(content: string): string {
-  const prompt = tokenizer!.apply_chat_template([{ role: "user", content }], {
+function chatPrompt(content: string, chat: ChatOptions = {}): string {
+  const messages = [...(chat.system ? [{ role: "system", content: chat.system }] : []), { role: "user", content }];
+  const prompt = tokenizer!.apply_chat_template(messages, {
     tokenize: false,
     add_generation_prompt: true,
-  }) as string;
+    // Extra options reach the chat template; the typings don't list this one.
+    ...(chat.thinking ? { enable_thinking: true } : {}),
+  } as { tokenize: false; add_generation_prompt: boolean }) as string;
   return emptyThought ? `${prompt}<think>\n\n</think>\n\n` : prompt;
 }
 
-async function ask(requestId: number, content: string, prefill: string, spellings: string[][]): Promise<void> {
+async function ask(requestId: number, content: string, prefill: string, spellings: string[][], chat?: ChatOptions): Promise<void> {
   const started = performance.now();
-  const prompt = chatPrompt(content) + prefill;
+  const prompt = chatPrompt(content, chat) + prefill;
   const base = encode(prompt).length;
 
   // Fast path: one pass, when every spelling of every label starts with its own token.
@@ -144,12 +147,12 @@ async function transcribe(requestId: number, audio: Float32Array, instruction: s
   post({ type: "text", requestId, text: tokenizer!.decode(ids, { skip_special_tokens: true }).trim(), ms: performance.now() - started });
 }
 
-async function generate(requestId: number, content: string, maxTokens: number): Promise<void> {
+async function generate(requestId: number, content: string, maxTokens: number, prefill = "", chat?: ChatOptions): Promise<void> {
   const started = performance.now();
-  const inputs = tokenizer!(chatPrompt(content), { add_special_tokens: false }) as Record<string, Tensor>;
+  const inputs = tokenizer!(chatPrompt(content, chat) + prefill, { add_special_tokens: false }) as Record<string, Tensor>;
   const output = (await model!.generate({ ...inputs, max_new_tokens: maxTokens, do_sample: false })) as Tensor;
   const ids = Array.from(output.data as BigInt64Array, Number).slice(inputs.input_ids!.dims[1]);
-  post({ type: "text", requestId, text: tokenizer!.decode(ids, { skip_special_tokens: true }), ms: performance.now() - started });
+  post({ type: "text", requestId, text: tokenizer!.decode(ids, { skip_special_tokens: false }), ms: performance.now() - started });
 }
 
 // One request at a time, in order.
@@ -162,9 +165,9 @@ self.onmessage = (event: MessageEvent<ToLlmWorker>) => {
         case "load":
           return load(m.model);
         case "ask":
-          return ask(m.requestId, m.content, m.prefill, m.spellings);
+          return ask(m.requestId, m.content, m.prefill, m.spellings, m.chat);
         case "generate":
-          return generate(m.requestId, m.content, m.maxTokens);
+          return generate(m.requestId, m.content, m.maxTokens, m.prefill, m.chat);
         case "transcribe":
           return transcribe(m.requestId, m.audio, m.instruction, m.maxTokens);
       }

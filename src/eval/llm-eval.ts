@@ -11,18 +11,19 @@ import { prepareLocalModels } from "../local-models.js";
 import { rank } from "../pick/embeddings.js";
 import { ANSWER_PREFIX, llmQuestions } from "../classify/llm-prompt.js";
 import { SCENARIOS, type Scenario } from "./scenarios.js";
+import { LARGE_SET } from "./large-set.js";
 import { TEST_SET } from "./test-set.js";
-import { jsonPrompt, VARIANTS, type VariantInput } from "./llm-variants.js";
+import { jsonPrompt, thoughts, VARIANTS, type VariantInput } from "./llm-variants.js";
 import "./stt-eval.js";
 
 export interface SceneResult {
-  set: "dev" | "test";
+  set: "dev" | "test" | "large";
   name: string;
   category?: string;
   /** Embedding similarities to every label description, for the setting and intensity texts. */
   embed: { setting: [string, number][]; intensity: [string, number][] };
   /** Per variant. */
-  llm: Record<string, { setting: Record<string, number>; intensity: Record<string, number>; fightOver?: number; ms: number }>;
+  llm: Record<string, { setting: Record<string, number>; intensity: Record<string, number>; fightOver?: number; ms: number; thoughts?: string[] }>;
   /** Free text from the JSON prompt, for checking the prefilled scoring. */
   free?: string;
 }
@@ -39,7 +40,7 @@ export interface ExplainResult {
 declare global {
   interface Window {
     evalLoad: (model: LlmLoad) => Promise<{ ms: number }>;
-    evalRun: (options: { variants: string[]; freeText?: number; sets?: ("dev" | "test")[] }) => Promise<SceneResult[]>;
+    evalRun: (options: { variants: string[]; freeText?: number; sets?: ("dev" | "test" | "large")[] }) => Promise<SceneResult[]>;
     evalLog: string[];
     /** The app's two questions for `input`, scored as the app does, plus free text for each `extra` instruction. */
     evalExplain: (input: VariantInput, extras: string[]) => Promise<ExplainResult[]>;
@@ -83,6 +84,7 @@ window.evalRun = async ({ variants, freeText = 0, sets = ["dev", "test"] }) => {
   const scenes = [
     ...(sets.includes("dev") ? SCENARIOS.map((s) => ({ set: "dev" as const, s })) : []),
     ...(sets.includes("test") ? TEST_SET.map((s) => ({ set: "test" as const, s })) : []),
+    ...(sets.includes("large") ? LARGE_SET.map((s) => ({ set: "large" as const, s })) : []),
   ];
   const results: SceneResult[] = [];
   for (const [n, { set, s }] of scenes.entries()) {
@@ -101,8 +103,9 @@ window.evalRun = async ({ variants, freeText = 0, sets = ["dev", "test"] }) => {
     };
     for (const v of variants) {
       const started = performance.now();
+      thoughts.length = 0;
       const answer = await VARIANTS[v]!(llm!, input);
-      result.llm[v] = { ...answer, ms: performance.now() - started };
+      result.llm[v] = { ...answer, ms: performance.now() - started, ...(thoughts.length ? { thoughts: [...thoughts] } : {}) };
     }
     if (n < freeText) result.free = await llm!.generate(jsonPrompt(input, { meanings: true, withCurrent: true, offTopic: true }), 30);
     results.push(result);
