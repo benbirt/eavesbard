@@ -41,7 +41,9 @@ export type TimelineEvent =
       /** Which chooser picked it, when a track was chosen. */
       chooser?: TrackChooser;
     }
-  | { kind: "error"; text: string };
+  | { kind: "error"; text: string }
+  /** What the audio element or Cast receiver reported (requesting, playing, buffering, Cast state). */
+  | { kind: "playback"; output: "local" | "cast"; type: "playing" | "waiting" | "ended" | "info"; detail: string };
 
 export type TimelineKind = TimelineEvent["kind"];
 

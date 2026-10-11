@@ -1,5 +1,5 @@
 import { effect, signal } from "@preact/signals";
-import { FAN_CONTENT_NOTICE, FAN_CONTENT_POLICY_URL, pickArt, SCENE_ART, type SceneArt } from "../art/scene-art.js";
+import { pickArt, SCENE_ART, type SceneArt } from "../art/scene-art.js";
 import { scene } from "../director.js";
 
 /** The image for the current intensity, shared by the frame and the ambient background. */
@@ -43,20 +43,13 @@ function credit(a: SceneArt): string {
 }
 
 /** The Fan Content Policy notice and every image's credit, for About. */
+/** Every image's credit (the footer's "credits"). */
 export function ArtCredits() {
   return (
-    <>
-      <p>
-        {FAN_CONTENT_NOTICE} <a href={FAN_CONTENT_POLICY_URL}>Fan Content Policy</a>.
-      </p>
-      <details>
-        <summary>Art credits</summary>
-        <ul class="credits">
-          {SCENE_ART.map((a) => (
-            <li key={a.file}>{credit(a)}</li>
-          ))}
-        </ul>
-      </details>
-    </>
+    <ul class="credits">
+      {SCENE_ART.map((a) => (
+        <li key={a.file}>{credit(a)}</li>
+      ))}
+    </ul>
   );
 }

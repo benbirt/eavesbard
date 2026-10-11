@@ -8,6 +8,7 @@ const capitalise = (s: string) => s[0]!.toUpperCase() + s.slice(1);
 
 const generated = indexGenerated.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
+/** Choosing music by hand, on the main view when automatic music is off. */
 export function TrackPicker() {
   const [setting, setSetting] = useState<Setting>(SETTINGS[0]);
   const [intensity, setIntensity] = useState<Intensity>(INTENSITIES[0]);
@@ -24,53 +25,43 @@ export function TrackPicker() {
   };
 
   return (
-    <>
-      <p class="muted">
-        Index generated {generated}: {library.tracks.length} tracks in use, {library.unmapped.length} unmapped,{" "}
-        {library.outOfScope.length} out of scope (e.g. sci-fi).
-      </p>
+    <section class="card picker">
+      <p class="eyebrow">Pick a track</p>
       <div class="row">
-        <label>
-          Setting{" "}
-          <select value={setting} onChange={(e) => setSetting(e.currentTarget.value as Setting)}>
-            {SETTINGS.map((s) => (
-              <option key={s} value={s}>
-                {capitalise(s)} ({library.tracks.filter((t) => t.settings.includes(s)).length})
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Intensity{" "}
-          <select value={intensity} onChange={(e) => setIntensity(e.currentTarget.value as Intensity)}>
-            {INTENSITIES.map((i) => (
-              <option key={i} value={i}>
-                {capitalise(i)} ({bucket(library, setting, i).length})
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <label>
-        Track{" "}
-        <select value={selected?.track.id} onChange={(e) => setTrackId(Number(e.currentTarget.value))}>
-          {tracks.map((t) => (
-            <option key={t.track.id} value={t.track.id}>
-              {t.track.title}
+        <select class="field" aria-label="Setting" value={setting} onChange={(e) => setSetting(e.currentTarget.value as Setting)}>
+          {SETTINGS.map((s) => (
+            <option key={s} value={s}>
+              {capitalise(s)} ({library.tracks.filter((t) => t.settings.includes(s)).length})
             </option>
           ))}
         </select>
-      </label>
-      {selected && (
-        <p class="muted">
-          {selected.track.description || "No description."} Settings: {selected.settings.join(", ")}. Intensities:{" "}
-          {selected.intensities.join(", ")}.
-        </p>
-      )}
+        <select class="field" aria-label="Intensity" value={intensity} onChange={(e) => setIntensity(e.currentTarget.value as Intensity)}>
+          {INTENSITIES.map((i) => (
+            <option key={i} value={i}>
+              {capitalise(i)} ({bucket(library, setting, i).length})
+            </option>
+          ))}
+        </select>
+      </div>
+      <select class="field" aria-label="Track" value={selected?.track.id} onChange={(e) => setTrackId(Number(e.currentTarget.value))}>
+        {tracks.map((t) => (
+          <option key={t.track.id} value={t.track.id}>
+            {t.track.title}
+          </option>
+        ))}
+      </select>
+      {selected && <p class="small">{selected.track.description || "No description."}</p>}
       <p>
-        <button onClick={() => play(selected)}>Play (crossfade)</button>{" "}
-        <button onClick={playRandom}>Play a random track from this bucket</button>
+        <button type="button" class="btn" disabled={!selected} onClick={() => void play(selected)}>
+          Play
+        </button>{" "}
+        <button type="button" class="btn" disabled={!selected} onClick={() => void playRandom()}>
+          Any {intensity} {setting} track
+        </button>
       </p>
-    </>
+      <p class="small">
+        {library.tracks.length} tracks, from Tabletop Audio's list of {generated}.
+      </p>
+    </section>
   );
 }

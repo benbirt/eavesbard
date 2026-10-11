@@ -16,13 +16,6 @@ const CAST_HINT_DELAY_MS = 8000;
 
 export type Output = "local" | "cast";
 
-export interface LogEntry {
-  id: number;
-  time: Date;
-  source: Output;
-  event: PlaybackEvent;
-}
-
 export interface CastStatus {
   /** undefined while the SDK is loading. */
   available: boolean | undefined;
@@ -42,18 +35,15 @@ export const loading = signal(false);
 /** Output level, 0 to 1. */
 export const volume = signal(1);
 export const castStatus = signal<CastStatus>({ available: undefined, state: "", hint: "" });
-/** Newest first. */
-export const events = signal<LogEntry[]>([]);
-
-let nextId = 0;
 const endedListeners: (() => void)[] = [];
 const failedListeners: ((entry: LibraryTrack) => void)[] = [];
 /** Tracks that failed to play this session (e.g. the file is missing on the audio host). */
 const failed = new Set<number>();
 
 function log(source: Output, event: PlaybackEvent): void {
-  events.value = [{ id: nextId++, time: new Date(), source, event }, ...events.value];
+  // Everything goes in the session log; errors are shown by default, the rest under "Playback details".
   if (event.type === "error") record({ kind: "error", text: `Playback (${source}): ${event.detail}` });
+  else record({ kind: "playback", output: source, type: event.type, detail: event.detail });
   if (source !== output.value) return;
   if (event.type === "waiting") loading.value = true;
   if (event.type === "playing" || event.type === "ended") loading.value = false;
@@ -184,12 +174,6 @@ export const stop = () =>
     return adapter().stop(FADE_MS);
   });
 export const seekTo = (seconds: number) => run(output.value, () => adapter().seekTo(seconds));
-/** For testing track-end events. */
-export const seekNearEnd = () =>
-  run(output.value, () => {
-    const position = adapter().position();
-    if (position) adapter().seekTo(position.durationS - 20);
-  });
 export const setVolume = (level: number) =>
   run(output.value, () => {
     volume.value = level;

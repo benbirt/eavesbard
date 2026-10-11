@@ -1,21 +1,17 @@
 import { useEffect } from "preact/hooks";
 import { FAN_CONTENT_NOTICE, FAN_CONTENT_POLICY_URL } from "../art/scene-art.js";
-import { scene, sessionActive } from "../director.js";
+import { auto, scene, sessionActive } from "../director.js";
+import { nowPlaying } from "../player.js";
 import { ListeningChip, ModelChip } from "./Chips.js";
-import { Drawer, openDrawer, Scrim, toggleDrawer } from "./Drawer.js";
-import { Ambient, ArtFrame } from "./SceneArt.js";
+import { Drawer, Scrim, toggleDrawer } from "./Drawer.js";
+import { Ambient, ArtCredits, ArtFrame } from "./SceneArt.js";
 import { MusicCard, SceneCard, StartCard, StopButton } from "./Session.js";
 import { Settings } from "./Settings.js";
 import { Timeline } from "./Timeline.js";
+import { TrackPicker } from "./TrackPicker.js";
 
 // The notice must appear word for word; its mention of the policy becomes the link.
 const [before, after] = FAN_CONTENT_NOTICE.split("Fan Content Policy") as [string, string];
-
-/** Opens Setup at the art credits. */
-function showCredits(): void {
-  openDrawer.value = "setup";
-  requestAnimationFrame(() => document.getElementById("about")?.scrollIntoView({ block: "start" }));
-}
 
 export function App() {
   const intensity = scene.value?.intensity ?? "calm";
@@ -50,12 +46,18 @@ export function App() {
           <div class="col">
             {sessionActive.value ? (
               <>
-                <SceneCard />
+                {auto.value && <SceneCard />}
                 <MusicCard />
+                {!auto.value && <TrackPicker />}
                 <StopButton />
               </>
             ) : (
-              <StartCard />
+              <>
+                <StartCard />
+                {/* With automatic music off, music is picked by hand, session or not. */}
+                {!auto.value && nowPlaying.value && <MusicCard />}
+                {!auto.value && <TrackPicker />}
+              </>
             )}
           </div>
         </main>
@@ -64,12 +66,10 @@ export function App() {
             Music: <a href="https://tabletopaudio.com/">Tabletop Audio</a>, licensed{" "}
             <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>
           </p>
-          <p>
-            Art: Wizards of the Coast ·{" "}
-            <button type="button" class="link" onClick={showCredits}>
-              credits
-            </button>
-          </p>
+          <details class="art-credits">
+            <summary>Art: Wizards of the Coast · credits</summary>
+            <ArtCredits />
+          </details>
           <p class="notice">
             {before}
             <a href={FAN_CONTENT_POLICY_URL}>Fan Content Policy</a>

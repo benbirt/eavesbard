@@ -79,7 +79,7 @@ export function StartCard() {
                   : `Scene model: ${SCENE_LLM.name}, about ${(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB the first time`}
           </li>
         )}
-        {!auto.value && <li class="wait">Automatic music is off: pick tracks yourself in Setup</li>}
+        {!auto.value && <li class="wait">Automatic music is off: pick tracks below, or turn it on in Setup</li>}
       </ul>
     </form>
   );

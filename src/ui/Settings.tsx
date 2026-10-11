@@ -1,12 +1,8 @@
 import { useState } from "preact/hooks";
 import { auto, engine, sessionActive, setAuto, setEngine } from "../director.js";
 import { loadApiKey, resetSettings, saveApiKey } from "../settings.js";
-import { EventLog } from "./EventLog.js";
 import { SpeechModelChooser } from "./Listening.js";
-import { Transport } from "./Playback.js";
-import { ArtCredits } from "./SceneArt.js";
 import { LocalModelsNote } from "./SceneLlm.js";
-import { TrackPicker } from "./TrackPicker.js";
 
 function ApiKey() {
   const [apiKey, setApiKey] = useState(loadApiKey);
@@ -76,7 +72,7 @@ function ResetSection() {
   );
 }
 
-/** Everything that isn't needed mid-session. */
+/** Options, kept out of the way of a session. */
 export function Settings() {
   return (
     <>
@@ -110,27 +106,7 @@ export function Settings() {
         <SpeechModelChooser />
       </section>
 
-      <section class="section">
-        <h3>Pick a track yourself</h3>
-        <TrackPicker />
-        <Transport />
-        <details>
-          <summary class="small">Playback log</summary>
-          <EventLog />
-        </details>
-      </section>
-
       <ResetSection />
-
-      <section class="section" id="about">
-        <h3>About</h3>
-        <p>
-          Ambiences by <a href="https://tabletopaudio.com/">Tabletop Audio</a>, licensed{" "}
-          <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>. Source code on{" "}
-          <a href="https://github.com/benbirt/eavesbard">GitHub</a>.
-        </p>
-        <ArtCredits />
-      </section>
     </>
   );
 }

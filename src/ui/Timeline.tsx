@@ -9,6 +9,7 @@ const FILTERS: { kind: TimelineKind; label: string }[] = [
   { kind: "decision", label: "Scene changes" },
   { kind: "music", label: "Music" },
   { kind: "call", label: "Model details" },
+  { kind: "playback", label: "Playback details" },
 ];
 
 const ICONS: Record<TimelineKind, string> = {
@@ -18,11 +19,19 @@ const ICONS: Record<TimelineKind, string> = {
   decision: "⚖️",
   music: "🎵",
   error: "⚠️",
+  playback: "🔊",
 };
 
 function Body({ entry }: { entry: TimelineEntry }) {
   const e = entry.event;
   switch (e.kind) {
+    case "playback":
+      return (
+        <span class="muted">
+          {e.output === "cast" ? "Cast" : "This computer"}: {e.type === "info" ? "" : `${e.type} · `}
+          {e.detail}
+        </span>
+      );
     case "session":
       return <strong>{e.text}</strong>;
     case "speech":

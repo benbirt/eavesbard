@@ -273,11 +273,12 @@ Designed for a GM mid-session, glancing at the screen from across the table: the
 - **Before a session**, the side column is a "Set the scene" card: an opening description, Begin session, where to play, and a readiness checklist (tracks, speech model, scene model download).
 - **During a session**, the side column has two cards and a Stop button:
   - **The scene:** setting and intensity, the last line heard and why, how long it has lasted, the next check, what's pending, and buttons to set the setting or intensity yourself. A change set by hand restarts that axis's clock, so the minimum durations (7.6) keep the classifier from undoing it at once.
-  - **Now playing:** the track and progress (click or drag to seek), pause, a different track, volume, and this computer or Cast (with what to check, collapsed, when no Cast devices are found). Where to play lives only here and on the start card, not in Setup.
+  - **Now playing:** the track and progress (click or drag to seek), pause, a different track, volume, and this computer or Cast (the standard Cast symbol; with what to check, collapsed, when no Cast devices are found). Where to play lives only here and on the start card, not in Setup.
 - **Side panels** (`src/ui/Drawer.tsx`) slide over from the right, with tabs to switch between them; Escape or a click outside closes them (the outside click does nothing else).
-  - **Session log** (7.9): speech, scene changes and music by default, and model details and dropped speech on request; save to a file or copy to the clipboard.
-  - **Setup:** automatic music; who decides the scene (on this computer, or Claude with its key and privacy note); listening; picking a track yourself, with testing controls and the playback log; and About (attributions, the Fan Content notice and all art credits).
-- **Footer:** Tabletop Audio's attribution, the Fan Content Policy notice, and a pointer to the art credits, always visible.
+  - **Pick a track:** shown only when automatic music is off, before or during a session: setting, intensity and track, play it or any track from that bucket.
+  - **Session log** (7.9): speech, scene changes and music by default, and model details, playback details (what the audio element or Cast receiver reported) and dropped speech on request; save to a file or copy to the clipboard.
+  - **Setup:** automatic music; who decides the scene (on this computer, or Claude with its key and privacy note); listening; and reset to defaults (options and the API key; not while a session runs).
+- **Footer:** Tabletop Audio's attribution, the art's credits (collapsed, opening to every image's credit), the Fan Content Policy notice and the source code, always visible.
 - **Narrow screens:** one column (art, scene, music); the scene-model chip hides below 860 px.
 - **Wake lock:** held while listening, re-requested when the tab becomes visible again, with a warning in the listening chip when lost (7.2, section 4).
 

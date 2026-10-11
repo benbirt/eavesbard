@@ -102,22 +102,22 @@ try {
     await page.locator(".foot").scrollIntoViewIfNeeded();
   });
   await step("6d-credits", async () => {
-    await page.locator(".foot").getByRole("button", { name: "credits" }).click();
-    await page.locator(".drawer.open #about").waitFor();
-    await page.waitForTimeout(500);
-    const shown = await page.evaluate(() => {
-      const r = document.querySelector("#about").getBoundingClientRect();
-      return r.top >= 0 && r.top < innerHeight;
-    });
-    if (!shown) throw new Error("the credits aren't scrolled into view");
-    await page.keyboard.press("Escape");
+    await page.locator(".foot summary", { hasText: "credits" }).click();
+    await page.locator(".foot .credits li").first().waitFor();
   });
   await step("7-phone", async () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(500);
   });
-  await step("8-reset", async () => {
+  await step("7b-manual", async () => {
     await page.setViewportSize({ width: 1360, height: 860 });
+    await page.getByRole("button", { name: "Setup" }).click();
+    await page.getByRole("checkbox").first().uncheck();
+    await page.keyboard.press("Escape");
+    await page.locator(".card.picker").waitFor();
+    await page.waitForTimeout(500);
+  });
+  await step("8-reset", async () => {
     await page.getByRole("button", { name: "Stop session" }).click();
     await page.evaluate(() => localStorage.setItem("eavesbard.anthropicApiKey", "sk-test"));
     await page.getByRole("button", { name: "Setup" }).click();
