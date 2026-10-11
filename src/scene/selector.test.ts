@@ -89,3 +89,10 @@ test("suits checks both axes", () => {
   assert.equal(suits(track, { setting: "town", intensity: "calm" }), true);
   assert.equal(suits(track, { setting: "town", intensity: "tense" }), false);
 });
+
+test("an empty bucket takes the tag map's hand-picked tracks first", () => {
+  const picked: Library = { ...library, borrow: { "tavern/combat": [entry(31, ["travel"], ["combat"])] } };
+  assert.deepEqual(candidates(picked, { setting: "tavern", intensity: "combat" }).map((t) => t.track.id), [40]);
+  const empty: Library = { ...picked, tracks: picked.tracks.filter((t) => t.track.id !== 40) };
+  assert.deepEqual(candidates(empty, { setting: "tavern", intensity: "combat" }).map((t) => t.track.id), [31]);
+});

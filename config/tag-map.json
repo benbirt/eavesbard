@@ -64,5 +64,8 @@
       "unless": { "action": ["celebrate"] }
     }
   },
-  "maxUnmapped": 24
+  "maxUnmapped": 24,
+  "borrow": {
+    "tavern/combat": [360]
+  }
 }

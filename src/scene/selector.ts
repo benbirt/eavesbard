@@ -38,13 +38,16 @@ function borrowed(library: Library, setting: Setting, intensity: Intensity): Lib
 }
 
 /**
- * The tracks to choose from for a scene. Empty buckets borrow the same
+ * The tracks to choose from for a scene. Empty buckets take the tag map's
+ * hand-picked tracks for them if any ("borrow"), else borrow the same
  * intensity from nearby settings, then from any setting, then fall back to
  * the same setting at any intensity.
  */
 export function candidates(library: Library, scene: Scene): LibraryTrack[] {
   const exact = bucket(library, scene.setting, scene.intensity);
   if (exact.length > 0) return exact;
+  const picked = library.borrow?.[`${scene.setting}/${scene.intensity}`] ?? [];
+  if (picked.length > 0) return picked;
   const nearby = borrowed(library, scene.setting, scene.intensity);
   if (nearby.length > 0) return nearby;
   const sameIntensity = library.tracks.filter((t) => t.intensities.includes(scene.intensity));

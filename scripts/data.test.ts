@@ -43,3 +43,16 @@ test("every tag, genre and track id in the map exists in the data", () => {
   }
   assert.deepEqual(missing, []);
 });
+
+test("the map's hand-picked tracks exist and fit their intensity", () => {
+  const problems: string[] = [];
+  for (const [bucketName, ids] of Object.entries(map.borrow ?? {})) {
+    const intensity = bucketName.split("/")[1];
+    for (const id of ids) {
+      const t = library.tracks.find((x) => x.track.id === id);
+      if (!t) problems.push(`${bucketName}: track ${id} isn't in the library`);
+      else if (!t.intensities.includes(intensity as never)) problems.push(`${bucketName}: ${t.track.title} isn't ${intensity}`);
+    }
+  }
+  assert.deepEqual(problems, []);
+});

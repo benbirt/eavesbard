@@ -21,6 +21,11 @@ export interface TagMap {
   intensity: Record<Intensity, BucketRule>;
   /** Most in-scope tracks allowed to lack a setting or intensity (see DESIGN.md 7.1). */
   maxUnmapped: number;
+  /**
+   * Hand-picked tracks for a setting with none of its own at an intensity,
+   * e.g. "tavern/combat": [360], used before borrowing from nearby settings.
+   */
+  borrow?: Record<string, number[]>;
 }
 
 export interface LibraryTrack {
@@ -36,6 +41,8 @@ export interface Library {
   outOfScope: IndexedTrack[];
   /** In-scope tracks the map gives no setting or no intensity. */
   unmapped: IndexedTrack[];
+  /** The map's hand-picked tracks for empty buckets, by "setting/intensity". */
+  borrow?: Record<string, LibraryTrack[]>;
 }
 
 const RULE_KEYS = [...TAG_FACETS, "words"] as const;
@@ -51,6 +58,16 @@ export function parseTagMap(data: unknown): TagMap {
   rules(map["setting"], "setting", SETTINGS);
   rules(map["intensity"], "intensity", INTENSITIES);
   if (!Number.isInteger(map["maxUnmapped"])) throw new Error("maxUnmapped: expected an integer");
+  if (map["borrow"] !== undefined) {
+    const borrow = object(map["borrow"], "borrow");
+    for (const [bucketName, list] of Object.entries(borrow)) {
+      const [setting, intensity] = bucketName.split("/");
+      if (!(SETTINGS as readonly string[]).includes(setting ?? "") || !(INTENSITIES as readonly string[]).includes(intensity ?? "")) {
+        throw new Error(`borrow.${bucketName}: expected "<setting>/<intensity>"`);
+      }
+      ids(list, `borrow.${bucketName}`);
+    }
+  }
   return data as TagMap;
 }
 
@@ -73,6 +90,12 @@ export function buildLibrary(tracks: readonly IndexedTrack[], map: TagMap): Libr
     const intensities = INTENSITIES.filter((i) => matches(track, map.intensity[i]));
     if (settings.length === 0 || intensities.length === 0) library.unmapped.push(track);
     else library.tracks.push({ track, settings, intensities });
+  }
+  if (map.borrow) {
+    const byId = new Map(library.tracks.map((t) => [t.track.id, t]));
+    library.borrow = Object.fromEntries(
+      Object.entries(map.borrow).map(([bucketName, ids]) => [bucketName, ids.flatMap((id) => byId.get(id) ?? [])]),
+    );
   }
   return library;
 }
