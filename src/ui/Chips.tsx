@@ -1,5 +1,5 @@
 import type { ComponentChildren } from "preact";
-import { effectiveEngine, sessionCost } from "../director.js";
+import { auto, effectiveEngine, sessionCost } from "../director.js";
 import { downloadsPaused, knownDownloaded, networkBytes, setDownloadsPaused } from "../downloads.js";
 import { hasWebGpu } from "../gpu.js";
 import { model, speaking, speechModel, state, wakeLock } from "../listener.js";
@@ -91,6 +91,7 @@ const speechName = () => (isWebSpeech(model.value) ? "the browser's speech recog
 export function ListeningChip() {
   const speech = speechModel.value;
   if (!isWebSpeech(model.value) && state.value.phase !== "loading" && speech.phase !== "loading") forget(whisperRepo(model.value as WhisperModel));
+  if (!auto.value && state.value.phase === "idle") return <Chip tone="off" title="Only used when the music is chosen automatically"><b>Listener</b> · off</Chip>;
   const s = state.value;
   const name = speechName();
   if (s.phase === "error") return <Chip tone="warn" title={s.message}><b>Listener</b> · problem</Chip>;
@@ -111,6 +112,7 @@ export function ListeningChip() {
 
 /** The scene model: who decides the scene, and whether it's ready. Model details are in the tooltip. */
 export function ModelChip() {
+  if (!auto.value) return <Chip tone="off" extra="model" title="Only used when the music is chosen automatically"><b>Scenes</b> · off</Chip>;
   if (sceneLlm.value.phase !== "loading") forget(SCENE_LLM.repo);
   if (effectiveEngine() === "claude") {
     const c = sessionCost.value;

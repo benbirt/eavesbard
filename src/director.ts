@@ -97,10 +97,10 @@ if (auto.value && effectiveEngine() === "local") {
   setTimeout(() => otherTabs.value === 0 && void prepareLocal(true), 1000);
 }
 // Likewise the speech model (Whisper; Web Speech needs nothing).
-setTimeout(() => otherTabs.value === 0 && prepareSpeech(true), 1500);
+setTimeout(() => auto.value && otherTabs.value === 0 && prepareSpeech(true), 1500);
 onDownloadsAllowed(() => {
   if (auto.value && effectiveEngine() === "local") void prepareLocal();
-  prepareSpeech();
+  if (auto.value) prepareSpeech();
 });
 
 /**
@@ -128,6 +128,11 @@ let openingDescription: string | undefined;
 export function setAuto(on: boolean): void {
   auto.value = on;
   saveSetting("auto", on ? "on" : "off");
+  // Now needed: load the models the browser already has (or all, if downloads are agreed to).
+  if (on && otherTabs.value === 0) {
+    if (effectiveEngine() === "local") void prepareLocal(true);
+    prepareSpeech(true);
+  }
 }
 
 export function setEngine(next: Engine): void {
@@ -148,7 +153,8 @@ export async function startSession(): Promise<void> {
   sessionActive.value = true;
   const opening = description.value.trim();
   record({ kind: "session", text: opening ? `Session started. Opening scene: “${opening}”.` : "Session started." });
-  void startListening();
+  // Listening only feeds automatic music: with it off, the music is picked by hand.
+  if (auto.value) void startListening();
   if (auto.value) await startAuto(opening);
 }
 

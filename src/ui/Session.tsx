@@ -119,6 +119,8 @@ function beginBlocker(): string | undefined {
   const speech = model.value;
   const m = speechModel.value;
   const local = auto.value && effectiveEngine() === "local";
+  // With automatic music off, nothing listens or classifies: nothing to wait for.
+  if (!auto.value) return undefined;
   const notLoading = (!isWebSpeech(speech) && m.phase === "off") || (local && hasWebGpu && sceneLlm.value.phase === "off");
   if (otherTabs.value > 0 && notLoading && !downloadsAllowed.value) return "Eavesbard is open in another tab";
   if (auto.value && engine.value === "claude" && !loadApiKey()) return "Add an Anthropic API key in Setup first";
@@ -150,7 +152,9 @@ function pendingDownload(): { total: number; remaining: number } {
   const missing = (repo: string, phase: string) => phase === "off" && knownDownloaded(repo) === false;
   const models: [string, number][] = [];
   const speech = model.value;
-  if (!isWebSpeech(speech) && missing(whisperRepo(speech), speechModel.value.phase)) models.push([whisperRepo(speech), WHISPER_DOWNLOAD_MB[speech]]);
+  if (auto.value && !isWebSpeech(speech) && missing(whisperRepo(speech), speechModel.value.phase)) {
+    models.push([whisperRepo(speech), WHISPER_DOWNLOAD_MB[speech]]);
+  }
   if (auto.value && effectiveEngine() === "local" && hasWebGpu && missing(SCENE_LLM.repo, sceneLlm.value.phase)) {
     models.push([SCENE_LLM.repo, SCENE_LLM.downloadMb]);
   }

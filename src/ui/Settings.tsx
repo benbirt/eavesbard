@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import { auto, compare, engine, sessionActive, setAuto, setCompare, setEngine } from "../director.js";
 import { loadApiKey, resetSettings, saveApiKey } from "../settings.js";
-import { SpeechModelChooser } from "./Listening.js";
+import { Choice, SpeechModelChooser } from "./Listening.js";
 import { LocalModelsNote } from "./SceneLlm.js";
 
 /**
@@ -157,27 +157,25 @@ export function Settings() {
         <p>Listens to the table and changes the music with the scene.</p>
       </section>
 
-      <section class="section">
-        <h3>Who decides the scene</h3>
-        <label class="radio">
-          <input type="radio" name="engine" checked={engine.value === "local"} onChange={() => setEngine("local")} />
-          <span>
-            On this computer <LocalModelsNote />
-          </span>
-        </label>
-        <label class="radio">
-          <input type="radio" name="engine" checked={engine.value === "claude"} onChange={() => setEngine("claude")} />
-          <span>
-            Claude <small>Needs an Anthropic API key · about 10–30 cents a session · reads the whole track list</small>
-          </span>
-        </label>
-        {engine.value === "claude" && <ApiKey />}
-      </section>
+      {/* The models only matter when the music is chosen automatically. */}
+      <fieldset class="models" disabled={!auto.value}>
+        {!auto.value && <p class="small">Transcription and scene classification are only used when the music is chosen automatically.</p>}
+        <section class="section">
+          <h3>Transcription</h3>
+          <SpeechModelChooser />
+        </section>
 
-      <section class="section">
-        <h3>Listening</h3>
-        <SpeechModelChooser />
-      </section>
+        <section class="section">
+          <h3>Scene classification</h3>
+          <Choice name="engine" checked={engine.value === "local"} onPick={() => setEngine("local")} title="On this computer">
+            <LocalModelsNote />
+          </Choice>
+          <Choice name="engine" checked={engine.value === "claude"} onPick={() => setEngine("claude")} title="Claude">
+            Needs an Anthropic API key · about 10–30 cents a session · sends the transcript to Anthropic
+          </Choice>
+          {engine.value === "claude" && <ApiKey />}
+        </section>
+      </fieldset>
 
       <DebugSection />
 

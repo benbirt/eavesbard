@@ -1,37 +1,56 @@
+import type { ComponentChildren } from "preact";
 import { model, setModel, state, wakeLock } from "../listener.js";
-import { isWebSpeech, WHISPER_DOWNLOAD_MB, WHISPER_MODELS, type SpeechModel } from "../stt/protocol.js";
+import { WHISPER_DOWNLOAD_MB, type SpeechModel } from "../stt/protocol.js";
 import { hasWebSpeech } from "../stt/web-speech.js";
 
-const RECOMMENDED = "small.en";
+/** One option card: a radio button with a name and a line of explanation. */
+export function Choice({
+  name,
+  checked,
+  onPick,
+  title,
+  disabled = false,
+  children,
+}: {
+  name: string;
+  checked: boolean;
+  disabled?: boolean;
+  onPick: () => void;
+  title: ComponentChildren;
+  children: ComponentChildren;
+}) {
+  return (
+    <label class="radio">
+      <input type="radio" name={name} checked={checked} disabled={disabled} onChange={onPick} />
+      <span>
+        {title}
+        <small>{children}</small>
+      </span>
+    </label>
+  );
+}
 
-/** Chooses the speech-to-text model (in Setup). */
+const TRANSCRIPTION: { value: SpeechModel; title: string; note: string }[] = [
+  { value: "small.en", title: "Whisper small (recommended)", note: `On this computer · about ${WHISPER_DOWNLOAD_MB["small.en"]} MB once · hears best, especially with music playing` },
+  { value: "base.en", title: "Whisper base", note: `On this computer · about ${WHISPER_DOWNLOAD_MB["base.en"]} MB once` },
+  { value: "tiny.en", title: "Whisper tiny", note: `On this computer · about ${WHISPER_DOWNLOAD_MB["tiny.en"]} MB once · quickest to download, misses more` },
+  { value: "webspeech-device", title: "The browser's own, on this computer", note: "Recent Chrome only, which may download its own speech model first" },
+  { value: "webspeech-cloud", title: "The browser's own, in the cloud", note: "Sends what the microphone hears to the browser's maker (Google, for Chrome): let the table know" },
+];
+
+/** Chooses how speech becomes text (in Setup). */
 export function SpeechModelChooser() {
   const active = state.value.phase === "loading" || state.value.phase === "listening";
   const m = model.value;
   return (
     <>
-      <select class="field" value={m} disabled={active} aria-label="Speech model" onChange={(e) => setModel(e.currentTarget.value as SpeechModel)}>
-        {WHISPER_MODELS.map((w) => (
-          <option key={w} value={w}>
-            Whisper {w.replace(".en", "")}
-            {w === RECOMMENDED ? " (recommended)" : ""} · about {WHISPER_DOWNLOAD_MB[w]} MB once
-          </option>
-        ))}
-        <option value="webspeech-device">Web Speech, on-device (Chrome only)</option>
-        <option value="webspeech-cloud">Web Speech, cloud (sends audio to the browser's maker)</option>
-      </select>
+      {TRANSCRIPTION.map((o) => (
+        <Choice key={o.value} name="transcription" checked={m === o.value} disabled={active} onPick={() => setModel(o.value)} title={o.title}>
+          {o.note}
+        </Choice>
+      ))}
       {active && <p>Stop the session to change it.</p>}
-      {isWebSpeech(m) ? (
-        <p class="warning small">
-          {hasWebSpeech ? "" : "This browser has no Web Speech recognition. "}
-          Web Speech is designed for Chrome; other browsers may not work.
-          {m === "webspeech-cloud"
-            ? " In this mode the browser sends what the microphone hears to its maker's servers: let the table know."
-            : " On-device mode needs a recent Chrome, which may download its own speech model first."}
-        </p>
-      ) : (
-        <p>Runs on this computer. Bigger models hear better but take longer to download.</p>
-      )}
+      {!hasWebSpeech && <p class="small">This browser has no speech recognition of its own, so only Whisper works here.</p>}
       {wakeLock.value === "unsupported" && <p class="warning small">This browser can't keep the screen awake: keep it from sleeping yourself.</p>}
     </>
   );
