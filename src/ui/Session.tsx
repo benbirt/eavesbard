@@ -74,7 +74,9 @@ export function StartCard() {
               : llm.phase === "ready"
                 ? `Scene model: ${SCENE_LLM.name}, downloaded`
                 : llm.phase === "loading"
-                  ? `Scene model: downloading ${SCENE_LLM.name} (${(llm.loaded / 1e9).toFixed(1)} of ${(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB); the embeddings decide until it's ready`
+                  ? knownDownloaded(SCENE_LLM.repo)
+                    ? `Scene model: loading ${SCENE_LLM.name}`
+                    : `Scene model: downloading ${SCENE_LLM.name} (${(llm.loaded / 1e9).toFixed(1)} of ${(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB); the embeddings decide until it's ready`
                   : `Scene model: ${SCENE_LLM.name}, about ${(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB the first time`}
           </li>
         )}
@@ -130,7 +132,12 @@ function SpeechReadiness() {
   if (m.phase === "loading") {
     return (
       <li class="wait">
-        Speech model: {m.preparing ? `preparing ${name}` : `downloading ${name} (${(m.loaded / 1e6).toFixed(0)} of ${((m.total || WHISPER_DOWNLOAD_MB[speech] * 1e6) / 1e6).toFixed(0)} MB)`}
+        Speech model:{" "}
+        {m.preparing
+          ? `preparing ${name}`
+          : knownDownloaded(whisperRepo(speech))
+            ? `loading ${name}`
+            : `downloading ${name} (${(m.loaded / 1e6).toFixed(0)} of ${((m.total || WHISPER_DOWNLOAD_MB[speech] * 1e6) / 1e6).toFixed(0)} MB)`}
       </li>
     );
   }

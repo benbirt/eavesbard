@@ -58,12 +58,18 @@ try {
     // Models load by themselves only once they've fully downloaded here before,
     // and the offer must not flash up while that's being checked.
     let samples = 0;
+    const said = new Set();
     for (let i = 0; i < 30; i++) {
       if (await page.getByRole("button", { name: /^Download now/ }).count()) samples++;
+      for (const t of await page.locator(".top").allInnerTexts()) said.add(t.replace(/\s+/g, " "));
       await page.waitForTimeout(100);
     }
     const offer = page.getByRole("button", { name: /^Download now/ });
     if (samples > 0 && !(await offer.count())) throw new Error("the Download button flashed up and went away by itself");
+    // Already downloaded: loading reads the cache, so the chips mustn't say "downloading" nor offer a pause.
+    console.log("   chips seen:", [...new Set([...said].map((t) => t.replace(/^Eavesbard .*? scene /, "")))].join(" | "));
+    const misleading = [...said].filter((t) => /downloading|not downloaded|Pause downloads/.test(t));
+    if (!(await offer.count()) && misleading.length) throw new Error(`cached models shown as downloading: ${misleading[0]}`);
     if (await offer.count()) {
       console.log("   download offered:", await offer.innerText());
       await offer.click();
