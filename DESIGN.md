@@ -48,7 +48,7 @@ The app is a single page made of the following stages, each a separate module wi
 2. **Mic capture** — getUserMedia, mono, resampled to 16 kHz for Whisper.
 3. **Speech-to-text** — Whisper via transformers.js on WebGPU, with WASM as a fallback. Audio is chunked on voice activity.
 4. **Transcript buffer** — a rolling window of recent transcribed text with timestamps.
-5. **Initiative cue** — calling for initiative starts combat at once; everything else comes from the classifier (see 7.4).
+5. **Keyword trigger** — removed; the classifier runs often instead (see 7.4).
 6. **Classifier** — runs periodically on the transcript window and returns a scene label. The initial implementation is Claude Haiku over the API.
 7. **Scene state machine** — applies hysteresis and dwell times so the music doesn't flap.
 8. **Track selector** — maps the current scene to candidate tracks using the track index and picks one, avoiding recent repeats.
@@ -163,9 +163,9 @@ The file also records when it was generated. Filenames are kept exactly as the s
 - Keeps the most recent two to three minutes of text. The size is configurable.
 - Tracks whether there is new text since the last classification, so that calls are skipped during silence.
 
-### 7.4 The initiative cue
+### 7.4 Keyword triggers (removed)
 
-A general keyword list was tried and dropped: it couldn't tell a fight from rules talk. One phrase came back (`src/scene/cues.ts`): calling for initiative ("roll for initiative", "everyone roll initiative", and the common mishearing "role for initiative") starts combat at once, like setting it by hand, so the minimum combat time (7.6) holds it. Questions ("do we roll for initiative?", "how does initiative work?") don't count. It's back because the scene check alone was slow and unreliable here: in a real session, Gemma 4 E2B called a lone "Roll for initiative" calm, the tie with the embedding model meant nothing changed, and combat started about 45 seconds late.
+Keywords that switched the scene or forced an immediate check were tried and dropped: they couldn't tell a fight from rules talk. A single "roll for initiative" cue was tried again briefly and also dropped: keywords may come back, but only once the classifier is much better, so that they add speed rather than paper over it. In the meantime, every scene decision comes from the classifier.
 
 ### 7.5 Classifier
 
