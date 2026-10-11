@@ -23,7 +23,7 @@ export function About() {
       <section class="section">
         <h3>How it works</h3>
         <ol class="steps">
-          <li>It listens through the microphone and turns speech into text, on this computer.</li>
+          <li>It listens through the microphone and turns speech into text.</li>
           <li>
             Every 15 seconds, while people are talking, it decides the scene: where the party is (tavern, town,
             interior, wilderness, dungeon or travel) and how intense it is (calm, tense or combat).
@@ -58,14 +58,13 @@ export function About() {
       <section class="section">
         <h3>Downloads</h3>
         <p>
-          The models run on this computer, so they download once and the browser keeps them: speech recognition
-          (Whisper, {WHISPER_DOWNLOAD_MB["tiny.en"]}–{WHISPER_DOWNLOAD_MB["small.en"]} MB, depending on the size chosen
-          in Setup) and the scene model ({SCENE_LLM.name}, about {(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB).
+          Models downloaded to this computer are cached and remain available for future visits: for transcription,
+          Whisper ({WHISPER_DOWNLOAD_MB["tiny.en"]}–{WHISPER_DOWNLOAD_MB["small.en"]} MB, depending on the size chosen
+          in Setup), and for scene classification, {SCENE_LLM.name} (about{" "}
+          {(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB). Once a model has fully downloaded, it loads by itself when you
+          open Eavesbard.
         </p>
-        <p>
-          Nothing downloads until you choose to, and a download can be paused and resumed, even after a reload. Once
-          a model has fully downloaded, it loads by itself on later visits.
-        </p>
+        <p>Nothing downloads until you choose to, and a download can be paused and resumed, even after a reload.</p>
       </section>
 
       <section class="section" id="credits">
