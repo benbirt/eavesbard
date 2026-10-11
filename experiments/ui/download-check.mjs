@@ -2,7 +2,7 @@
 // them, Pause stops all fetching, Resume carries on, and after a reload the
 // saved pieces are reused rather than fetched again. Uses Whisper small
 // (about 590 MB) with automatic music off, so only it downloads.
-//   bazel run //experiments/ui:download_check
+//   bazel run //experiments/ui:download_check [-- --finish]   (--finish: download to the end)
 import { chromium } from "playwright-core";
 import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync, mkdtempSync, rmSync } from "node:fs";
@@ -33,7 +33,21 @@ const mb = () => `${(bytes / 1e6).toFixed(0)} MB fetched`;
 try {
   await page.goto("http://localhost:8766/");
   await page.getByRole("button", { name: /^Download now/ }).click();
-  for (let i = 0; i < 6; i++) { await page.waitForTimeout(500); console.log(`t+${(i + 1) / 2}s`, await chip(), "|", mb()); }
+  // The percentage must only rise (no early 100% from the first small files), with a speed shown.
+  const pcts = [];
+  let rate = "";
+  for (let i = 0; i < 24; i++) {
+    await page.waitForTimeout(250);
+    const text = await chip();
+    const pct = /downloading (\d+)%/.exec(text)?.[1];
+    if (pct !== undefined) pcts.push(Number(pct));
+    rate = /([\d.]+ MB\/s)/.exec(text)?.[1] ?? rate;
+    if (i % 4 === 3) console.log(`t+${(i + 1) / 4}s`, text, "|", mb());
+  }
+  if (pcts.some((p, i) => i > 0 && p < pcts[i - 1])) throw new Error(`the percentage went backwards: ${pcts.join(", ")}`);
+  if (pcts.some((p) => p >= 99)) throw new Error(`the percentage reached 99%+ early: ${pcts.join(", ")}`);
+  if (!rate) throw new Error("no download speed shown");
+  console.log(`percentages ${pcts[0]} → ${pcts.at(-1)}, speed shown (e.g. ${rate})`);
   await page.getByRole("button", { name: /Pause downloads/ }).click();
   await page.waitForTimeout(1500);
   const atPause = bytes;
@@ -47,8 +61,11 @@ try {
   await page.getByRole("button", { name: /^Download now/ }).click();
   await page.waitForTimeout(2000);
   console.log("after reload + Download:", await chip(), `| fetched since reload: ${((bytes - before) / 1e6).toFixed(0)} MB`);
-  await page.locator(".chip", { hasText: "Whisper small ready" }).waitFor({ timeout: 400_000 });
-  console.log("finished:", await chip(), "|", mb());
+  // Downloading to the end (another few hundred MB) checks the resumed file reassembles; only with --finish.
+  if (process.argv.includes("--finish")) {
+    await page.locator(".chip", { hasText: "Listener · ready" }).waitFor({ timeout: 400_000 });
+    console.log("finished:", await chip(), "|", mb());
+  }
   await finish(0);
 } catch (err) {
   console.log("FAILED:", err.message.split("\n")[0], "| chip:", await chip());

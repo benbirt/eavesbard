@@ -85,7 +85,7 @@ function DebugSection() {
   const [, keyChanged] = useState(0);
   const needsKey = engine.value === "local" && !loadApiKey();
   return (
-    <details class="section debug" open={compare.value}>
+    <details class="section debug">
       <summary>
         <h3>Debug options</h3>
       </summary>
