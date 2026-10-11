@@ -1,6 +1,6 @@
 import type { ComponentChildren } from "preact";
 import { effectiveEngine, sessionCost } from "../director.js";
-import { downloadsPaused, knownDownloaded, setDownloadsPaused } from "../downloads.js";
+import { downloadsPaused, knownDownloaded, networkBytes, setDownloadsPaused } from "../downloads.js";
 import { hasWebGpu } from "../gpu.js";
 import { model, speaking, speechModel, state, wakeLock } from "../listener.js";
 import { SCENE_LLM } from "../llm/llm-protocol.js";
@@ -42,7 +42,12 @@ function forget(repo: string): void {
 /** Whisper's known download size, for its progress. */
 const whisperBytes = () => (isWebSpeech(model.value) ? 0 : WHISPER_DOWNLOAD_MB[model.value as WhisperModel] * 1e6);
 
-/** Roughly how fast a download is going, over the last few seconds: "12 MB/s", or "" until known. */
+/**
+ * Roughly how fast a model is downloading, over the last few seconds, from
+ * the bytes that actually arrived over the network: "12 MB/s", or "" until
+ * known and while nothing arrives (e.g. a resumed download catching up from
+ * its saved pieces).
+ */
 function speed(repo: string, loaded: number): string {
   const now = performance.now();
   let list = readings.get(repo) ?? [];
@@ -55,7 +60,10 @@ function speed(repo: string, loaded: number): string {
   const last = list.at(-1)!;
   const seconds = (last.t - first.t) / 1000;
   if (seconds < 1) return "";
+  // Nothing new for a second or more: nothing's arriving, so no speed to show.
+  if (now - last.t > 1500) return "";
   const mbps = (last.loaded - first.loaded) / 1e6 / seconds;
+  if (mbps < 0.05) return "";
   return `${mbps >= 10 ? mbps.toFixed(0) : mbps.toFixed(1)} MB/s`;
 }
 
@@ -73,7 +81,7 @@ function progress(m: { loaded: number; total: number; preparing: boolean }, repo
   const shown = Math.max(pct, peaks.get(repo) ?? 0);
   peaks.set(repo, shown);
   if (downloadsPaused.value) return `paused at ${shown}%`;
-  const rate = speed(repo, m.loaded);
+  const rate = speed(repo, networkBytes.value.get(repo) ?? 0);
   return `downloading ${shown}%${rate ? ` · ${rate}` : ""}`;
 }
 

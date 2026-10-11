@@ -15,6 +15,20 @@ let resumed: (() => void) | undefined;
 let resumeSignal: Promise<void> = Promise.resolve();
 const inFlight = new Set<AbortController>();
 
+/** Bytes that have arrived from the network (not read back from saved pieces), for the download speed. */
+let network = 0;
+const networkListeners: ((bytes: number) => void)[] = [];
+
+/** Calls `listener` with the running total of bytes from the network, as they arrive. */
+export function onNetworkBytes(listener: (bytes: number) => void): void {
+  networkListeners.push(listener);
+}
+
+function counted(bytes: number): void {
+  network += bytes;
+  for (const listener of networkListeners) listener(network);
+}
+
 /** Pauses or resumes every download in this worker. */
 export function setDownloadsPaused(on: boolean): void {
   if (on === paused) return;
@@ -63,9 +77,16 @@ async function fetchPiece(url: string, start: number, end: number): Promise<Resp
     try {
       const response = await fetch(url, { headers: { Range: `bytes=${start}-${end}` }, signal: controller.signal });
       if (response.status !== 206 && response.status !== 200) return response;
-      // Read it all now, so a pause mid-piece aborts it cleanly.
-      const body = await response.arrayBuffer();
-      return new Response(body, { status: response.status, headers: response.headers });
+      // Read it all now, so a pause mid-piece aborts it cleanly, counting bytes as they come.
+      const chunks: Uint8Array[] = [];
+      const reader = response.body!.getReader();
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        counted(value.byteLength);
+      }
+      return new Response(new Blob(chunks as BlobPart[]), { status: response.status, headers: response.headers });
     } catch (err) {
       if (paused) continue; // Aborted by a pause: wait, then fetch the piece again.
       if (attempt >= 4) throw err;

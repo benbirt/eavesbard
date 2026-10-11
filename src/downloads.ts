@@ -77,10 +77,18 @@ export const downloadsPaused = signal(false);
 
 const workers = new Set<Worker>();
 
-/** A model worker whose downloads Pause and Resume control. */
-export function registerDownloader(worker: Worker): void {
+/** Bytes each model has received from the network (not read back from saved pieces), for its download speed. */
+export const networkBytes = signal<ReadonlyMap<string, number>>(new Map());
+
+/** A model worker (downloading `repo`) whose downloads Pause and Resume control. */
+export function registerDownloader(worker: Worker, repo: string): void {
   workers.add(worker);
   if (downloadsPaused.value) worker.postMessage({ type: "downloads", paused: true });
+  worker.addEventListener("message", (e: MessageEvent<{ type?: string; bytes?: number }>) => {
+    if (e.data?.type === "network" && typeof e.data.bytes === "number") {
+      networkBytes.value = new Map(networkBytes.value).set(repo, e.data.bytes);
+    }
+  });
 }
 
 export function unregisterDownloader(worker: Worker): void {

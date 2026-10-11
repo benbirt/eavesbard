@@ -51,7 +51,7 @@ export function prepareEmbeddings(first: () => Doc[], rest: () => Doc[]): { firs
   failure.catch(() => undefined);
   localModel.value = { phase: "loading", loaded: 0, total: 0 };
   worker = new Worker(assetUrl("embed-worker.js"), { type: "module" });
-  registerDownloader(worker);
+  registerDownloader(worker, EMBEDDING_MODEL);
   const fail = (message: string) => {
     localModel.value = { phase: "error", message };
     prepared = undefined;

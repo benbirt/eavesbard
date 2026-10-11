@@ -3,7 +3,7 @@
 // from the Hugging Face hub.
 
 import { env } from "@huggingface/transformers";
-import { resumableFetch, setDownloadsPaused } from "./llm/resumable-fetch.js";
+import { onNetworkBytes, resumableFetch, setDownloadsPaused } from "./llm/resumable-fetch.js";
 
 env.backends.onnx.wasm!.wasmPaths = {
   mjs: new URL("./ort/ort-wasm-simd-threaded.asyncify.mjs", self.location.href).href,
@@ -19,4 +19,13 @@ env.fetch = resumableFetch;
 self.addEventListener("message", (e: MessageEvent<unknown>) => {
   const m = e.data as { type?: string; paused?: boolean };
   if (m?.type === "downloads") setDownloadsPaused(Boolean(m.paused));
+});
+
+// Bytes from the network so far, for the page's download speed: at most four times a second.
+let lastPost = 0;
+onNetworkBytes((bytes) => {
+  const now = performance.now();
+  if (now - lastPost < 250) return;
+  lastPost = now;
+  self.postMessage({ type: "network", bytes });
 });

@@ -149,7 +149,7 @@ function loadWorker(whisper: WhisperModel): Promise<void> {
   worker?.terminate();
   if (worker) unregisterDownloader(worker);
   worker = new Worker(assetUrl("stt-worker.js"), { type: "module" });
-  registerDownloader(worker);
+  registerDownloader(worker, whisperRepo(whisper));
   workerModel = whisper;
   speechModel.value = { phase: "loading", loaded: 0, total: 0, preparing: false };
   worker.onmessage = (e: MessageEvent<FromWorker>) => onMessage(e.data);

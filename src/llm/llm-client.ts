@@ -23,7 +23,6 @@ export class LlmClient {
 
   constructor() {
     this.worker = new Worker(assetUrl("llm-worker.js"), { type: "module" });
-    registerDownloader(this.worker);
     this.worker.onerror = (e) => this.failAll(e.message || "The LLM worker failed to start");
     this.worker.onmessage = (e: MessageEvent<FromLlmWorker>) => this.receive(e.data);
   }
@@ -31,6 +30,7 @@ export class LlmClient {
   /** Downloads (or loads from cache) and prepares a model. */
   load(model: LlmLoad, onProgress?: (p: LoadProgress) => void): Promise<void> {
     this.onProgress = onProgress;
+    registerDownloader(this.worker, model.repo);
     return new Promise((resolve, reject) => {
       this.loadDone = { resolve, reject };
       this.send({ type: "load", model });
