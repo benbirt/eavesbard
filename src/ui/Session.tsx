@@ -155,7 +155,9 @@ function pendingDownload(): { total: number; remaining: number } {
   if (auto.value && !isWebSpeech(speech) && missing(whisperRepo(speech), speechModel.value.phase)) {
     models.push([whisperRepo(speech), WHISPER_DOWNLOAD_MB[speech]]);
   }
-  if (auto.value && effectiveEngine() === "local" && hasWebGpu && missing(SCENE_LLM.repo, sceneLlm.value.phase)) {
+  // Only if the local models are chosen: with Claude chosen but no API key yet,
+  // the key is what's missing (see beginBlocker), not a download.
+  if (auto.value && engine.value === "local" && hasWebGpu && missing(SCENE_LLM.repo, sceneLlm.value.phase)) {
     models.push([SCENE_LLM.repo, SCENE_LLM.downloadMb]);
   }
   let total = 0;
