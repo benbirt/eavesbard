@@ -89,20 +89,27 @@ function DebugSection() {
       <summary>
         <h3>Debug options</h3>
       </summary>
-      <label class="toggle">
-        <span>Also ask {other}, for comparison</span>
-        <input type="checkbox" checked={compare.value} onChange={(e) => setCompare(e.currentTarget.checked)} />
-      </label>
-      <p>
-        Each scene check is also sent to {other}. Its answers appear in the session log under Model details, marked
-        “comparison”, and change nothing. Asking Claude needs an Anthropic API key, and costs about 10–30 cents a session.
-      </p>
-      {compare.value && engine.value === "local" && (
-        <>
-          {needsKey && <p class="warning small">No API key is saved, so Claude can't be asked yet. Add one here:</p>}
-          <ApiKey onChange={() => keyChanged((n) => n + 1)} />
-        </>
-      )}
+      {/* Comparisons are of scene checks, which only run when the music is chosen automatically. */}
+      <fieldset class="models" disabled={!auto.value}>
+        {!auto.value && <p class="small">Comparing models only applies when the music is chosen automatically.</p>}
+        <div class="option">
+          <label class="toggle">
+            <span>Also ask {other}, for comparison</span>
+            <input type="checkbox" checked={compare.value} onChange={(e) => setCompare(e.currentTarget.checked)} />
+          </label>
+          <p>
+            Each scene check is also sent to {other}. Its answers appear in the session log under Model details, marked
+            “comparison”, and change nothing. Asking Claude needs an Anthropic API key, and costs about 10–30 cents a
+            session.
+          </p>
+          {compare.value && engine.value === "local" && (
+            <>
+              {needsKey && <p class="warning small">No API key is saved, so Claude can't be asked yet. Add one here:</p>}
+              <ApiKey onChange={() => keyChanged((n) => n + 1)} />
+            </>
+          )}
+        </div>
+      </fieldset>
     </details>
   );
 }
