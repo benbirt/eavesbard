@@ -10,7 +10,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import { parseArgs } from "node:util";
-import { built, builtModule, source } from "../paths.mjs";
+import { built, builtModule, source, chrome } from "../paths.mjs";
 
 const { values: args } = parseArgs({
   options: {
@@ -58,7 +58,7 @@ const server = createServer((req, res) => {
   res.writeHead(200, { "content-type": types[extname(path)] ?? "application/octet-stream" }).end(readFileSync(path));
 }).listen(8765);
 
-const context = await chromium.launchPersistentContext(source("experiments/e9/.chrome-profile"), { channel: "chrome", headless: true });
+const context = await chromium.launchPersistentContext(source("experiments/e9/.chrome-profile"), { ...chrome, headless: true });
 const page = await context.newPage();
 page.setDefaultTimeout(0);
 page.on("pageerror", (e) => console.error("page error:", e.message));

@@ -6,7 +6,7 @@ Deployed at <https://benbirt.github.io/eavesbard/>. Needs an up-to-date Chrome w
 
 ## Building
 
-Everything builds and runs through [Bazel](https://bazel.build/), via [Bazelisk](https://github.com/bazelbuild/bazelisk), which picks up the pinned version from `.bazelversion`. Nothing else needs installing: Bazel fetches Node, pnpm, TypeScript, esbuild and the npm packages itself.
+Everything builds and runs through [Bazel](https://bazel.build/), via [Bazelisk](https://github.com/bazelbuild/bazelisk), which picks up the pinned version from `.bazelversion`. Nothing else needs installing: Bazel fetches Node, pnpm, TypeScript, esbuild and the npm packages itself. On NixOS, where those downloaded binaries can't run directly, `nix develop` opens a shell with Bazelisk and Chrome (`flake.nix`); for a single command, `nix run . -- -c 'bazel test //...'`.
 
 ```sh
 bazel test //...                   # type-check, build and run the tests

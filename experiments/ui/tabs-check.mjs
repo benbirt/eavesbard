@@ -7,7 +7,7 @@ import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync, mkdtempSync, rmSync } from "node:fs";
 import { extname, join } from "node:path";
 import { tmpdir } from "node:os";
-import { built } from "../paths.mjs";
+import { built, chrome } from "../paths.mjs";
 const site = built("src/site");
 const T = { ".html": "text/html", ".js": "text/javascript", ".webp": "image/webp", ".woff2": "font/woff2", ".wasm": "application/wasm" };
 const server = createServer((req, res) => {
@@ -17,7 +17,7 @@ const server = createServer((req, res) => {
   res.writeHead(200, { "content-type": T[extname(p)] ?? "application/octet-stream" }).end(readFileSync(p));
 }).listen(8768);
 const dir = mkdtempSync(join(tmpdir(), "eb-tabs-"));
-const ctx = await chromium.launchPersistentContext(dir, { channel: "chrome", headless: true });
+const ctx = await chromium.launchPersistentContext(dir, { ...chrome, headless: true });
 const notice = (p) => p.locator(".other-tabs").count();
 const a = await ctx.newPage();
 await a.goto("http://localhost:8768/");

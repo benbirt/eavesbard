@@ -23,3 +23,6 @@ export const built = (...parts) => join(process.env.JS_BINARY__RUNFILES, "_main"
 
 /** Imports a built module, e.g. await builtModule("src/eval/large-set.js"). */
 export const builtModule = (...parts) => import(pathToFileURL(built(...parts)).href);
+
+/** How to launch Chrome: CHROME_PATH if set (the Nix shell sets it, flake.nix), else the installed Chrome. */
+export const chrome = process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: "chrome" };

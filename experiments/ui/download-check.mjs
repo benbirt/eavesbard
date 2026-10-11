@@ -8,7 +8,7 @@ import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync, mkdtempSync, rmSync } from "node:fs";
 import { extname, join } from "node:path";
 import { tmpdir } from "node:os";
-import { built } from "../paths.mjs";
+import { built, chrome } from "../paths.mjs";
 const site = built("src/site");
 const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".webp": "image/webp", ".woff2": "font/woff2" };
 const server = createServer((req, res) => {
@@ -18,7 +18,7 @@ const server = createServer((req, res) => {
   res.writeHead(200, { "content-type": types[extname(path)] ?? "application/octet-stream" }).end(readFileSync(path));
 }).listen(8766);
 const profile = mkdtempSync(join(tmpdir(), "eavesbard-pause-"));
-const context = await chromium.launchPersistentContext(profile, { channel: "chrome", headless: true });
+const context = await chromium.launchPersistentContext(profile, { ...chrome, headless: true });
 const finish = async (code) => { await Promise.race([context.close(), new Promise((r) => setTimeout(r, 5000))]); rmSync(profile, { recursive: true, force: true }); server.close(); process.exit(code); };
 setTimeout(() => { console.log("TIMED OUT"); void finish(1); }, 9 * 60_000).unref();
 const page = await context.newPage();

@@ -6,7 +6,7 @@ import { chromium } from "playwright-core";
 import { createServer } from "node:http";
 import { readFileSync, existsSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
-import { built, source } from "../paths.mjs";
+import { built, source, chrome } from "../paths.mjs";
 
 const here = source("experiments/e9");
 const site = built("src/eval_site");
@@ -17,7 +17,7 @@ const server = createServer((req, res) => {
   res.writeHead(200, { "content-type": types[extname(path)] ?? "application/octet-stream" }).end(readFileSync(path));
 }).listen(8765); // A fixed port: Chrome caches models per origin.
 
-const context = await chromium.launchPersistentContext(join(here, ".chrome-profile"), { channel: "chrome", headless: true });
+const context = await chromium.launchPersistentContext(join(here, ".chrome-profile"), { ...chrome, headless: true });
 const watchdog = setTimeout(() => {
   console.error("gave up after 10 minutes");
   process.exit(1);

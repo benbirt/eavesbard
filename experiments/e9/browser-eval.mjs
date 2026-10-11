@@ -10,7 +10,7 @@ import { createServer } from "node:http";
 import { mkdirSync, readFileSync, writeFileSync, existsSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 import { parseArgs } from "node:util";
-import { built, source } from "../paths.mjs";
+import { built, source, chrome } from "../paths.mjs";
 
 const { values: args } = parseArgs({
   options: {
@@ -38,7 +38,7 @@ const port = server.address().port;
 
 // A persistent profile keeps downloaded models in Chrome's cache between runs.
 const context = await chromium.launchPersistentContext(join(here, ".chrome-profile"), {
-  channel: "chrome",
+  ...chrome,
   headless: !args.headed,
 });
 // Give up rather than hang: a run that stalls (e.g. a lost GPU device) never finishes on its own.

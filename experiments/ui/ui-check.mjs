@@ -6,7 +6,7 @@ import { chromium } from "playwright-core";
 import { createServer } from "node:http";
 import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
-import { built, given, source } from "../paths.mjs";
+import { built, given, source, chrome } from "../paths.mjs";
 
 const site = built("src/site");
 const out = process.argv[2] ? given(process.argv[2]) : source("experiments/ui/shots");
@@ -21,7 +21,7 @@ const server = createServer((req, res) => {
 }).listen(8765);
 
 const ctx = await chromium.launchPersistentContext(source("experiments/e9/.chrome-profile"), {
-  channel: "chrome", headless: true, permissions: ["microphone"], viewport: { width: 1360, height: 860 },
+  ...chrome, headless: true, permissions: ["microphone"], viewport: { width: 1360, height: 860 },
   args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream", "--autoplay-policy=no-user-gesture-required"],
 });
 const page = await ctx.newPage();
