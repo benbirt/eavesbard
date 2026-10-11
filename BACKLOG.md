@@ -26,6 +26,17 @@ Done: a redesign around the scene art (DESIGN.md 7.10), with setting the scene b
 - Listening can only be checked by hand: headless Chrome never loads an AudioWorklet (not even a trivial one), so the automated UI check can't start the microphone capture. It checks that the Listener chip says "starting" meanwhile. (Checked by hand on 2026-10-11: the dot turns red while listening and pulses on speech.)
 - More art per intensity, especially tense (three images), and a few with known artists.
 
+## 5. Music from incompetech as a second source
+
+Kevin MacLeod's catalogue at incompetech.com: 1,443 tracks (87 hours, median 3 minutes) under CC BY 4.0, listed with title, mood ("feel"), genre and description in https://incompetech.com/music/royalty-free/pieces.json. Played straight from incompetech.com, as with Tabletop Audio: a direct MP3 link answers range requests and doesn't refuse other sites (checked 2026-10-11). Start with a hand-picked set that fills gaps, such as tavern fights. Notes:
+- Each track's credit, in his form: "Title Kevin MacLeod (incompetech.com) Licensed under Creative Commons: By Attribution 4.0", shown with the track and in About. Check each track's own page says CC BY before adding it.
+- These are music, not ambience, and most are short and don't loop seamlessly, so playback needs to move on rather than loop one track.
+- Linking to his files uses his bandwidth. Fine at our scale; write to him if traffic grows (see section 6), and host copies ourselves if he'd rather.
+
+## 6. Usage analytics
+
+Know roughly how many people use the app (and so how much traffic we send to incompetech and Tabletop Audio). A cookieless, privacy-friendly service that counts page views and sessions, never anything said at the table. About's Privacy section must say what is counted and by whom.
+
 ## Smaller items
 
 - Test the Web Speech options (on-device and cloud) in Chrome on the phone and the laptop.
