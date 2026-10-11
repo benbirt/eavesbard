@@ -17,14 +17,14 @@ Kevin MacLeod's catalogue at incompetech.com: 1,443 tracks (87 hours, median 3 m
 
 Know roughly how many people use the app (and so how much traffic we send to incompetech and Tabletop Audio). A cookieless, privacy-friendly service that counts page views and sessions, never anything said at the table. About's Privacy section must say what is counted and by whom.
 
-## 4. Test the classifier on real play (Critical Role transcripts)
+## 4. Test the classifier on real play (Bardo transcripts)
 
-A headless target (say `//experiments/e13:realplay`) that runs the local classifier, and Haiku when there's a key, through the state machine on real actual-play transcripts rather than scripted scenes. Source: CRD3 (https://huggingface.co/datasets/microsoft/crd3), 159 Critical Role episodes, about 400,000 speaker turns, a single 117 MB zip of JSON, CC BY-SA 4.0. Download it at run time; don't commit excerpts (share-alike, and the words are Critical Role's). Notes:
-- No timestamps: slide a window through each episode at about 15 seconds of speech per step, by word count (about 150 words a minute).
-- No scene labels, so start with what needs none. "Roll initiative" appears in 108 of 140 episodes checked: report how many checks it takes to call combat after it, how long to drop back to calm afterwards, and how often calm stretches are called combat.
-- Later, settings from the Fandom wiki summaries CRD3 aligns to each stretch of turns, or windows labelled by a stronger Claude model as a reference rather than ground truth.
-- The transcripts are clean human ones; add Whisper-style noise, as the TEST set does, for realism.
-- FIREBALL (ACL 2023, about 25,000 D&D sessions on Discord) records true fight starts and ends from the Avrae bot's state: real labels for combat starting and ending, the weakest category. It is typed play-by-post, not speech.
+A headless target (say `//experiments/e13:bardo`) that replays real actual play through the local classifier (embeddings plus Gemma 4 E2B, through the app's own code as in E9) and the state machine. Source: the "Call of the Wild" set from Bardo (Padovani, Ferreira and Lelis, AIIDE 2017), the only labelled data found for this task: 9 episodes of a YouTube D&D game, about 4.6 hours, as CSVs in https://github.com/lucasnfe/bardo-composer under `data/dnd/`. Each line is a YouTube auto-caption (real speech-recognition text) with a start time, a duration and a hand label: valence and arousal, 0 or 1, giving agitated, suspenseful, calm or happy. Labels run in long stretches, about 85 in all, with about 20 agitated stretches. The repo is MIT, but the words are the show's: download at run time, commit no text, report only numbers. Our own labels (below) are time ranges and can be committed. Notes:
+- **Labels, prepared by Claude from the transcripts:** check that agitated means a fight and suspenseful means tense, mark stretches that don't fit (a chase, an argument) to map differently or leave out, and add the setting for each stretch, with its own time ranges where the party moves. These are a reference, not ground truth; mark the uncertain ones. The intensity mapping to start from: agitated → combat, suspenseful → tense, calm and happy → calm.
+- **Replay:** group caption lines into 15-second checks by start time, as the app checks every 15 seconds. Start each episode from its first labels, so the test is of changes rather than the opening guess.
+- **Scoring:** steady stretches apart from changes, since lag at a change is by design. Report intensity and setting accuracy away from changes; for fights, how many checks to call combat after one starts, how many are missed, and how long to leave combat after one ends; false combat per hour of calm and tense play; tense against calm confusions.
+- **Round 1:** all 9 episodes held out, nothing tuned. If the results are weak, split by episode: tune on about 4, score on the other 5, and report only those.
+- Not for now: running our Whisper on the real audio (YouTube's terms), and larger unlabelled sources. CRD3 (159 Critical Role episodes, clean text, no timestamps; "roll initiative" marks most fights), CritRoleStats' timestamped rolls and combat times, and FIREBALL (typed play with true combat state) stay options if 20 fights turn out too few.
 
 ## Smaller items
 
