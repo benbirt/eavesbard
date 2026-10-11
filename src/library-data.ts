@@ -7,7 +7,8 @@ import { parseTracksFile } from "./library/tracks-file.js";
 
 const tracksFile = parseTracksFile(tracksJson as unknown);
 
-export const library = buildLibrary(tracksFile.tracks, parseTagMap(tagMapJson as unknown));
+export const tagMap = parseTagMap(tagMapJson as unknown);
+export const library = buildLibrary(tracksFile.tracks, tagMap);
 
 /** When the bundled index last changed. */
 export const indexGenerated = new Date(tracksFile.generated);

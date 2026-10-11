@@ -16,6 +16,8 @@ export type TimelineEvent =
   | {
       kind: "call";
       purpose: "opening" | "scene" | "pick";
+      /** Asked alongside, for comparison (a debug option); the answer changed nothing. */
+      comparison?: boolean;
       /** e.g. "claude-haiku-5-5" or "local (bge-small)". */
       model: string;
       userText: string;

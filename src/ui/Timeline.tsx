@@ -45,6 +45,7 @@ function Body({ entry }: { entry: TimelineEntry }) {
     case "call":
       return (
         <div>
+          {e.comparison && <span class="badge-small">comparison</span>}
           {e.error ? (
             <span class="warning">
               {e.model.startsWith("local") ? "Local model" : "Claude"}:{" "}

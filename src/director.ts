@@ -8,7 +8,7 @@ import { computed, signal } from "@preact/signals";
 import { DEFAULT_MODEL } from "./classify/api.js";
 import { classify, openingMessage, userMessage, type Classification } from "./classify/classifier.js";
 import type { Usage } from "./classify/cost.js";
-import { library } from "./library-data.js";
+import { library, tagMap } from "./library-data.js";
 import type { Intensity, Setting } from "./library/scenes.js";
 import type { LibraryTrack } from "./library/tag-map.js";
 import { onTranscriptLine, prepareSpeech, start as startListening, stop as stopListening } from "./listener.js";
@@ -21,6 +21,7 @@ import { localPick } from "./pick/local-picker.js";
 import type { PickRequest } from "./pick/request.js";
 import { hasFailed, nowPlaying, onTrackEnded, onTrackFailed, play, stop as stopMusic } from "./player.js";
 import { choices, suits } from "./scene/selector.js";
+import { guessScene } from "./scene/guess.js";
 import { initialScene, nextScene, type SceneState } from "./scene/state-machine.js";
 import { TranscriptBuffer } from "./scene/transcript-buffer.js";
 import { loadApiKey, loadSetting, saveSetting } from "./settings.js";
@@ -42,6 +43,8 @@ export interface SessionCost {
 export const auto = signal(loadSetting("auto") !== "off");
 /** The chosen engine, local by default; Claude falls back to local without an API key. */
 export const engine = signal<Engine>(loadSetting("engine") === "claude" ? "claude" : "local");
+/** Debug option: also ask the other engine each scene check, for comparison. */
+export const compare = signal(loadSetting("compare") === "on");
 /** The opening-scene description, remembered between visits. */
 export const description = signal(loadSetting("openingDescription") ?? "");
 export const sessionActive = signal(false);
@@ -61,6 +64,18 @@ export const running = computed(() => sessionActive.value && auto.value);
 /** The engine actually in charge: Claude needs an API key. */
 export function effectiveEngine(): Engine {
   return engine.value === "claude" && !loadApiKey() ? "local" : engine.value;
+}
+
+/** The engine asked alongside for comparison, if that debug option is on and possible. */
+export function comparisonEngine(): Engine | undefined {
+  if (!compare.value) return undefined;
+  const other: Engine = effectiveEngine() === "claude" ? "local" : "claude";
+  return other === "claude" && !loadApiKey() ? undefined : other;
+}
+
+export function setCompare(on: boolean): void {
+  compare.value = on;
+  saveSetting("compare", on ? "on" : "off");
 }
 
 export const ENGINE_NAMES: Record<Engine, string> = { claude: "Claude", local: "Local model" };
@@ -135,12 +150,15 @@ async function startAuto(opening: string): Promise<void> {
   sessionCost.value = { usd: 0, calls: 0, cachedShare: 0 };
 
   const primary = effectiveEngine();
+  const other = comparisonEngine();
   record({
     kind: "session",
     text:
       `${ENGINE_NAMES[primary]} decides the scene and picks the tracks` +
-      (engine.value === "claude" && primary === "local" ? " (no Anthropic API key, so local models are used)." : "."),
+      (engine.value === "claude" && primary === "local" ? " (no Anthropic API key, so local models are used)" : "") +
+      (other ? `; ${ENGINE_NAMES[other].toLowerCase()} is also asked, for comparison.` : compare.value ? "; no comparison, as Claude needs an Anthropic API key." : "."),
   });
+  if (other === "local") prepareLocal();
   if (primary === "local") {
     prepareLocal();
     const llm = SCENE_LLM.name;
@@ -153,7 +171,9 @@ async function startAuto(opening: string): Promise<void> {
 
   // The opening scene: from the description if there is one, else the default.
   let start: Parameters<typeof initialScene>[1];
+  let guessed = false;
   if (opening) {
+    if (other) void checkScene(other, "opening", { description: opening }, LOCAL_WAIT_MS, true);
     const c = await checkScene(primary, "opening", { description: opening }, LOCAL_WAIT_MS);
     if (c) {
       start = {
@@ -161,6 +181,17 @@ async function startAuto(opening: string): Promise<void> {
         intensity: c.intensity,
         reason: `from your description “${opening}”`,
       };
+    } else {
+      // The models aren't ready: guess from the description's words for now.
+      const g = guessScene(opening, tagMap);
+      if (g.setting || g.intensity) {
+        start = {
+          setting: g.setting ?? initialScene(0).setting,
+          intensity: g.intensity ?? "calm",
+          reason: `guessed from the words of your description “${opening}”`,
+        };
+      }
+      guessed = true;
     }
   }
   if (!sessionActive.value) return; // Stopped while waiting.
@@ -168,9 +199,10 @@ async function startAuto(opening: string): Promise<void> {
   const s = scene.value;
   record({
     kind: "session",
-    text: `Opening scene: ${s.setting}, ${s.intensity} (${start ? s.reason : opening ? "default, as the description couldn't be used" : "default; describe the opening scene next time to choose it"}).`,
+    text: `Opening scene: ${s.setting}, ${s.intensity} (${start ? s.reason : opening ? "default, as the description couldn't be used yet" : "default; describe the opening scene next time to choose it"}).`,
   });
   playForScene(true, "opening scene");
+  if (guessed) void recheckOpening(opening, primary, s.reason);
   nextCheckAt.value = Date.now() + CADENCE_MS;
   timer = setInterval(() => {
     nextCheckAt.value = Date.now() + CADENCE_MS;
@@ -225,15 +257,16 @@ type SceneInput = { description: string } | { scene: SceneState; lines: { at: nu
 
 /**
  * Asks one engine for the scene and records the answer on the timeline.
- * Returns undefined if it couldn't answer.
+ * Returns undefined if it couldn't answer. A comparison changes nothing.
  */
 async function checkScene(
   by: Engine,
   purpose: "opening" | "scene",
   input: SceneInput,
   localWaitMs?: number,
+  comparison = false,
 ): Promise<Classification | undefined> {
-  checking.value = true;
+  if (!comparison) checking.value = true;
   const model = by === "claude" ? DEFAULT_MODEL : LOCAL_MODEL_NAME;
   let userText = "";
   try {
@@ -245,7 +278,7 @@ async function checkScene(
           ? openingMessage(input.description)
           : userMessage(input.scene, input.now - Math.min(input.scene.settingSince, input.scene.intensitySince), input.lines, input.now);
       const result = await classify({ apiKey, model, userText });
-      record({ kind: "call", purpose, model, userText, result: result.classification, latencyMs: result.latencyMs, costUsd: result.costUsd, usage: result.usage });
+      record({ kind: "call", purpose, model, ...(comparison ? { comparison } : {}), userText, result: result.classification, latencyMs: result.latencyMs, costUsd: result.costUsd, usage: result.usage });
       addCost(result.usage, result.costUsd);
       return result.classification;
     }
@@ -254,14 +287,14 @@ async function checkScene(
       "description" in input ? input : { lines: input.lines.map((l) => l.text), current: input.scene },
     );
     userText = result.queryText;
-    record({ kind: "call", purpose, model: result.model, userText, result: result.classification, latencyMs: result.latencyMs, costUsd: 0 });
+    record({ kind: "call", purpose, model: result.model, ...(comparison ? { comparison } : {}), userText, result: result.classification, latencyMs: result.latencyMs, costUsd: 0 });
     return result.classification;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    record({ kind: "call", purpose, model, userText, error: message });
+    record({ kind: "call", purpose, model, ...(comparison ? { comparison } : {}), userText, error: message });
     return undefined;
   } finally {
-    checking.value = false;
+    if (!comparison) checking.value = false;
   }
 }
 
@@ -272,6 +305,8 @@ async function tick(): Promise<void> {
   newSpeech.value = false;
   const now = Date.now();
   const input: SceneInput = { scene: current, lines: buffer.window(now), now };
+  const other = comparisonEngine();
+  if (other) void checkScene(other, "scene", input, LOCAL_WAIT_MS, true);
   const c = await checkScene(effectiveEngine(), "scene", input, LOCAL_WAIT_MS);
   const before = scene.value;
   if (!c || !before) return;
@@ -308,6 +343,31 @@ export function differentTrack(): void {
  * usual minimum durations (7.6) stop the classifier undoing it at once.
  */
 export function setSceneYourself(change: { setting?: Setting; intensity?: Intensity }): void {
+  forceScene(change, "set by you");
+}
+
+/**
+ * When the opening scene had to be guessed (or defaulted) because the models
+ * weren't ready, asks them properly once they are, and changes the scene if
+ * they disagree, unless it has already moved on.
+ */
+async function recheckOpening(opening: string, by: Engine, reason: string): Promise<void> {
+  const c = await checkScene(by, "opening", { description: opening }); // Waits for the download.
+  const s = scene.value;
+  if (!c || !s || s.reason !== reason) return;
+  const setting = c.setting === "unknown" ? s.setting : c.setting;
+  if (setting === s.setting && c.intensity === s.intensity) {
+    record({ kind: "session", text: `Now the models are ready, they agree on the opening scene: ${setting}, ${c.intensity}.` });
+    return;
+  }
+  forceScene({ setting, intensity: c.intensity }, "from your description, now the models are ready");
+}
+
+/**
+ * Changes the scene at once, bypassing the state machine. The change
+ * restarts that axis's clock, so the minimum times still apply after it.
+ */
+function forceScene(change: { setting?: Setting; intensity?: Intensity }, why: string): void {
   const before = scene.value;
   if (!before) return;
   const now = Date.now();
@@ -322,7 +382,7 @@ export function setSceneYourself(change: { setting?: Setting; intensity?: Intens
     intensitySince: intensity !== before.intensity ? now : before.intensitySince,
     pendingSetting: undefined,
     pendingIntensity: undefined,
-    reason: "set by you",
+    reason: why,
   };
   scene.value = after;
   const sceneOf = (s: SceneState) => ({ setting: s.setting, intensity: s.intensity });
@@ -332,12 +392,14 @@ export function setSceneYourself(change: { setting?: Setting; intensity?: Intens
     from: sceneOf(before),
     to: sceneOf(after),
     notes: {
-      setting: setting !== before.setting ? `${before.setting} → ${setting}, set by you.` : `still ${setting}.`,
-      intensity: intensity !== before.intensity ? `${before.intensity} → ${intensity}, set by you.` : `still ${intensity}.`,
+      setting: setting !== before.setting ? `${before.setting} → ${setting}, ${why}.` : `still ${setting}.`,
+      intensity: intensity !== before.intensity ? `${before.intensity} → ${intensity}, ${why}.` : `still ${intensity}.`,
     },
   });
-  if (intensity !== before.intensity) playForScene(true, `you set the scene to ${intensity}`, before.intensity);
-  else playForScene(false, `you set the scene to ${setting}`);
+  const to = intensity !== before.intensity ? intensity : setting;
+  const because = why === "set by you" ? `you set the scene to ${to}` : `${to}, ${why}`;
+  if (intensity !== before.intensity) playForScene(true, because, before.intensity);
+  else playForScene(false, because);
 }
 
 /** Bumped for each track request, so a slow pick can't override a newer one. */

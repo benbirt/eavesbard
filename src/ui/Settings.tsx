@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks";
-import { auto, engine, sessionActive, setAuto, setEngine } from "../director.js";
+import { auto, compare, engine, sessionActive, setAuto, setCompare, setEngine } from "../director.js";
 import { loadApiKey, resetSettings, saveApiKey } from "../settings.js";
 import { SpeechModelChooser } from "./Listening.js";
 import { LocalModelsNote } from "./SceneLlm.js";
@@ -8,7 +8,7 @@ import { LocalModelsNote } from "./SceneLlm.js";
  * The Anthropic API key. A saved key is never put back into the page: the
  * panel only says one is saved, with buttons to replace or remove it.
  */
-function ApiKey() {
+function ApiKey({ onChange }: { onChange?: () => void }) {
   const [saved, setSaved] = useState(() => loadApiKey() !== "");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -19,6 +19,7 @@ function ApiKey() {
       return;
     }
     setSaved(key !== "");
+    onChange?.();
     setEditing(false);
     setDraft("");
     setStatus(key ? "Saved." : "Removed.");
@@ -74,6 +75,35 @@ function ApiKey() {
         every 15 seconds: let the table know.{!saved && " Without a key, the models on this computer are used."}
       </p>
     </div>
+  );
+}
+
+/** Options for testing and comparing models, collapsed by default. */
+function DebugSection() {
+  const other = engine.value === "claude" ? "the local models" : "Claude";
+  // Re-read the key after it's saved or removed below.
+  const [, keyChanged] = useState(0);
+  const needsKey = engine.value === "local" && !loadApiKey();
+  return (
+    <details class="section debug" open={compare.value}>
+      <summary>
+        <h3>Debug options</h3>
+      </summary>
+      <label class="toggle">
+        <span>Also ask {other}, for comparison</span>
+        <input type="checkbox" checked={compare.value} onChange={(e) => setCompare(e.currentTarget.checked)} />
+      </label>
+      <p>
+        Each scene check is also sent to {other}. Its answers appear in the session log under Model details, marked
+        “comparison”, and change nothing. Asking Claude needs an Anthropic API key, and costs about 10–30 cents a session.
+      </p>
+      {compare.value && engine.value === "local" && (
+        <>
+          {needsKey && <p class="warning small">No API key is saved, so Claude can't be asked yet. Add one here:</p>}
+          <ApiKey onChange={() => keyChanged((n) => n + 1)} />
+        </>
+      )}
+    </details>
   );
 }
 
@@ -148,6 +178,8 @@ export function Settings() {
         <h3>Listening</h3>
         <SpeechModelChooser />
       </section>
+
+      <DebugSection />
 
       <ResetSection />
     </>

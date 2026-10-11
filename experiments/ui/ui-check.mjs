@@ -142,6 +142,16 @@ try {
     await page.getByRole("radio", { name: /On this computer/ }).check();
     await page.keyboard.press("Escape");
   });
+  await step("7d-debug", async () => {
+    await page.getByRole("button", { name: "Setup" }).click();
+    await page.getByText("Debug options").click();
+    await page.getByRole("checkbox", { name: /Also ask Claude/ }).check();
+    await page.getByText("No API key is saved, so Claude can't be asked yet").waitFor();
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: join(out, "7d-debug-on.png") });
+    await page.getByRole("checkbox", { name: /Also ask Claude/ }).uncheck();
+    await page.keyboard.press("Escape");
+  });
   await step("8-reset", async () => {
     await page.getByRole("button", { name: "Stop session" }).click();
     await page.evaluate(() => localStorage.setItem("eavesbard.anthropicApiKey", "sk-test"));
