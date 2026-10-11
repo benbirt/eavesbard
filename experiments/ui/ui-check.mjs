@@ -124,6 +124,24 @@ try {
     await page.locator(".card.picker").waitFor();
     await page.waitForTimeout(500);
   });
+  await step("7c-api-key", async () => {
+    await page.getByRole("button", { name: "Setup" }).click();
+    await page.getByRole("radio", { name: /Claude/ }).check();
+    await page.getByLabel("Anthropic API key", { exact: true }).fill("sk-ant-test-123");
+    await page.getByRole("button", { name: "Save" }).click();
+    await page.getByText("An API key is saved in this browser").waitFor();
+    if (await page.evaluate(() => document.documentElement.outerHTML.includes("sk-ant-test-123"))) {
+      throw new Error("the saved key is in the page");
+    }
+    await page.getByRole("button", { name: "Replace" }).click();
+    if ((await page.getByLabel("New Anthropic API key", { exact: true }).inputValue()) !== "") throw new Error("Replace shows the old key");
+    await page.getByRole("button", { name: "Cancel" }).click();
+    await page.screenshot({ path: join(out, "7c-api-key-saved.png") });
+    await page.getByRole("button", { name: "Remove" }).click();
+    await page.getByLabel("Anthropic API key", { exact: true }).waitFor();
+    await page.getByRole("radio", { name: /On this computer/ }).check();
+    await page.keyboard.press("Escape");
+  });
   await step("8-reset", async () => {
     await page.getByRole("button", { name: "Stop session" }).click();
     await page.evaluate(() => localStorage.setItem("eavesbard.anthropicApiKey", "sk-test"));

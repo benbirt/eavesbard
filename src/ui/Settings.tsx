@@ -4,33 +4,76 @@ import { loadApiKey, resetSettings, saveApiKey } from "../settings.js";
 import { SpeechModelChooser } from "./Listening.js";
 import { LocalModelsNote } from "./SceneLlm.js";
 
+/**
+ * The Anthropic API key. A saved key is never put back into the page: the
+ * panel only says one is saved, with buttons to replace or remove it.
+ */
 function ApiKey() {
-  const [apiKey, setApiKey] = useState(loadApiKey);
+  const [saved, setSaved] = useState(() => loadApiKey() !== "");
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
   const [status, setStatus] = useState("");
+  const store = (key: string) => {
+    if (!saveApiKey(key)) {
+      setStatus("Couldn't save: this browser is blocking storage.");
+      return;
+    }
+    setSaved(key !== "");
+    setEditing(false);
+    setDraft("");
+    setStatus(key ? "Saved." : "Removed.");
+  };
   return (
-    <form
-      class="key"
-      onSubmit={(e) => {
-        e.preventDefault();
-        const key = apiKey.trim();
-        setStatus(saveApiKey(key) ? (key ? "Saved in this browser." : "Cleared.") : "Couldn't save: this browser is blocking storage.");
-      }}
-    >
-      <label>
-        Anthropic API key
-        <input class="field" type="password" autoComplete="off" value={apiKey} onInput={(e) => setApiKey(e.currentTarget.value)} />
-      </label>
-      <button type="submit" class="btn">
-        Save
-      </button>{" "}
-      <span class="small" role="status">
-        {status}
-      </span>
+    <div class="key">
+      {saved && !editing ? (
+        <p>
+          <span class="saved-key">✓ An API key is saved in this browser.</span>{" "}
+          <button type="button" class="btn" onClick={() => (setEditing(true), setStatus(""))}>
+            Replace
+          </button>{" "}
+          <button type="button" class="btn" onClick={() => store("")}>
+            Remove
+          </button>{" "}
+          <span class="small" role="status">
+            {status}
+          </span>
+        </p>
+      ) : (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (draft.trim()) store(draft.trim());
+          }}
+        >
+          <label>
+            {saved ? "New Anthropic API key" : "Anthropic API key"}
+            <input
+              class="field"
+              type="password"
+              autoComplete="off"
+              placeholder="sk-ant-…"
+              value={draft}
+              onInput={(e) => setDraft(e.currentTarget.value)}
+            />
+          </label>
+          <button type="submit" class="btn" disabled={!draft.trim()}>
+            Save
+          </button>{" "}
+          {saved && (
+            <button type="button" class="btn" onClick={() => (setEditing(false), setDraft(""))}>
+              Cancel
+            </button>
+          )}{" "}
+          <span class="small" role="status">
+            {status}
+          </span>
+        </form>
+      )}
       <p>
         Stored only in this browser. While a session runs, the last two and a half minutes of transcript go to Anthropic
-        every 15 seconds: let the table know.{!loadApiKey() && " Without a key, the models on this computer are used."}
+        every 15 seconds: let the table know.{!saved && " Without a key, the models on this computer are used."}
       </p>
-    </form>
+    </div>
   );
 }
 
