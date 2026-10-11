@@ -17,12 +17,23 @@ export const LOCAL_MODEL_NAME = "local (bge-small)";
 /** The local scene model's name, with the LLM that helped, if any. */
 export const localModelName = (llm: string | undefined) => (llm ? `local (bge-small + ${llm})` : LOCAL_MODEL_NAME);
 
-/** Starts downloading and indexing, once. */
+const prepare = () =>
+  prepareEmbeddings(
+    () => labelDocs(),
+    () => library.tracks.map((t) => ({ key: trackKey(t.track.id), text: searchText(t) })),
+  );
+
+/**
+ * Starts downloading and indexing, once. Resolves when scene checks can run:
+ * the scene-label descriptions are indexed first, in a second or two.
+ */
 export function prepareLocalModels(): Promise<void> {
-  return prepareEmbeddings(() => [
-    ...library.tracks.map((t) => ({ key: trackKey(t.track.id), text: searchText(t) })),
-    ...labelDocs(),
-  ]);
+  return prepare().first;
+}
+
+/** Resolves when every track is indexed too, for local track picks. */
+export function prepareTrackIndex(): Promise<void> {
+  return prepare().all;
 }
 
 /**

@@ -5,7 +5,7 @@ import {
   description,
   differentTrack,
   effectiveEngine,
-  ENGINE_NAMES,
+  lastChange,
   newSpeech,
   nextCheckAt,
   CADENCE_MS,
@@ -19,7 +19,7 @@ import {
 import { hasWebGpu } from "../gpu.js";
 import { library } from "../library-data.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
-import { model, speechModel, transcript } from "../listener.js";
+import { model, speechModel } from "../listener.js";
 import { SCENE_LLM } from "../llm/llm-protocol.js";
 import { sceneLlm } from "../llm/scene-llm.js";
 import { loading, nowPlaying, paused, playbackPosition, seekTo, setPaused, setVolume, volume } from "../player.js";
@@ -101,19 +101,40 @@ function SpeechReadiness() {
   return <li>Speech model: {name}, about {WHISPER_DOWNLOAD_MB[speech]} MB the first time</li>;
 }
 
-/** The last thing heard, as a hint of why the scene is what it is. */
-function lastHeard(): string | undefined {
-  const lines = transcript.value;
-  for (let i = lines.length - 1; i >= 0; i--) if (!lines[i]!.dropped) return lines[i]!.text;
-  return undefined;
+/** How long ago, roughly: "just now", "40 s ago", "3 min ago". */
+function ago(ms: number): string {
+  const s = Math.floor(ms / 1000);
+  return s < 10 ? "just now" : s < 60 ? `${s} s ago` : `${Math.floor(s / 60)} min ago`;
 }
 
-function NextCheck({ now }: { now: number }) {
-  if (checking.value) return <span>checking…</span>;
+/** When the scene will next be checked, and any change in waiting. */
+function CheckStatus({ now }: { now: number }) {
+  const s = scene.value!;
+  const pending = pendingChanges(s, now);
   const at = nextCheckAt.value;
-  if (!at) return null;
-  const left = Math.max(0, Math.ceil((at - now) / 1000));
-  return <span>{newSpeech.value ? `next check in ${left} s` : "next check when someone speaks"}</span>;
+  const counting = !checking.value && newSpeech.value && at !== undefined;
+  const left = counting ? Math.max(0, Math.ceil((at - now) / 1000)) : 0;
+  return (
+    <div class="status">
+      <p class="next">
+        {checking.value
+          ? "Checking the scene…"
+          : counting
+            ? `Next check in ${left} s`
+            : "Next check when someone speaks"}
+      </p>
+      {counting && (
+        <div class="bar thin" aria-hidden="true">
+          <i style={{ width: `${100 * (1 - (left * 1000) / CADENCE_MS)}%` }} />
+        </div>
+      )}
+      {pending.map((p) => (
+        <p class="pending" key={p}>
+          {p}
+        </p>
+      ))}
+    </div>
+  );
 }
 
 /** The scene: what Eavesbard thinks is happening, and a way to correct it. */
@@ -128,27 +149,26 @@ export function SceneCard() {
       </section>
     );
   }
-  const heard = lastHeard();
-  const pending = pendingChanges(s, now);
-  const left = nextCheckAt.value && newSpeech.value ? Math.max(0, nextCheckAt.value - now) : CADENCE_MS;
+  const change = lastChange.value;
   return (
     <section class="card" aria-live="polite">
       <p class="eyebrow">The scene</p>
       <h1 class="scene-name">
         {cap(s.setting)} <span class="badge">{cap(s.intensity)}</span>
       </h1>
-      <p class="why">
-        {heard && <>“{heard}” · </>}
-        {s.reason === "set by you" ? "set by you" : s.reason.replace(/^classifier: /, `${ENGINE_NAMES[effectiveEngine()]}: `)}
-      </p>
-      <div class="meta">
-        <span>for {mmss((now - Math.max(s.settingSince, s.intensitySince)) / 1000)}</span>
-        <NextCheck now={now} />
-      </div>
-      <div class="bar" aria-hidden="true">
-        <i style={{ width: `${100 * (1 - left / CADENCE_MS)}%` }} />
-      </div>
-      {pending.length > 0 && <p class="pending">{pending.join(" · ")}</p>}
+      {change && (
+        <p class="why">
+          {change.heard ? (
+            <>
+              “{change.heard}” → {change.text}
+            </>
+          ) : (
+            change.text
+          )}{" "}
+          <span class="muted">· {ago(now - change.at)}</span>
+        </p>
+      )}
+      <CheckStatus now={now} />
       <div class="override">
         <p>Tap to set the scene yourself</p>
         <div class="pills" role="group" aria-label="Setting">

@@ -108,7 +108,7 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
     next.pendingIntensity = undefined;
   } else if (intensity === "combat" && event.intensityConfidence >= options.combatEntryConfidence) {
     Object.assign(next, { intensity, intensitySince: event.at, pendingIntensity: undefined });
-    reasons.intensity = `classifier: combat (${pct(event.intensityConfidence)})`;
+    reasons.intensity = `combat, ${pct(event.intensityConfidence)} sure`;
     notes.intensity = `${state.intensity} → combat at once (${pct(event.intensityConfidence)} confident).`;
   } else {
     const streak = bump(state.pendingIntensity, intensity);
@@ -122,7 +122,7 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
         streak.count >= options.agreeingResults
           ? `${streak.count} checks in a row agree`
           : `${pct(event.intensityConfidence)} confident${leavingCombat ? ", combat over" : ""}`;
-      reasons.intensity = `classifier: ${intensity} (${why})`;
+      reasons.intensity = `${intensity}, ${why.replace(" confident", " sure")}`;
       notes.intensity = `${state.intensity} → ${intensity} (${why}).`;
     } else {
       next.pendingIntensity = streak;
@@ -153,7 +153,7 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
     if (agreed && heldFor <= 0) {
       Object.assign(next, { setting, settingSince: event.at, pendingSetting: undefined });
       const why = agreedByStreak ? `${streak.count} checks in a row agree` : `${pct(event.settingConfidence)} confident`;
-      reasons.setting = `classifier: ${setting} (${why})`;
+      reasons.setting = `${setting}, ${why.replace(" confident", " sure")}`;
       notes.setting = `${state.setting} → ${setting} (${why}).`;
     } else {
       next.pendingSetting = streak;
@@ -168,16 +168,34 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
   return { state: next, changed, notes };
 }
 
-/** Changes under consideration, for the "now" display: e.g. "dungeon (1 of 2)". */
+/**
+ * Changes under consideration, in plain words for the scene card: e.g.
+ * "Could become tense if the next check agrees".
+ */
 export function pendingChanges(state: SceneState, now: number, options = DEFAULT_SCENE_OPTIONS): string[] {
   const out: string[] = [];
-  const maybe = (value: string, count: number) =>
-    `maybe ${value}: ${count} of ${options.agreeingResults} checks in a row say so`;
-  if (state.pendingSetting) out.push(maybe(state.pendingSetting.value, state.pendingSetting.count));
-  if (state.pendingIntensity) out.push(maybe(state.pendingIntensity.value, state.pendingIntensity.count));
-  if (state.intensity === "combat") {
-    const left = Math.ceil((options.minCombatMs - (now - state.intensitySince)) / 1000);
-    if (left > 0) out.push(`combat stays at least ${left} s more`);
+  const secondsLeft = (since: number, min: number) => Math.ceil((min - (now - since)) / 1000);
+  const when = (count: number) => {
+    const more = options.agreeingResults - count;
+    return more <= 0 ? "at the next check" : more === 1 ? "if the next check agrees" : `if ${more} more checks agree`;
+  };
+  if (state.pendingIntensity) {
+    const { value, count } = state.pendingIntensity;
+    const left = state.intensity === "combat" ? secondsLeft(state.intensitySince, options.minCombatMs) : 0;
+    out.push(
+      left > 0
+        ? `Could become ${value}, but combat lasts at least ${options.minCombatMs / 1000} s (${left} s to go)`
+        : `Could become ${value} ${when(count)}`,
+    );
+  }
+  if (state.pendingSetting) {
+    const { value, count } = state.pendingSetting;
+    const left = secondsLeft(state.settingSince, options.minSettingMs);
+    out.push(
+      left > 0 && count >= options.agreeingResults
+        ? `Could move to ${value}, but a setting lasts at least ${options.minSettingMs / 60_000} minutes (${left} s to go)`
+        : `Could move to ${value} ${when(count)}`,
+    );
   }
   return out;
 }

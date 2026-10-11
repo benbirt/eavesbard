@@ -76,6 +76,17 @@ export function ModelChip() {
       </Chip>
     );
   }
+  if (llm.phase === "ready" && embed.phase === "indexing") {
+    // Scene checks can run already; local track picks wait for this.
+    return (
+      <Chip tone="busy" extra="model" title="Scene checks can run; picking tracks by their descriptions waits for this">
+        <b>{SCENE_LLM.name}</b> · indexing tracks {embed.done} of {embed.total}
+      </Chip>
+    );
+  }
+  if (llm.phase === "ready" && embed.phase === "loading") {
+    return <Chip tone="busy" extra="model"><b>{SCENE_LLM.name}</b> · loading the embedding model</Chip>;
+  }
   if (llm.phase === "ready") return <Chip tone="ok" extra="model"><b>{SCENE_LLM.name}</b> + embeddings · ready</Chip>;
   return <Chip tone="off" extra="model"><b>{SCENE_LLM.name}</b> · {sessionActive.value ? "starting" : "downloads when needed"}</Chip>;
 }

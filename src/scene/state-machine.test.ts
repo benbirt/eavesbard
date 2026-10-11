@@ -52,7 +52,9 @@ test("notes explain each decision in plain words", () => {
   assert.match(combat.notes.intensity, /calm → combat at once \(90% confident\)/);
   const held = nextScene(combat.state, classify(MIN + 20_000, "tavern", "calm", 0.9, 0.95));
   assert.match(held.notes.intensity, /calm held back: combat lasts at least 60 s, 40 s to go/);
-  assert.deepEqual(pendingChanges(held.state, MIN + 20_000), ["maybe calm: 1 of 2 checks in a row say so", "combat stays at least 40 s more"]);
+  assert.deepEqual(pendingChanges(held.state, MIN + 20_000), ["Could become calm, but combat lasts at least 60 s (40 s to go)"]);
+  const waiting = nextScene(initialScene(0), classify(MIN, "tavern", "tense", 0.7, 0.7));
+  assert.deepEqual(pendingChanges(waiting.state, MIN), ["Could become tense if the next check agrees"]);
 });
 
 test("a confident combat result enters combat immediately; a hesitant one needs agreement", () => {
@@ -72,7 +74,7 @@ test("one confident non-combat result ends combat after the minimum", () => {
   const { state, changes } = run([classify(0, "tavern", "combat"), classify(60 * SEC, "tavern", "calm", 0.9, 0.95)]);
   assert.deepEqual(changes, [0, 1]);
   assert.equal(state.intensity, "calm");
-  assert.match(state.reason, /calm \(95% confident, combat over\)/);
+  assert.equal(state.reason, "calm, 95% sure, combat over");
 });
 
 test("leaving combat on hesitant results needs two in a row", () => {

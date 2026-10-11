@@ -12,7 +12,7 @@ import { library, tagMap } from "./library-data.js";
 import type { Intensity, Setting } from "./library/scenes.js";
 import type { LibraryTrack } from "./library/tag-map.js";
 import { onTranscriptLine, prepareSpeech, start as startListening, stop as stopListening } from "./listener.js";
-import { LOCAL_MODEL_NAME, localClassify, localModel, prepareLocalModels } from "./local-models.js";
+import { LOCAL_MODEL_NAME, localClassify, prepareLocalModels, prepareTrackIndex } from "./local-models.js";
 import { hasWebGpu } from "./gpu.js";
 import { SCENE_LLM } from "./llm/llm-protocol.js";
 import { prepareSceneLlm } from "./llm/scene-llm.js";
@@ -50,6 +50,11 @@ export const description = signal(loadSetting("openingDescription") ?? "");
 export const sessionActive = signal(false);
 /** The current scene, while automatic music is running. */
 export const scene = signal<SceneState | undefined>(undefined);
+/**
+ * The last change to the scene, for the scene card: what changed and why,
+ * with the line heard just before, when a scene check made it.
+ */
+export const lastChange = signal<{ at: number; text: string; heard?: string } | undefined>(undefined);
 /** When the scene is next checked, if there's new speech by then. */
 export const nextCheckAt = signal<number | undefined>(undefined);
 /** Whether speech has arrived since the scene was last checked. */
@@ -201,6 +206,10 @@ async function startAuto(opening: string): Promise<void> {
     kind: "session",
     text: `Opening scene: ${s.setting}, ${s.intensity} (${start ? s.reason : opening ? "default, as the description couldn't be used yet" : "default; describe the opening scene next time to choose it"}).`,
   });
+  lastChange.value = {
+    at: Date.now(),
+    text: !start ? "The default opening scene" : guessed ? "Guessed from your description's words, until the models are ready" : "From your description",
+  };
   playForScene(true, "opening scene");
   if (guessed) void recheckOpening(opening, primary, s.reason);
   nextCheckAt.value = Date.now() + CADENCE_MS;
@@ -215,6 +224,7 @@ function stopAuto(): void {
   timer = undefined;
   scene.value = undefined;
   nextCheckAt.value = undefined;
+  lastChange.value = undefined;
 }
 
 onTranscriptLine((line) => {
@@ -242,10 +252,12 @@ function addCost(usage: Usage, costUsd: number | undefined): void {
   sessionCost.value = { usd: c.usd + (costUsd ?? 0), calls: c.calls + 1, cachedShare: inputTokens ? cachedTokens / inputTokens : 0 };
 }
 
-/** Rejects if the local model isn't ready within `ms`. */
-async function localReady(ms: number | undefined): Promise<void> {
-  if (localModel.value.phase === "ready") return;
-  const ready = prepareLocalModels();
+/**
+ * Rejects if the local model isn't ready within `ms`: for scene checks, or,
+ * with `tracks`, for track picks too (their index takes longer).
+ */
+async function localReady(ms: number | undefined, tracks = false): Promise<void> {
+  const ready = tracks ? prepareTrackIndex() : prepareLocalModels();
   if (ms === undefined) return ready;
   await Promise.race([
     ready,
@@ -323,6 +335,8 @@ async function tick(): Promise<void> {
   const sceneOf = (s: SceneState) => ({ setting: s.setting, intensity: s.intensity });
   record({ kind: "decision", changed: t.changed, from: sceneOf(before), to: sceneOf(t.state), notes: t.notes });
   if (!t.changed) return;
+  const why = t.state.reason;
+  lastChange.value = { at: Date.now(), text: why[0]!.toUpperCase() + why.slice(1), heard: "lines" in input ? input.lines.at(-1)?.text : undefined };
   if (t.state.intensity !== before.intensity) {
     // Always switch on an intensity change, to something that sounds different.
     playForScene(true, `intensity changed to ${t.state.intensity}`, before.intensity);
@@ -384,6 +398,7 @@ function forceScene(change: { setting?: Setting; intensity?: Intensity }, why: s
     pendingIntensity: undefined,
     reason: why,
   };
+  lastChange.value = { at: now, text: why[0]!.toUpperCase() + why.slice(1) };
   scene.value = after;
   const sceneOf = (s: SceneState) => ({ setting: s.setting, intensity: s.intensity });
   record({
@@ -506,7 +521,7 @@ async function pickWith(
     }
     case "local": {
       // The music never waits long for the download.
-      await localReady(LOCAL_WAIT_MS);
+      await localReady(LOCAL_WAIT_MS, true);
       const pick = await localPick(request, pool);
       return { entry: pick.entry, reason: `closest match to “${pick.query}” (similarity ${pick.score.toFixed(2)})` };
     }
