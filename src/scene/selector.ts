@@ -58,11 +58,12 @@ export function candidates(library: Library, scene: Scene): LibraryTrack[] {
  * just played is avoided; a pool of one keeps that track.
  *
  * `leavingIntensity`, on an intensity change, prefers tracks not also tagged
- * with the intensity being left, so the change is audible. If the scene's
- * own setting has none, its tracks stay in the pool alongside distinct
- * tracks borrowed from nearby settings: a tense tavern track that can also
- * be calm beats a haunted temple. Then distinct tracks from any setting, and
- * only then any candidate.
+ * with the intensity being left, so the change is audible, but only among
+ * the scene's own setting's tracks: if they're all also tagged with the old
+ * intensity, they're used anyway, rather than borrowing. A tense tavern track
+ * that can also be calm beats a haunted temple or a library (Candledeep was
+ * once picked for a tense tavern). Only a setting with no tracks for the
+ * intensity borrows, preferring distinct tracks from nearby settings.
  */
 export function choices(
   library: Library,
@@ -75,9 +76,8 @@ export function choices(
   if (leavingIntensity) {
     const distinct = (tracks: LibraryTrack[]) => tracks.filter((t) => !t.intensities.includes(leavingIntensity));
     const exact = bucket(library, scene.setting, scene.intensity);
-    const homeAndBorrowed = [...new Set([...exact, ...distinct(borrowed(library, scene.setting, scene.intensity))])];
     const sameIntensity = library.tracks.filter((t) => t.intensities.includes(scene.intensity));
-    pool = [distinct(all), homeAndBorrowed, distinct(sameIntensity), all].find((p) => p.length > 0) ?? all;
+    pool = [distinct(exact), exact, distinct(all), distinct(sameIntensity), all].find((p) => p.length > 0) ?? all;
   }
   const avoid = new Set(pool.length > RECENT_LIMIT ? recent.slice(0, RECENT_LIMIT) : recent.slice(0, 1));
   const fresh = pool.filter((t) => !avoid.has(t.track.id));
