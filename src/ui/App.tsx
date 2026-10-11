@@ -30,11 +30,11 @@ export function App() {
           <ModelChip />
           <DownloadControl />
           <CastButton />
-          <button type="button" class="iconbtn more" aria-haspopup="dialog" onClick={() => toggleDrawer("setup")}>
+          <button type="button" class="iconbtn more" aria-haspopup="dialog" aria-label="More" title="Setup, timeline, about" onClick={() => toggleDrawer("setup")}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <path d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-            More…
+            <span class="label">More…</span>
           </button>
         </header>
         <main class="stage">

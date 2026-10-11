@@ -234,6 +234,20 @@
       .chip.warn .dot {
         background: var(--warn);
       }
+      /* Icons stand in for the chips' words on narrow screens (below). */
+      .chip-icon,
+      .chip-short {
+        display: none;
+      }
+      .chip-icon {
+        flex: none;
+        width: 16px;
+        height: 16px;
+        color: var(--fg);
+      }
+      .chip-short {
+        font-variant-numeric: tabular-nums;
+      }
       .dot.hearing {
         animation: pulse 1.4s infinite;
       }
@@ -920,6 +934,40 @@
         .tagline {
           display: none;
         }
+        /* One row: icons and status dots stand in for the chips' and buttons' words,
+           which stay for screen readers. */
+        .top {
+          flex-wrap: nowrap;
+          gap: 8px;
+        }
+        .brand-block {
+          min-width: 0;
+          overflow: hidden;
+        }
+        .chip {
+          flex: none;
+          gap: 6px;
+          padding: 6px 9px;
+        }
+        .chip-icon {
+          display: block;
+        }
+        .chip-short {
+          display: inline;
+        }
+        .chip-text,
+        .top .label {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+          white-space: nowrap;
+        }
+        .top .iconbtn {
+          flex: none;
+          padding: 7px 9px;
+        }
       }
       @media (max-width: 520px) {
         .top {
@@ -934,9 +982,21 @@
         .scene-name {
           font-size: 24px;
         }
+      }
+      /* The smallest phones: a little tighter, so the top bar still fits on one row. */
+      @media (max-width: 360px) {
+        .top {
+          gap: 5px;
+        }
+        .brand {
+          font-size: 16px;
+        }
         .chip {
-          order: 3;
-          max-width: 100%;
+          gap: 5px;
+          padding: 5px 7px;
+        }
+        .top .iconbtn {
+          padding: 6px 7px;
         }
       }
       @media (prefers-reduced-motion: reduce) {
