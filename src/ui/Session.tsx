@@ -16,7 +16,7 @@ import {
   startSession,
   stopSession,
 } from "../director.js";
-import { allowDownloads, downloadsAllowed } from "../downloads.js";
+import { allowDownloads, downloadsAllowed, knownDownloaded } from "../downloads.js";
 import { hasWebGpu } from "../gpu.js";
 import { library } from "../library-data.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
@@ -25,7 +25,7 @@ import { SCENE_LLM } from "../llm/llm-protocol.js";
 import { sceneLlm } from "../llm/scene-llm.js";
 import { loading, nowPlaying, paused, playbackPosition, seekTo, setPaused, setVolume, volume } from "../player.js";
 import { pendingChanges } from "../scene/state-machine.js";
-import { isWebSpeech, WHISPER_DOWNLOAD_MB } from "../stt/protocol.js";
+import { isWebSpeech, whisperRepo, WHISPER_DOWNLOAD_MB } from "../stt/protocol.js";
 
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
@@ -102,12 +102,18 @@ function DownloadOffer() {
   );
 }
 
-/** How much the session would download that the user hasn't chosen to yet (0 if nothing). */
+/**
+ * How much the session would download that the user hasn't chosen to yet:
+ * only models known not to be fully downloaded (0 while that's still being
+ * checked, so a downloaded model never flashes up an offer).
+ */
 function pendingDownloadMb(): number {
   if (downloadsAllowed.value) return 0;
+  const missing = (repo: string, phase: string) => phase === "off" && knownDownloaded(repo) === false;
   const speech = model.value;
-  const speechMb = !isWebSpeech(speech) && speechModel.value.phase === "off" ? WHISPER_DOWNLOAD_MB[speech] : 0;
-  const sceneMb = auto.value && effectiveEngine() === "local" && hasWebGpu && sceneLlm.value.phase === "off" ? SCENE_LLM.downloadMb : 0;
+  const speechMb = !isWebSpeech(speech) && missing(whisperRepo(speech), speechModel.value.phase) ? WHISPER_DOWNLOAD_MB[speech] : 0;
+  const sceneMb =
+    auto.value && effectiveEngine() === "local" && hasWebGpu && missing(SCENE_LLM.repo, sceneLlm.value.phase) ? SCENE_LLM.downloadMb : 0;
   return speechMb + sceneMb;
 }
 

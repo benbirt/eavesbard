@@ -55,9 +55,15 @@ try {
   await step("1-before", async () => {
     await page.goto("http://localhost:8765/");
     await page.locator(".card.start").waitFor();
-    // Models load by themselves only once they've fully downloaded here before.
-    await page.waitForTimeout(3000);
+    // Models load by themselves only once they've fully downloaded here before,
+    // and the offer must not flash up while that's being checked.
+    let samples = 0;
+    for (let i = 0; i < 30; i++) {
+      if (await page.getByRole("button", { name: /^Download now/ }).count()) samples++;
+      await page.waitForTimeout(100);
+    }
     const offer = page.getByRole("button", { name: /^Download now/ });
+    if (samples > 0 && !(await offer.count())) throw new Error("the Download button flashed up and went away by itself");
     if (await offer.count()) {
       console.log("   download offered:", await offer.innerText());
       await offer.click();

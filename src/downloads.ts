@@ -29,6 +29,7 @@ export const DOWNLOADED_PREFIX = "downloaded.";
 /** Records that a model loaded completely, so its files are all in the browser. */
 export function markDownloaded(repo: string): void {
   saveSetting(DOWNLOADED_PREFIX + repo, "yes");
+  if (downloadedModels.value.get(repo) !== true) downloadedModels.value = new Map(downloadedModels.value).set(repo, true);
 }
 
 /** Whether transformers.js's cache holds any of a model's weights. */
@@ -43,12 +44,27 @@ async function inCache(repo: string): Promise<boolean> {
   }
 }
 
+/** What isDownloaded has found, by model, for the UI; a missing entry means not checked yet. */
+export const downloadedModels = signal<ReadonlyMap<string, boolean>>(new Map());
+
 /**
  * Whether a model is fully downloaded: it finished loading here before, and
  * the browser still has its files (it may evict them to free space).
  */
 export async function isDownloaded(repo: string): Promise<boolean> {
-  return loadSetting(DOWNLOADED_PREFIX + repo) === "yes" && (await inCache(repo));
+  const yes = loadSetting(DOWNLOADED_PREFIX + repo) === "yes" && (await inCache(repo));
+  if (downloadedModels.value.get(repo) !== yes) downloadedModels.value = new Map(downloadedModels.value).set(repo, yes);
+  return yes;
+}
+
+/**
+ * For the UI: whether a model is fully downloaded, or undefined until known
+ * (the first call starts the check).
+ */
+export function knownDownloaded(repo: string): boolean | undefined {
+  const known = downloadedModels.value.get(repo);
+  if (known === undefined) void isDownloaded(repo);
+  return known;
 }
 
 /** Whether a model may load now: fully downloaded, or the user chose to download. */
