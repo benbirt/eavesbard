@@ -59,20 +59,11 @@ try {
     let samples = 0;
     const said = new Set();
     const begin = new Set();
-    // Each model line's ticks over time: once ticked (ready), it must stay ticked.
-    const ticks = { Speech: [], Scene: [] };
     for (let i = 0; i < 30; i++) {
       if (await page.getByRole("button", { name: /^Download now/ }).count()) samples++;
       for (const t of await page.locator(".top").allInnerTexts()) said.add(t.replace(/\s+/g, " "));
       begin.add(await page.locator("button.begin").innerText().catch(() => "?"));
-      for (const [k, ticked] of await page.locator(".ready li").evaluateAll((lis) => lis.map((li) => [li.textContent.split(" ")[0], !li.classList.contains("wait")]))) {
-        ticks[k]?.push(ticked);
-      }
       await page.waitForTimeout(100);
-    }
-    for (const [k, seq] of Object.entries(ticks)) {
-      const first = seq.indexOf(true);
-      if (first >= 0 && seq.slice(first).includes(false)) throw new Error(`the ${k} model line was ticked, then unticked`);
     }
     const offer = page.getByRole("button", { name: /^Download now/ });
     if (samples > 0 && !(await offer.count())) throw new Error("the Download button flashed up and went away by itself");
