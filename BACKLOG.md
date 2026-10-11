@@ -23,7 +23,7 @@ Done, not adopted: Gemma 4 E2B transcribes worse than Whisper (21% word errors o
 ## 4. UI cleanup, and make it pretty
 
 Done: a redesign around the scene art (DESIGN.md 7.10), with setting the scene by hand. Follow-ups:
-- Listening can only be checked by hand: headless Chrome never loads an AudioWorklet (not even a trivial one), so the automated UI check can't start the microphone capture. It checks that the Listener chip says "starting" meanwhile.
+- Listening can only be checked by hand: headless Chrome never loads an AudioWorklet (not even a trivial one), so the automated UI check can't start the microphone capture. It checks that the Listener chip says "starting" meanwhile. (Checked by hand on 2026-10-11: the dot turns red while listening and pulses on speech.)
 - More art per intensity, especially tense (three images), and a few with known artists.
 
 ## Smaller items

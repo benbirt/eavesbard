@@ -132,7 +132,12 @@ try {
     await page.waitForTimeout(500); // the panel slides in
   });
   await step("5-setup-tab", async () => {
+    // Switching tabs swaps the panel's content in place: it doesn't slide out and back.
+    const before = await page.locator(".drawer.open").boundingBox();
     await page.locator(".drawer.open .tab", { hasText: "Setup" }).click();
+    await page.waitForTimeout(60);
+    const after = await page.locator(".drawer.open").boundingBox();
+    if (!after || Math.abs(after.x - before.x) > 1) throw new Error(`the panel moved on a tab switch (${before.x} → ${after?.x})`);
     await page.locator(".drawer.open h3", { hasText: "Who decides the scene" }).waitFor();
     await page.waitForTimeout(500);
   });

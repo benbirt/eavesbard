@@ -2,7 +2,7 @@ import { useEffect } from "preact/hooks";
 import { auto, scene, sessionActive } from "../director.js";
 import { nowPlaying } from "../player.js";
 import { DownloadControl, ListeningChip, ModelChip } from "./Chips.js";
-import { Drawer, Scrim, toggleDrawer } from "./Drawer.js";
+import { Scrim, SidePanel, toggleDrawer } from "./Drawer.js";
 import { CastButton } from "./Playback.js";
 import { About, TAGLINE } from "./About.js";
 import { Ambient, ArtFrame } from "./SceneArt.js";
@@ -59,15 +59,7 @@ export function App() {
         </main>
       </div>
       <Scrim />
-      <Drawer name="log" title="Session log">
-        <Timeline />
-      </Drawer>
-      <Drawer name="setup" title="Setup">
-        <Settings />
-      </Drawer>
-      <Drawer name="about" title="About">
-        <About />
-      </Drawer>
+      <SidePanel panels={{ setup: <Settings />, log: <Timeline />, about: <About /> }} />
     </>
   );
 }
