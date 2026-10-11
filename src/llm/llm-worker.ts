@@ -105,9 +105,17 @@ async function forward(text: string, lastOnly: boolean): Promise<{ rows: number;
   const inputs = tokenizer!(text, { add_special_tokens: false }) as Record<string, Tensor>;
   // Models that support it return only the last position's logits, saving a big copy.
   if (lastOnly) inputs.num_logits_to_keep = new Tensor("int64", [1n], []);
-  const { logits } = (await model!(inputs)) as { logits: Tensor };
+  const outputs = (await model!(inputs)) as { logits: Tensor } & Record<string, unknown>;
+  const { logits } = outputs;
   const [, rows, vocab] = logits.dims as [number, number, number];
-  return { rows, vocab, data: logits.to("float32").data as Float32Array };
+  const asFloat = logits.to("float32");
+  // A copy, so it outlives the tensors freed below (`to` returns the same tensor if already float32).
+  const data = asFloat === logits ? (logits.data as Float32Array).slice() : (asFloat.data as Float32Array);
+  // Free everything the pass returned, the key-value cache especially: it stays on
+  // the GPU, and without this the GPU's memory runs out after a few hundred
+  // scene checks (experiments/E13.md).
+  await Promise.all(Object.values(outputs).map((v) => (v as { dispose?: () => unknown } | null)?.dispose?.()));
+  return { rows, vocab, data };
 }
 
 function chatPrompt(content: string, chat: ChatOptions = {}): string {

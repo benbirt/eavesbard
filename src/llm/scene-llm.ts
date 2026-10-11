@@ -9,6 +9,7 @@ import { markDownloaded } from "../downloads.js";
 import { LlmClient } from "./llm-client.js";
 import { hasWebGpu } from "../gpu.js";
 import { SCENE_LLM } from "./llm-protocol.js";
+import { record } from "../timeline.js";
 
 export type SceneLlmState =
   | { phase: "off" }
@@ -55,14 +56,36 @@ function ask(q: { content: string; labels: string[] }): Promise<number[]> {
 /**
  * Asks the LLM about a scene, if it's ready; undefined otherwise
  * (the embeddings then decide alone). Never waits for a download.
+ * If it fails, the timeline says so, once, and again when it recovers.
  */
 export async function askSceneLlm(input: LlmInput): Promise<LlmAnswer | undefined> {
   if (sceneLlm.value.phase !== "ready") return undefined;
+  try {
+    const answer = await askReady(input);
+    if (failing) {
+      failing = false;
+      record({ kind: "session", text: `${SCENE_LLM.name} is answering scene checks again.` });
+    }
+    return answer;
+  } catch (err) {
+    // Shown once, not at every check, until it answers again.
+    if (!failing) {
+      failing = true;
+      record({ kind: "error", text: `${SCENE_LLM.name} stopped answering, so the embeddings decide alone: ${err instanceof Error ? err.message : String(err)}` });
+    }
+    throw err;
+  }
+}
+
+/** Whether the last question to the LLM failed. */
+let failing = false;
+
+async function askReady(input: LlmInput): Promise<LlmAnswer> {
   const [settingQ, intensityQ] = llmQuestions(input);
   const setting = await ask(settingQ);
-  const record = <L extends string>(labels: readonly L[], probs: number[]) =>
+  const byLabel = <L extends string>(labels: readonly L[], probs: number[]) =>
     Object.fromEntries(labels.map((l, i) => [l, probs[i] ?? 0])) as Record<L, number>;
-  let intensity = record(INTENSITIES, await ask(intensityQ));
+  let intensity = byLabel(INTENSITIES, await ask(intensityQ));
   let fightOver: number | undefined;
   if ("lines" in input) {
     // The chance of combat comes from asking whether a fight has started (or ended).
@@ -70,5 +93,5 @@ export async function askSceneLlm(input: LlmInput): Promise<LlmAnswer | undefine
     intensity = mixIntensity(intensity, input.current.intensity === "combat" ? 1 - yes : yes);
     if (input.current.intensity === "combat") fightOver = (await ask(fightOverQuestion(input.lines)))[1];
   }
-  return { model: SCENE_LLM.name, setting: record(SETTINGS, setting), intensity, fightOver };
+  return { model: SCENE_LLM.name, setting: byLabel(SETTINGS, setting), intensity, fightOver };
 }
