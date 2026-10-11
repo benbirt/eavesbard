@@ -2,9 +2,10 @@ import { signal } from "@preact/signals";
 import type { ComponentChildren } from "preact";
 import { useEffect, useRef } from "preact/hooks";
 
-export type DrawerName = "log" | "setup" | "about";
+export type DrawerName = "setup" | "log" | "about";
 
-const TITLES: Record<DrawerName, string> = { log: "Session log", setup: "Setup", about: "About" };
+/** The panels, in tab order: Setup first (More… opens it), then the log, then About. */
+const TITLES: Record<DrawerName, string> = { setup: "Setup", log: "Session log", about: "About" };
 
 /** Which side panel is open, if any. */
 export const openDrawer = signal<DrawerName | undefined>(undefined);

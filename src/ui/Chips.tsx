@@ -8,8 +8,6 @@ import { sceneLlm } from "../llm/scene-llm.js";
 import { localModel } from "../local-models.js";
 import { isWebSpeech } from "../stt/protocol.js";
 
-const MB = 1e6;
-const GB = 1e9;
 
 type Tone = "ok" | "busy" | "warn" | "off";
 
@@ -22,74 +20,57 @@ function Chip({ tone, pulse = false, children, title, extra }: { tone: Tone; pul
   );
 }
 
-const speechName = () => (isWebSpeech(model.value) ? "Web Speech" : `Whisper ${model.value.replace(".en", "")}`);
-
-/** Whether the app is listening, and whether it can hear anyone. */
-export function ListeningChip() {
-  const s = state.value;
-  if (s.phase === "error") return <Chip tone="warn" title={s.message}><b>Not listening</b> · {s.message}</Chip>;
-  if (s.phase === "loading") {
-    return (
-      <Chip tone="busy">
-        <b>Loading {speechName()}</b>
-        {s.preparing ? " · preparing" : s.total ? ` · ${(s.loaded / MB).toFixed(0)} of ${(s.total / MB).toFixed(0)} MB` : ""}
-      </Chip>
-    );
-  }
-  if (s.phase === "listening") {
-    if (wakeLock.value === "lost") return <Chip tone="warn" pulse={speaking.value}><b>Listening</b> · keep this tab visible or the screen may sleep</Chip>;
-    return (
-      <Chip tone="ok" pulse={speaking.value}>
-        <b>{speaking.value ? "Hearing speech" : "Listening"}</b> · {speechName()}
-      </Chip>
-    );
-  }
-  const m = speechModel.value;
-  if (!isWebSpeech(model.value) && m.phase === "loading") {
-    return (
-      <Chip tone="busy">
-        <b>Not listening</b> · {speechName()} {m.preparing ? "preparing" : `${downloadsPaused.value ? "paused at " : ""}${m.total ? `${(m.loaded / MB).toFixed(0)} of ${(m.total / MB).toFixed(0)} MB` : "downloading"}`}
-      </Chip>
-    );
-  }
-  if (!isWebSpeech(model.value) && m.phase === "error") {
-    return <Chip tone="warn" title={m.message}><b>Not listening</b> · {speechName()} didn't load</Chip>;
-  }
-  return <Chip tone="off"><b>Not listening</b>{!isWebSpeech(model.value) && m.phase === "ready" ? ` · ${speechName()} ready` : ""}</Chip>;
+/** How far a download has got, as the chips show it. */
+function progress(m: { loaded: number; total: number; preparing: boolean }): string {
+  if (m.preparing) return "preparing";
+  const pct = m.total ? `${Math.floor((100 * m.loaded) / m.total)}%` : "";
+  return downloadsPaused.value ? `paused${pct ? ` at ${pct}` : ""}` : `downloading${pct ? ` ${pct}` : ""}`;
 }
 
-/** Who decides the scene, and whether it's ready. */
+const speechName = () => (isWebSpeech(model.value) ? "the browser's speech recognition" : `Whisper ${model.value.replace(".en", "")}`);
+
+/** The listener: whether it can listen, is listening, or can hear anyone. Model details are in the tooltip. */
+export function ListeningChip() {
+  const s = state.value;
+  const name = speechName();
+  if (s.phase === "error") return <Chip tone="warn" title={s.message}><b>Listener</b> · problem</Chip>;
+  if (s.phase === "loading") return <Chip tone="busy" title={name}><b>Listener</b> · {s.preparing || !s.total ? "starting" : progress(s)}</Chip>;
+  if (s.phase === "listening") {
+    if (wakeLock.value === "lost") {
+      return <Chip tone="warn" pulse={speaking.value} title="The screen may sleep and stop the listening: keep this tab visible"><b>Listener</b> · listening, keep this tab visible</Chip>;
+    }
+    return <Chip tone="ok" pulse={speaking.value} title={name}><b>Listener</b> · {speaking.value ? "hearing speech" : "listening"}</Chip>;
+  }
+  if (isWebSpeech(model.value)) return <Chip tone="off" title={name}><b>Listener</b> · ready</Chip>;
+  const m = speechModel.value;
+  if (m.phase === "loading") return <Chip tone="busy" title={name}><b>Listener</b> · {progress(m)}</Chip>;
+  if (m.phase === "error") return <Chip tone="warn" title={`${name}: ${m.message}`}><b>Listener</b> · problem</Chip>;
+  if (m.phase === "ready") return <Chip tone="off" title={name}><b>Listener</b> · ready</Chip>;
+  return <Chip tone="off" title={`${name}, not downloaded yet`}><b>Listener</b> · not downloaded</Chip>;
+}
+
+/** The scene model: who decides the scene, and whether it's ready. Model details are in the tooltip. */
 export function ModelChip() {
   if (effectiveEngine() === "claude") {
     const c = sessionCost.value;
-    return <Chip tone="ok" extra="model"><b>Claude</b>{c.calls ? ` · $${c.usd.toFixed(3)} this session` : " · ready"}</Chip>;
+    return <Chip tone="ok" extra="model" title="Claude decides the scene"><b>Scenes</b> · Claude{c.calls ? `, $${c.usd.toFixed(3)} so far` : ""}</Chip>;
   }
-  if (!hasWebGpu) return <Chip tone="warn" extra="model" title="Gemma needs WebGPU: use an up-to-date Chrome."><b>Embeddings only</b> · no WebGPU</Chip>;
   const llm = sceneLlm.value;
   const embed = localModel.value;
+  const name = `${SCENE_LLM.name} with embeddings, on this computer`;
   if (llm.phase === "error" || embed.phase === "error") {
-    return <Chip tone="warn" extra="model" title={llm.phase === "error" ? llm.message : embed.phase === "error" ? embed.message : ""}><b>Scene model problem</b> · see the log</Chip>;
+    const message = llm.phase === "error" ? llm.message : embed.phase === "error" ? embed.message : "";
+    return <Chip tone="warn" extra="model" title={message}><b>Scenes</b> · problem</Chip>;
   }
-  if (llm.phase === "loading") {
-    return (
-      <Chip tone="busy" extra="model">
-        <b>{SCENE_LLM.name}</b> · {llm.preparing ? "preparing" : `${downloadsPaused.value ? "paused at " : ""}${(llm.loaded / GB).toFixed(1)} of ${(Math.max(llm.total, SCENE_LLM.downloadMb * MB) / GB).toFixed(1)} GB`}
-      </Chip>
-    );
+  if (!hasWebGpu) {
+    return <Chip tone={embed.phase === "ready" || embed.phase === "indexing" ? "ok" : "off"} extra="model" title="No WebGPU in this browser, so only the embedding model decides: less accurate"><b>Scenes</b> · basic</Chip>;
   }
-  if (llm.phase === "ready" && embed.phase === "indexing") {
-    // Scene checks can run already; local track picks wait for this.
-    return (
-      <Chip tone="busy" extra="model" title="Scene checks can run; picking tracks by their descriptions waits for this">
-        <b>{SCENE_LLM.name}</b> · indexing tracks {embed.done} of {embed.total}
-      </Chip>
-    );
+  if (llm.phase === "loading") return <Chip tone="busy" extra="model" title={name}><b>Scenes</b> · {progress(llm)}</Chip>;
+  if (llm.phase === "ready") {
+    const indexing = embed.phase === "indexing" ? `; indexing tracks for picking (${embed.done} of ${embed.total})` : "";
+    return <Chip tone="ok" extra="model" title={name + indexing}><b>Scenes</b> · ready</Chip>;
   }
-  if (llm.phase === "ready" && embed.phase === "loading") {
-    return <Chip tone="busy" extra="model"><b>{SCENE_LLM.name}</b> · loading the embedding model</Chip>;
-  }
-  if (llm.phase === "ready") return <Chip tone="ok" extra="model"><b>{SCENE_LLM.name}</b> + embeddings · ready</Chip>;
-  return <Chip tone="off" extra="model"><b>{SCENE_LLM.name}</b> · {sessionActive.value ? "starting" : "downloads when needed"}</Chip>;
+  return <Chip tone="off" extra="model" title={`${name}, not downloaded yet`}><b>Scenes</b> · {sessionActive.value ? "starting" : "not downloaded"}</Chip>;
 }
 
 /** Whether any model is downloading right now (not just preparing on the GPU). */

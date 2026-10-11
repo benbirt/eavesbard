@@ -106,7 +106,9 @@ try {
     console.log("   refused", refused.split("/").pop(), "; now playing", await page.locator(".track").innerText());
   });
   await step("4-log", async () => {
-    await page.getByRole("button", { name: "Log" }).click();
+    await page.getByRole("button", { name: "More…" }).click();
+    await page.locator(".drawer.open").waitFor();
+    await page.locator(".drawer.open .tab", { hasText: "Session log" }).click();
     await page.locator(".drawer.open .log").waitFor();
     await page.waitForTimeout(500); // the panel slides in
   });
@@ -120,7 +122,9 @@ try {
     await page.waitForFunction(() => !document.querySelector(".drawer.open"));
   });
   await step("6b-click-outside", async () => {
-    await page.getByRole("button", { name: "Log" }).click();
+    await page.getByRole("button", { name: "More…" }).click();
+    await page.locator(".drawer.open").waitFor();
+    await page.locator(".drawer.open .tab", { hasText: "Session log" }).click();
     await page.locator(".drawer.open .log").waitFor();
     await page.mouse.click(40, 300);
     await page.waitForFunction(() => !document.querySelector(".drawer.open"));
@@ -129,8 +133,8 @@ try {
   await step("6d-about", async () => {
     await page.getByRole("button", { name: /^Eavesbard/ }).click();
     await page.locator(".drawer.open #credits .credits li").first().waitFor();
-    await page.waitForTimeout(400);
-    await page.screenshot({ path: join(out, "6d-about.png") });
+    await page.waitForTimeout(1000); // the panel slides in
+    await page.screenshot({ path: join(out, "6d-about-open.png") });
     await page.keyboard.press("Escape");
   });
   await step("6e-short-window", async () => {
@@ -146,14 +150,14 @@ try {
   });
   await step("7b-manual", async () => {
     await page.setViewportSize({ width: 1360, height: 860 });
-    await page.getByRole("button", { name: "Setup" }).click();
+    await page.getByRole("button", { name: "More…" }).click();
     await page.getByRole("checkbox").first().uncheck();
     await page.keyboard.press("Escape");
     await page.locator(".card.picker").waitFor();
     await page.waitForTimeout(500);
   });
   await step("7c-api-key", async () => {
-    await page.getByRole("button", { name: "Setup" }).click();
+    await page.getByRole("button", { name: "More…" }).click();
     await page.getByRole("radio", { name: /Claude/ }).check();
     await page.getByLabel("Anthropic API key", { exact: true }).fill("sk-ant-test-123");
     await page.getByRole("button", { name: "Save" }).click();
@@ -171,8 +175,8 @@ try {
     await page.keyboard.press("Escape");
   });
   await step("7d-debug", async () => {
-    await page.getByRole("button", { name: "Setup" }).click();
-    await page.getByText("Debug options").click();
+    await page.getByRole("button", { name: "More…" }).click();
+    await page.locator(".drawer.open .debug summary").click();
     await page.getByRole("checkbox", { name: /Also ask Claude/ }).check();
     await page.getByText("No API key is saved, so Claude can't be asked yet").waitFor();
     await page.waitForTimeout(300);
@@ -183,7 +187,7 @@ try {
   await step("8-reset", async () => {
     await page.getByRole("button", { name: "Stop session" }).click();
     await page.evaluate(() => localStorage.setItem("eavesbard.anthropicApiKey", "sk-test"));
-    await page.getByRole("button", { name: "Setup" }).click();
+    await page.getByRole("button", { name: "More…" }).click();
     await page.getByRole("button", { name: "Reset to defaults…" }).click();
     await page.waitForTimeout(300);
     await page.screenshot({ path: join(out, "8-reset-confirm.png") });

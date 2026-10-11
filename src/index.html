@@ -162,12 +162,28 @@
       .brand-block:hover .tagline {
         text-decoration: underline;
       }
+      /* Lists in the panels read like the paragraphs around them. */
       .steps {
         padding-left: 20px;
-        margin: 0 0 8px;
+        margin: 6px 0;
+        color: var(--muted);
+        font-size: 13px;
       }
       .steps li {
         margin: 4px 0;
+      }
+      .steps b {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .github-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .github-link svg {
+        width: 16px;
+        height: 16px;
       }
       .chip {
         display: inline-flex;
@@ -246,9 +262,6 @@
       a.iconbtn {
         color: inherit;
         text-decoration: none;
-      }
-      .iconbtn.github {
-        padding: 7px 10px;
       }
       .iconbtn.cast {
         padding: 7px 10px;
