@@ -50,11 +50,11 @@ export function ListeningChip() {
     }
     return <Chip tone="ok" pulse={speaking.value} title={name}><b>Listener</b> · {speaking.value ? "hearing speech" : "listening"}</Chip>;
   }
-  if (isWebSpeech(model.value)) return <Chip tone="off" title={name}><b>Listener</b> · ready</Chip>;
+  if (isWebSpeech(model.value)) return <Chip tone="ok" title={name}><b>Listener</b> · ready</Chip>;
   const m = speechModel.value;
   if (m.phase === "loading") return <Chip tone="busy" title={name}><b>Listener</b> · {progress(m, whisperRepo(model.value as WhisperModel))}</Chip>;
   if (m.phase === "error") return <Chip tone="warn" title={`${name}: ${m.message}`}><b>Listener</b> · problem</Chip>;
-  if (m.phase === "ready") return <Chip tone="off" title={name}><b>Listener</b> · ready</Chip>;
+  if (m.phase === "ready") return <Chip tone="ok" title={name}><b>Listener</b> · ready</Chip>;
   return <Chip tone="off" title={name}><b>Listener</b> · {notLoaded(whisperRepo(model.value as WhisperModel))}</Chip>;
 }
 

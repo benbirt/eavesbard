@@ -72,12 +72,12 @@ export function StartCard() {
             {!hasWebGpu
               ? "Scene model: embeddings only (no WebGPU here)"
               : llm.phase === "ready"
-                ? `Scene model: ${SCENE_LLM.name}, downloaded`
+                ? `Scene model: ${SCENE_LLM.name}, ready`
                 : llm.phase === "loading"
                   ? knownDownloaded(SCENE_LLM.repo)
                     ? `Scene model: loading ${SCENE_LLM.name}`
                     : `Scene model: downloading ${SCENE_LLM.name} (${(llm.loaded / 1e9).toFixed(1)} of ${(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB); the embeddings decide until it's ready`
-                  : `Scene model: ${SCENE_LLM.name}, about ${(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB the first time`}
+                  : `Scene model: ${notLoadedYet(SCENE_LLM.name, SCENE_LLM.repo, `${(SCENE_LLM.downloadMb / 1000).toFixed(1)} GB`)}`}
           </li>
         )}
         {!auto.value && <li class="wait">Automatic music is off: pick tracks below, or turn it on in Setup</li>}
@@ -121,13 +121,19 @@ function pendingDownloadMb(): number {
 
 const size = (mb: number) => (mb >= 1000 ? `${(mb / 1000).toFixed(1)} GB` : `${mb} MB`);
 
+/** A model that isn't loading yet: about to load from the browser, still being checked, or to download. */
+function notLoadedYet(name: string, repo: string, size: string): string {
+  const downloaded = knownDownloaded(repo);
+  return downloaded ? `loading ${name}` : downloaded === undefined ? `checking ${name}` : `${name}, about ${size} to download`;
+}
+
 /** The speech model's line in the readiness list. */
 function SpeechReadiness() {
   const speech = model.value;
   if (isWebSpeech(speech)) return <li>Speech model: Web Speech (the browser's own)</li>;
   const name = `Whisper ${speech.replace(".en", "")}`;
   const m = speechModel.value;
-  if (m.phase === "ready") return <li>Speech model: {name}, downloaded</li>;
+  if (m.phase === "ready") return <li>Speech model: {name}, ready</li>;
   if (m.phase === "error") return <li class="wait">Speech model: {name} didn't load ({m.message}); Begin session tries again</li>;
   if (m.phase === "loading") {
     return (
@@ -141,7 +147,8 @@ function SpeechReadiness() {
       </li>
     );
   }
-  return <li>Speech model: {name}, about {WHISPER_DOWNLOAD_MB[speech]} MB the first time</li>;
+  // Not loading yet: only a ready model gets a tick.
+  return <li class="wait">Speech model: {notLoadedYet(name, whisperRepo(speech), `${WHISPER_DOWNLOAD_MB[speech]} MB`)}</li>;
 }
 
 /** How long ago, roughly: "just now", "40 s ago", "3 min ago". */
