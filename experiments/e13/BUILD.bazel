@@ -42,3 +42,12 @@ js_binary(
     ],
     entry_point = "auc.mjs",
 )
+
+js_binary(
+    name = "calibrate",
+    data = [
+        "score-lib.mjs",
+        "//experiments:paths",
+    ],
+    entry_point = "calibrate.mjs",
+)

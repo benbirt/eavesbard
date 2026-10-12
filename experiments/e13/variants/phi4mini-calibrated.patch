@@ -1,0 +1,73 @@
+diff --git a/src/llm/llm-protocol.ts b/src/llm/llm-protocol.ts
+index f0f9112..1070403 100644
+--- a/src/llm/llm-protocol.ts
++++ b/src/llm/llm-protocol.ts
+@@ -2,11 +2,22 @@
+ // (experiment E9).
+ 
+ /** The LLM blended with the embeddings in local scene checks (experiments/E9.md). */
+-export const SCENE_LLM: { name: string; repo: string; downloadMb: number; load?: Omit<LlmLoad, "repo"> } = {
+-  name: "Gemma 4 E2B",
+-  repo: "onnx-community/gemma-4-E2B-it-ONNX",
++/**
++ * Shifts in log-odds for a model's yes/no answers, so the app's thresholds (set
++ * for Gemma 4 E2B) mean the same for it (experiments/e13/calibrate.mjs).
++ */
++export interface Calibration {
++  danger?: number;
++  started?: number;
++  over?: number;
++}
++
++export const SCENE_LLM: { name: string; repo: string; downloadMb: number; load?: Omit<LlmLoad, "repo">; calibration?: Calibration } = {
++  name: "phi4mini",
++  repo: "onnx-community/Phi-4-mini-instruct-ONNX",
+   /** Text only, 4-bit with 16-bit activations; GPUs without 16-bit floats need about 3.6 GB. */
+-  downloadMb: 3110,
++  downloadMb: 2550,
++  calibration: { danger: 3.71, started: 1.41, over: 2.34 },
+ };
+ 
+ /** What the worker needs to load a model. */
+diff --git a/src/llm/scene-llm.ts b/src/llm/scene-llm.ts
+index 554193e..46fb41b 100644
+--- a/src/llm/scene-llm.ts
++++ b/src/llm/scene-llm.ts
+@@ -47,6 +47,13 @@ export function prepareSceneLlm(): Promise<void> {
+   return loaded;
+ }
+ 
++/** p shifted by `by` in log-odds (no shift without one). */
++function shifted(p: number, by: number | undefined): number {
++  if (!by) return p;
++  const q = Math.min(Math.max(p, 1e-9), 1 - 1e-9);
++  return 1 / (1 + Math.exp(-(Math.log(q / (1 - q)) + by)));
++}
++
+ /** The app's question format: the answer starts "Answer:", then " label" or " Label". */
+ function ask(q: { content: string; labels: string[] }): Promise<number[]> {
+   const spellings = q.labels.map((l) => [` ${l}`, ` ${l[0]!.toUpperCase()}${l.slice(1)}`]);
+@@ -90,7 +97,7 @@ async function askReady(input: LlmInput): Promise<LlmAnswer> {
+   if (!("lines" in input)) threeWay = byLabel(INTENSITIES, await ask(intensityQ));
+   else {
+     // Calm against tense from a yes/no question about danger, in place of the three-way answer's.
+-    const danger = (await ask(yesNoQuestion(input.current, input.lines, DANGER_QUESTION)))[0]!;
++    const danger = shifted((await ask(yesNoQuestion(input.current, input.lines, DANGER_QUESTION)))[0]!, SCENE_LLM.calibration?.danger);
+     threeWay = { calm: 1 - danger, tense: danger, combat: 0 };
+   }
+   let intensity = threeWay;
+@@ -98,11 +105,12 @@ async function askReady(input: LlmInput): Promise<LlmAnswer> {
+   let fight: { asked: "started" | "ended"; yes: number } | undefined;
+   if ("lines" in input) {
+     // The chance of combat comes from asking whether a fight has started (or ended).
+-    const yes = (await ask(fightQuestion(input.lines, input.current)))[0]!;
+     const inFight = input.current.intensity === "combat";
++    const raw = (await ask(fightQuestion(input.lines, input.current)))[0]!;
++    const yes = inFight ? raw : shifted(raw, SCENE_LLM.calibration?.started);
+     fight = { asked: inFight ? "ended" : "started", yes };
+     intensity = mixIntensity(intensity, inFight ? 1 - yes : yes);
+-    if (inFight) fightOver = (await ask(fightOverQuestion(input.lines)))[1];
++    if (inFight) fightOver = shifted((await ask(fightOverQuestion(input.lines)))[1]!, SCENE_LLM.calibration?.over);
+   }
+   return { model: SCENE_LLM.name, setting: byLabel(SETTINGS, setting), intensity, fightOver, parts: { threeWay, fight } };
+ }

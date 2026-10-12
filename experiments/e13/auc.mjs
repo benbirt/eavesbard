@@ -6,6 +6,7 @@
 // steady checks only (as score.mjs counts them).
 //   danger: the danger question's "yes", on checks outside the app's fights; tense against calm.
 //   fight:  "has a fight started?" (outside the app's fights); combat against calm or tense.
+//   ended, over: "has the fight ended?" and "is it still going on?" (in the app's fights); labelled over against combat.
 //   setting: the setting answer's top label against the labelled setting (accuracy, not AUC).
 //   bazel run //experiments/e13:auc -- run1 [run2...]
 import { readFileSync } from "node:fs";
@@ -44,13 +45,16 @@ function labelAt(stretches, t) {
 const top = (o) => Object.entries(o).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
 const pct = (x) => (x === undefined ? "–" : `${Math.round(100 * x)}%`);
 
-console.log("run".padEnd(30) + "danger AUC (n)".padStart(17) + "fight AUC (n)".padStart(17) + "setting".padStart(9) + "   checks");
+console.log("run".padEnd(30) + "danger AUC (n)".padStart(17) + "fight AUC (n)".padStart(17) + "ended AUC (n)".padStart(16) + "over AUC (n)".padStart(16) + "setting".padStart(9) + "   checks");
 for (const name of process.argv.slice(2)) {
   const run = JSON.parse(readFileSync(join(here, "results", `${name}.json`), "utf8"));
   const details = JSON.parse(readFileSync(join(here, "results", `${name}.details.json`), "utf8"));
   const labels = labelsFor(here, run.set);
   const danger = { pos: [], neg: [] };
   const fight = { pos: [], neg: [] };
+  // In the app's fights: "has the fight ended?" and "is it over?", positive where the labels say it is.
+  const ended = { pos: [], neg: [] };
+  const over = { pos: [], neg: [] };
   let settingOk = 0;
   let settingN = 0;
   let n = 0;
@@ -66,6 +70,11 @@ for (const name of process.argv.slice(2)) {
         else if (i === "calm") danger.neg.push(d.llm.parts.threeWay.tense);
         if (d.llm.parts.fight?.asked === "started") (i === "combat" ? fight.pos : fight.neg).push(d.llm.parts.fight.yes);
       }
+      if (!outside && l.intensity.length === 1) {
+        const done = l.intensity[0] !== "combat";
+        if (d.llm.parts.fight?.asked === "ended") (done ? ended.pos : ended.neg).push(d.llm.parts.fight.yes);
+        if (d.llm.fightOver !== undefined) (done ? over.pos : over.neg).push(d.llm.fightOver);
+      }
       if (l.since >= SETTING_GRACE_S) {
         settingN++;
         if (l.setting.includes(top(d.llm.setting))) settingOk++;
@@ -76,6 +85,8 @@ for (const name of process.argv.slice(2)) {
     name.padEnd(30) +
       `${pct(auc(danger.pos, danger.neg))} (${danger.pos.length}/${danger.neg.length})`.padStart(17) +
       `${pct(auc(fight.pos, fight.neg))} (${fight.pos.length}/${fight.neg.length})`.padStart(17) +
+      `${pct(auc(ended.pos, ended.neg))} (${ended.pos.length}/${ended.neg.length})`.padStart(16) +
+      `${pct(auc(over.pos, over.neg))} (${over.pos.length}/${over.neg.length})`.padStart(16) +
       pct(settingN ? settingOk / settingN : undefined).padStart(9) +
       `   ${n}`,
   );
