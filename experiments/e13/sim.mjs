@@ -10,7 +10,7 @@
 // "has it ended?" according to it. Where a variant's scene differs, its
 // answers would have differed too; a fight answer to the other question is
 // left out. Variants that win here are checked with real replays.
-//   bazel run //experiments/e13:sim -- --runs crd3-run2,bardo-run2 [--episodes tune|held|all] [--variants a,b]
+//   bazel run //experiments/e13:sim -- --runs crd3-run2,bardo-run2 [--episodes tune|held|all] [--variants "a|b"]
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
@@ -69,6 +69,22 @@ export const VARIANTS = new Map([
   V("softening 1 (none)", { blend: { temperature: 1 } }),
   V("softening 3", { blend: { temperature: 3 } }),
   // Table talk.
+  // Gemma hears calm play as tense: weigh its "calm" answer more.
+  ...[2, 16, 1e3, 1e5, 1e7].map((k) => V(`calm weighed x${k}`, { calmBoost: k })),
+  ...[1e3, 1e5].map((k) => V(`calm x${k}, table talk as calm`, { calmBoost: k, tableTalkCalm: true })),
+  ...[1e3, 1e5].map((k) => V(`Gemma alone, calm x${k}`, { llm: "only", calmBoost: k })),
+  // Strong calm weights, kept out of fights, or with the fight-over question dropped.
+  ...[1e5, 1e6, 1e7, 1e8].map((k) => V(`calm x${k} outside fights`, { calmBoost: k, calmOutsideFight: true })),
+  ...[1e6, 1e7].map((k) => V(`calm x${k}, no fight-over`, { calmBoost: k, fightOver: false })),
+  ...[1e6, 1e7].map((k) => V(`calm x${k} outside fights, no fight-over`, { calmBoost: k, calmOutsideFight: true, fightOver: false })),
+  ...[1e6, 1e7].map((k) => V(`calm x${k} outside fights, table talk calm`, { calmBoost: k, calmOutsideFight: true, tableTalkCalm: true })),
+  V("no fight-over, combat entry 0.7", { fightOver: false, scene: { combatEntryConfidence: 0.7 } }),
+  // Towards tense (for the danger question, which hears tense play as calm), and in fights.
+  ...[0.5, 0.25, 0.1, 0.01].map((k) => V(`calm weighed x${k}`, { calmBoost: k })),
+  ...[0.1, 0.01, 0.001].map((k) => V(`calm x${k} in fights`, { calmInFight: k })),
+  ...[0.5, 0.25, 0.1].flatMap((k) => [0.01, 0.001].map((f) => V(`calm x${k}, x${f} in fights`, { calmBoost: k, calmInFight: f }))),
+  V("Gemma for setting only", { blend: { weight: { setting: 0.5, intensity: 0 } } }),
+  V("Gemma for intensity only", { blend: { weight: { setting: 0, intensity: 0.5 } } }),
   V("table talk as calm", { tableTalkCalm: true }),
   V("table talk ignored", { blend: { offtopic: "ignore" } }),
   V("table talk veto", { blend: { offtopic: "veto" } }),
@@ -88,7 +104,8 @@ export const VARIANTS = new Map([
 function classify(d, current, v) {
   const settingScores = new Map(Object.entries(d.setting));
   const intensityScores = new Map(Object.entries(d.intensity));
-  const blend = { ...LC.BLEND, ...v.blend, weight: { ...LC.BLEND.weight, ...v.blend?.weight } };
+  // calmBias: neutral unless asked for, whichever build of the app this runs against.
+  const blend = { ...LC.BLEND, calmBias: 1, ...v.blend, weight: { ...LC.BLEND.weight, ...v.blend?.weight } };
   if (v.llm === "off" || !d.llm) return LC.classifyFromScores(settingScores, intensityScores, current);
   const parts = d.llm.parts;
   // Gemma's fight answer was to "has it started?" or "has it ended?", whichever the replayed scene called for.
@@ -96,9 +113,17 @@ function classify(d, current, v) {
   const fightUsable = parts?.fight && (parts.fight.asked === "ended") === inFight;
   const combatChance = fightUsable ? (inFight ? 1 - parts.fight.yes : parts.fight.yes) : undefined;
   let intensity = d.llm.intensity;
+  let threeWayUsed = parts?.threeWay;
   if (parts) {
-    if (v.intensityFrom === "threeWay" || combatChance === undefined) intensity = parts.threeWay;
-    else intensity = LP.mixIntensity(parts.threeWay, combatChance);
+    // calmBoost: weigh Gemma's "calm" answer k times more against "tense" (and "combat").
+    const inCombat = current.intensity === "combat";
+    const k = inCombat ? (v.calmInFight ?? (v.calmOutsideFight ? 1 : (v.calmBoost ?? 1))) : (v.calmBoost ?? 1);
+    const raw = parts.threeWay;
+    const sum = k * raw.calm + raw.tense + raw.combat;
+    const threeWay = { calm: (k * raw.calm) / sum, tense: raw.tense / sum, combat: raw.combat / sum };
+    threeWayUsed = threeWay;
+    if (v.intensityFrom === "threeWay" || combatChance === undefined) intensity = threeWay;
+    else intensity = LP.mixIntensity(threeWay, combatChance);
   }
   // The fight-over answer exists only where the replay was in a fight.
   const fightOver = v.fightOver === false || !inFight || d.current?.intensity !== "combat" ? undefined : d.llm.fightOver;
@@ -106,9 +131,9 @@ function classify(d, current, v) {
   if (v.llm === "only") return gemmaAlone(llm, current, blend);
   if (v.intensityFrom === "fight" && combatChance !== undefined) {
     // Combat from the fight question alone; calm against tense from the embeddings.
-    const c = LC.classifyFromScores(settingScores, intensityScores, current, { ...llm, intensity: parts.threeWay }, blend);
+    const c = LC.classifyFromScores(settingScores, intensityScores, current, { ...llm, intensity: threeWayUsed }, blend);
     if (combatChance > 0.5) return { ...c, intensity: "combat", intensityConfidence: combatChance };
-    return c.intensity === "combat" ? { ...c, intensity: parts.threeWay.tense > parts.threeWay.calm ? "tense" : "calm", intensityConfidence: 1 - combatChance } : c;
+    return c.intensity === "combat" ? { ...c, intensity: threeWayUsed.tense > threeWayUsed.calm ? "tense" : "calm", intensityConfidence: 1 - combatChance } : c;
   }
   if (v.tableTalkCalm) {
     // Fold the embeddings' table-talk descriptions into calm, as round 2's candidate C did.
@@ -170,7 +195,8 @@ if (args.runs) {
   });
   const all = runs.flatMap(({ run }) => Object.keys(run.episodes));
   const only = new Set(args.episodes === "tune" ? all.filter((e) => TUNE.has(e)) : args.episodes === "held" ? all.filter((e) => !TUNE.has(e)) : args.episodes === "all" ? all : args.episodes.split(","));
-  const names = args.variants ? args.variants.split(",") : [...VARIANTS.keys()];
+  const names = args.variants ? args.variants.split("|") : [...VARIANTS.keys()];
+  for (const n of names) if (!VARIANTS.has(n)) throw new Error(`no variant "${n}"`);
   const rows = [];
   for (const name of names) {
     const scores = evaluate(runs, VARIANTS.get(name), only);
