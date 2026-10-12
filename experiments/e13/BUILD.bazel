@@ -33,3 +33,12 @@ js_binary(
     ],
     entry_point = "sim.mjs",
 )
+
+js_binary(
+    name = "auc",
+    data = [
+        "score-lib.mjs",
+        "//experiments:paths",
+    ],
+    entry_point = "auc.mjs",
+)

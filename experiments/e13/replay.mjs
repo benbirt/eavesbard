@@ -41,6 +41,9 @@ const { values: args } = parseArgs({
     headed: { type: "boolean", default: false },
     parallel: { type: "string", default: "3" },
     prefetch: { type: "boolean", default: false },
+    nano: { type: "boolean", default: false },
+    // The models are cached per origin: another port starts without them.
+    port: { type: "string", default: "8765" },
     "max-minutes": { type: "string", default: "240" },
   },
 });
@@ -102,7 +105,7 @@ const server = createServer((req, res) => {
   if (existsSync(p) && statSync(p).isDirectory()) p = join(p, "index.html");
   if (!p.startsWith(site) || !existsSync(p)) return res.writeHead(404).end();
   res.writeHead(200, { "content-type": types[extname(p)] ?? "application/octet-stream" }).end(readFileSync(p));
-}).listen(8765);
+}).listen(Number(args.port));
 
 /** Three minutes of silence (8 kHz, 8-bit mono WAV), served for every track. */
 function silence(seconds = 180) {
@@ -124,8 +127,12 @@ function silence(seconds = 180) {
 }
 const quiet = silence();
 
-const fail = (why) => {
+const contexts = [];
+const fail = async (why) => {
   console.error(why);
+  finished = true;
+  // Close the Chromes first, or they live on holding GPU memory.
+  await Promise.race([Promise.allSettled(contexts.map((c) => c.close())), new Promise((r) => setTimeout(r, 10_000))]);
   process.exit(1);
 };
 setTimeout(() => fail(`gave up after ${args["max-minutes"]} minutes`), Number(args["max-minutes"]) * 60_000).unref();
@@ -149,6 +156,8 @@ async function launch(n) {
   const context = await chromium.launchPersistentContext(profile, {
     ...chrome,
     headless: !args.headed,
+    // --nano: Chrome's built-in Gemini Nano, which Playwright's defaults turn off (component updates).
+    ...(args.nano ? { ignoreDefaultArgs: ["--disable-component-update", "--disable-background-networking"] } : {}),
     // WebGPU in headless Chrome on Linux needs Vulkan, here through ANGLE; without
     // these flags it falls back to SwiftShader, a CPU renderer.
     args: [
@@ -156,10 +165,11 @@ async function launch(n) {
       "--enable-unsafe-webgpu",
       "--ignore-gpu-blocklist",
       "--use-angle=vulkan",
-      "--enable-features=Vulkan",
+      args.nano ? "--enable-features=Vulkan,OptimizationGuideOnDeviceModel:BypassPerfRequirement/true,PromptAPIForGeminiNano" : "--enable-features=Vulkan",
       "--disable-vulkan-surface",
     ],
   });
+  contexts.push(context);
   context.on("close", () => finished || context.done || fail(`Chrome ${n} closed`));
   await context.route("https://sounds.tabletopaudio.com/**", (route) =>
     route.fulfill({ status: 200, contentType: "audio/wav", body: quiet }),
@@ -184,7 +194,7 @@ async function openApp(context, log) {
   page.on("crash", () => fail("a page crashed"));
   page.on("console", (m) => ["error", "warning"].includes(m.type()) && log(`console ${m.type()}: ${m.text().slice(0, 400)}`));
   page.on("worker", (w) => w.on("console", (m) => ["error", "warning"].includes(m.type()) && log(`worker ${m.type()}: ${m.text().slice(0, 400)}`)));
-  await page.goto("http://localhost:8765/?replay");
+  await page.goto(`http://localhost:${args.port}/?replay`);
   // Straight after launch, Chrome's GPU process may still be starting Vulkan, and has no adapter yet.
   let gpu;
   for (let i = 0; i < 20 && !gpu; i++) {
@@ -194,7 +204,7 @@ async function openApp(context, log) {
     });
     if (!gpu) await sleep(500);
   }
-  if (!gpu || /swiftshader/i.test(gpu)) fail(`No hardware WebGPU adapter in this Chrome (${gpu ?? "none"}).`);
+  if (!gpu || /swiftshader/i.test(gpu)) await fail(`No hardware WebGPU adapter in this Chrome (${gpu ?? "none"}).`);
   const t = Date.now();
   await page.evaluate(() => window.eavesbardReplay.prepare());
   log(`WebGPU: ${gpu}; models ready after ${((Date.now() - t) / 1000).toFixed(0)} s`);
@@ -240,6 +250,11 @@ async function replay(context, ep, log) {
   for (const [i, c] of arrivals.entries()) {
     await advanceTo(fake(c.arrive));
     await page.evaluate(([text, at, d]) => window.eavesbardReplay.line(text, at, d), [c.text, fake(c.start), c.duration]);
+    // A run where the scene model stopped answering (or anything else failed) tests nothing: stop it.
+    if (i % 50 === 0) {
+      const error = await page.evaluate(() => window.eavesbardReplay.timeline(0).find((e) => e.event.kind === "error")?.event.text);
+      if (error) await fail(`episode ${ep}: ${error}`);
+    }
     if (i - shown >= 200) {
       shown = i;
       const s = await page.evaluate(() => window.eavesbardReplay.state());
