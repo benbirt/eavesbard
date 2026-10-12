@@ -11,12 +11,14 @@ test("an opening description is asked about on both axes", () => {
 });
 
 test("a transcript question says what the scene was, and the intensity sees fewer words", () => {
-  const lines = Array.from({ length: 100 }, (_, i) => `word${i}`);
+  const lines = Array.from({ length: 400 }, (_, i) => `word${i}`);
   const [setting, intensity] = llmQuestions({ lines, current: { setting: "dungeon", intensity: "combat" } });
   assert.match(setting.content, /Until now the scene was: dungeon, combat/);
-  assert.match(setting.content, /word0 /);
-  assert.doesNotMatch(intensity.content, /word39 /);
-  assert.match(intensity.content, /word40 /);
+  // The setting sees the last 300 words, the intensity the last 60.
+  assert.doesNotMatch(setting.content, /word99 /);
+  assert.match(setting.content, /word100 /);
+  assert.doesNotMatch(intensity.content, /word339 /);
+  assert.match(intensity.content, /word340 /);
 });
 
 test("label probabilities add up spellings and sum to 1", () => {

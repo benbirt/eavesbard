@@ -3,7 +3,7 @@
 
 import { signal } from "@preact/signals";
 import type { LlmAnswer } from "../classify/local-classifier.js";
-import { ANSWER_PREFIX, fightOverQuestion, fightQuestion, llmQuestions, mixIntensity, type LlmInput } from "../classify/llm-prompt.js";
+import { ANSWER_PREFIX, DANGER_QUESTION, fightOverQuestion, fightQuestion, llmQuestions, mixIntensity, yesNoQuestion, type LlmInput } from "../classify/llm-prompt.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
 import { markDownloaded } from "../downloads.js";
 import { LlmClient } from "./llm-client.js";
@@ -85,7 +85,14 @@ async function askReady(input: LlmInput): Promise<LlmAnswer> {
   const setting = await ask(settingQ);
   const byLabel = <L extends string>(labels: readonly L[], probs: number[]) =>
     Object.fromEntries(labels.map((l, i) => [l, probs[i] ?? 0])) as Record<L, number>;
-  const threeWay = byLabel(INTENSITIES, await ask(intensityQ));
+  // During a session, calm against tense comes from the danger question instead of the three-way one.
+  let threeWay: Record<(typeof INTENSITIES)[number], number>;
+  if (!("lines" in input)) threeWay = byLabel(INTENSITIES, await ask(intensityQ));
+  else {
+    // Calm against tense from a yes/no question about danger, in place of the three-way answer's.
+    const danger = (await ask(yesNoQuestion(input.current, input.lines, DANGER_QUESTION)))[0]!;
+    threeWay = { calm: 1 - danger, tense: danger, combat: 0 };
+  }
   let intensity = threeWay;
   let fightOver: number | undefined;
   let fight: { asked: "started" | "ended"; yes: number } | undefined;

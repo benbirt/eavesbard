@@ -22,7 +22,7 @@ export const LLM_INTENSITIES: Record<Intensity, string> = {
 };
 
 /** How much transcript each axis sees. */
-const SETTING_WORDS = 150;
+const SETTING_WORDS = 300;
 const INTENSITY_WORDS = 60;
 
 export interface LlmQuestion {
@@ -127,6 +127,10 @@ export const FIGHT_QUESTIONS = {
   ended:
     "Has the fight ended? Say yes if the enemies are dead, have fled or surrendered, or the game master has said the fight is over.",
 };
+
+/** Calm against tense, asked as yes or no (E13: the three-way question heard calm play as tense). */
+export const DANGER_QUESTION =
+  "Is the party in danger or under threat right now: enemies close by, a hostile or tense encounter, sneaking or hiding, being watched or hunted, a chase, a trap, or exploring somewhere dangerous? Say no only if the characters are safe: talking among friends, planning, shopping, travelling, resting, eating or looting with no threat present, or the players are chatting about the game.";
 
 /** The transcript, with the newest line apart from the earlier ones. */
 export function transcriptBlock(lines: readonly string[], words: number): string {
