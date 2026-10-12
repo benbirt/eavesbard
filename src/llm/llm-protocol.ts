@@ -2,7 +2,7 @@
 // (experiment E9).
 
 /** The LLM blended with the embeddings in local scene checks (experiments/E9.md). */
-export const SCENE_LLM = {
+export const SCENE_LLM: { name: string; repo: string; downloadMb: number; load?: Omit<LlmLoad, "repo"> } = {
   name: "Gemma 4 E2B",
   repo: "onnx-community/gemma-4-E2B-it-ONNX",
   /** Text only, 4-bit with 16-bit activations; GPUs without 16-bit floats need about 3.6 GB. */

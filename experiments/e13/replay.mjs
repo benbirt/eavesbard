@@ -22,6 +22,7 @@
 // The transcripts are downloaded at run time into .data/ (not committed: the
 // words are the shows'). Results keep no transcript text: results/<name>.json.
 //   bazel run //experiments/e13:replay -- --name run1 [--set bardo|crd3] [--episodes 1,2] [--parallel 3] [--headed]
+// A new model: first --prefetch (downloads it into the evaluation profile, which runs copy).
 // Then score it: bazel run //experiments/e13:score -- experiments/e13/results/run1.json
 import { chromium } from "playwright-core";
 import { createServer } from "node:http";
@@ -39,10 +40,11 @@ const { values: args } = parseArgs({
     episodes: { type: "string" },
     headed: { type: "boolean", default: false },
     parallel: { type: "string", default: "3" },
+    prefetch: { type: "boolean", default: false },
     "max-minutes": { type: "string", default: "240" },
   },
 });
-if (!args.name || !["bardo", "crd3"].includes(args.set)) {
+if (!(args.name || args.prefetch) || !["bardo", "crd3"].includes(args.set)) {
   console.error("Give the run a --name, and --set bardo or crd3.");
   process.exit(2);
 }
@@ -130,15 +132,20 @@ setTimeout(() => fail(`gave up after ${args["max-minutes"]} minutes`), Number(ar
 let finished = false;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const profiles = join(here, ".data", "chrome", args.name);
+const profiles = join(here, ".data", "chrome", args.name ?? "prefetch");
 
 /** A Chrome of its own, on a fresh copy of the evaluation profile (which holds the models). */
 async function launch(n) {
-  const profile = join(profiles, String(n));
-  rmSync(profile, { recursive: true, force: true });
-  mkdirSync(profiles, { recursive: true });
   // realpath: in a worktree the evaluation profile may be a link to the main checkout's.
-  execFileSync("cp", ["-a", "--reflink=auto", realpathSync(source("experiments/e9/.chrome-profile")), profile]);
+  const evaluation = realpathSync(source("experiments/e9/.chrome-profile"));
+  let profile = evaluation;
+  if (n !== "prefetch") {
+    profile = join(profiles, String(n));
+    rmSync(profile, { recursive: true, force: true });
+    mkdirSync(profiles, { recursive: true });
+    execFileSync("cp", ["-a", "--reflink=auto", evaluation, profile]);
+    for (const lock of ["SingletonLock", "SingletonSocket", "SingletonCookie"]) rmSync(join(profile, lock), { force: true });
+  }
   const context = await chromium.launchPersistentContext(profile, {
     ...chrome,
     headless: !args.headed,
@@ -271,6 +278,17 @@ async function replay(context, ep, log) {
     // Each local check's raw scores, for offline blends (sim.mjs): large, kept apart from the results.
     details: details.map((d) => ({ ...d, t: offset(d.at) })),
   };
+}
+
+// --prefetch: download a new model into the evaluation profile itself, once, for later runs to copy.
+if (args.prefetch) {
+  const context = await launch("prefetch");
+  const { page } = await openApp(context, (s) => console.log(s));
+  await page.close();
+  context.done = true;
+  await context.close();
+  server.close();
+  process.exit(0);
 }
 
 // The longest episodes first, so no Chrome is left with a long one at the end.

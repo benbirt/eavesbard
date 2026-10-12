@@ -29,7 +29,7 @@ export function prepareSceneLlm(): Promise<void> {
     sceneLlm.value = { phase: "loading", loaded: 0, total: 0, preparing: false };
     client = new LlmClient();
     try {
-      await client.load({ repo: SCENE_LLM.repo }, (p) => {
+      await client.load({ repo: SCENE_LLM.repo, ...SCENE_LLM.load }, (p) => {
         if (sceneLlm.value.phase !== "loading") return;
         sceneLlm.value = p.preparing ? { ...sceneLlm.value, preparing: true } : { phase: "loading", ...p };
       });
