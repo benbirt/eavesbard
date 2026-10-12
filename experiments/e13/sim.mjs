@@ -88,6 +88,8 @@ export const VARIANTS = new Map([
   ...[0.5, 0.25, 0.1].map((k) => V(`danger leans tense x${1 / k} in dungeons`, { calmBySetting: { dungeon: k } })),
   ...[0.5, 0.25, 0.1].map((k) => V(`danger leans tense x${1 / k} in dungeons, wilds`, { calmBySetting: { dungeon: k, wilderness: k } })),
   ...[0.5, 0.25].flatMap((k) => [0.8, 0.9].map((x) => V(`calm x${k}, calm ends tense at ${x}`, { calmBoost: k, calmFromTense: x }))),
+  // Round 4: recalibrating another model's answers (e.g. Phi-4-mini says yes more readily than Gemma).
+  ...[1, 4, 16, 64, 256].flatMap((k) => [0.6, 0.9, 0.97, 0.99].map((e) => V(`recalibrated: calm x${k}, combat entry ${e}`, { calmBoost: k, scene: { combatEntryConfidence: e } }))),
   V("Gemma for setting only", { blend: { weight: { setting: 0.5, intensity: 0 } } }),
   V("Gemma for intensity only", { blend: { weight: { setting: 0, intensity: 0.5 } } }),
   V("table talk as calm", { tableTalkCalm: true }),

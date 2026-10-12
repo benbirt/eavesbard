@@ -1,0 +1,2575 @@
+{
+ "name": "r4-m-qwen35-2b-bardo",
+ "set": "bardo",
+ "gpu": "nvidia blackwell",
+ "parallel": 3,
+ "episodes": {
+  "1": {
+   "startOffset": 0,
+   "end": 2154.5099999999998,
+   "speech": 803,
+   "events": [
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Session started."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Listening to a replayed transcript."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Local model decides the scene and picks the tracks."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Local scene checks blend the embedding model with qwen35-2b, once it has downloaded."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Opening scene: tavern, calm (default; describe the opening scene next time to choose it)."
+    },
+    {
+     "t": 0,
+     "kind": "decision",
+     "changed": true,
+     "from": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "tavern → wilderness, set by you.",
+      "intensity": "still calm."
+     }
+    },
+    {
+     "t": 15.5,
+     "kind": "music",
+     "text": "Playing Winter Woods (you set the scene to wilderness). Local model: closest match (similarity 0.70)."
+    },
+    {
+     "t": 76.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.4612857541198207,
+      "intensity": "calm",
+      "intensityConfidence": 0,
+      "tableTalk": true,
+      "reason": "embeddings: dungeon, offtopic; qwen35-2b: tavern, calm; blended: dungeon, off-topic"
+     },
+     "latencyMs": 61115
+    },
+    {
+     "t": 76.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "dungeon ignored: only 46% confident.",
+      "intensity": "sounds like table talk, so no change."
+     }
+    },
+    {
+     "t": 191.3,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.7386280828189351,
+      "intensity": "calm",
+      "intensityConfidence": 0,
+      "tableTalk": true,
+      "reason": "embeddings: wilderness, offtopic; qwen35-2b: wilderness, calm; blended: wilderness, off-topic"
+     },
+     "latencyMs": 97977
+    },
+    {
+     "t": 191.3,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "still wilderness.",
+      "intensity": "sounds like table talk, so no change."
+     }
+    },
+    {
+     "t": 219,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 219,
+     "kind": "music",
+     "text": "Playing Lorekeeper Grove (the last track ended). Local model: closest match (similarity 0.67)."
+    },
+    {
+     "t": 306.5,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.33699552196997684,
+      "intensity": "combat",
+      "intensityConfidence": 0.5503649299293285,
+      "reason": "embeddings: travel, combat; qwen35-2b: wilderness, tense; blended: wilderness, combat"
+     },
+     "latencyMs": 107411
+    },
+    {
+     "t": 306.5,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 34% confident.",
+      "intensity": "maybe combat (55% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 412,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 412,
+     "kind": "music",
+     "text": "Playing Treefolk Village (the last track ended). Local model: closest match (similarity 0.65)."
+    },
+    {
+     "t": 428,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.49792322958230195,
+      "intensity": "calm",
+      "intensityConfidence": 0,
+      "tableTalk": true,
+      "reason": "embeddings: wilderness, offtopic; qwen35-2b: wilderness, calm; blended: wilderness, off-topic"
+     },
+     "latencyMs": 107667
+    },
+    {
+     "t": 428.1,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 50% confident.",
+      "intensity": "sounds like table talk, so no change; still maybe combat."
+     }
+    },
+    {
+     "t": 546.8,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "travel",
+      "settingConfidence": 0.5271120336658295,
+      "intensity": "tense",
+      "intensityConfidence": 0.39244170414597285,
+      "reason": "embeddings: travel, offtopic; qwen35-2b: wilderness, tense; blended: travel, tense"
+     },
+     "latencyMs": 106349
+    },
+    {
+     "t": 546.8,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "maybe travel (53% sure): changes if the next scene check agrees, or one is 80%+ sure.",
+      "intensity": "tense ignored: only 39% confident."
+     }
+    },
+    {
+     "t": 618.1,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 618.2,
+     "kind": "music",
+     "text": "Playing Secret Garden (the last track ended). Local model: closest match (similarity 0.71)."
+    },
+    {
+     "t": 668.9,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.7581452823596926,
+      "intensity": "tense",
+      "intensityConfidence": 0.7095007314195194,
+      "reason": "embeddings: wilderness, tense; qwen35-2b: wilderness, tense; blended: wilderness, tense"
+     },
+     "latencyMs": 106948
+    },
+    {
+     "t": 668.9,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "still wilderness; dropped the pending change to travel.",
+      "intensity": "maybe tense (71% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 792.8,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.5767528864276643,
+      "intensity": "combat",
+      "intensityConfidence": 0.6513045954743996,
+      "reason": "embeddings: wilderness, combat; qwen35-2b: wilderness, tense; blended: wilderness, combat"
+     },
+     "latencyMs": 110299
+    },
+    {
+     "t": 792.8,
+     "kind": "decision",
+     "changed": true,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "still wilderness.",
+      "intensity": "calm → combat at once (65% confident)."
+     }
+    },
+    {
+     "t": 792.8,
+     "kind": "music",
+     "text": "Playing Terror in the Woods (intensity changed to combat). Local model: closest match (similarity 0.74)."
+    },
+    {
+     "t": 936.9,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.5986377625047983,
+      "intensity": "tense",
+      "intensityConfidence": 0.5587639075195607,
+      "reason": "embeddings: wilderness, tense; qwen35-2b: wilderness, combat, fight over (23%); blended: wilderness, tense"
+     },
+     "latencyMs": 133324
+    },
+    {
+     "t": 936.9,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "still wilderness.",
+      "intensity": "maybe tense (56% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 985.5,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 985.5,
+     "kind": "music",
+     "text": "Playing The Wild Hunt (the last track ended). Local model: closest match (similarity 0.73)."
+    },
+    {
+     "t": 1077.2,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.3322050531198841,
+      "intensity": "combat",
+      "intensityConfidence": 0.6873503244046811,
+      "reason": "embeddings: tavern, combat; qwen35-2b: wilderness, combat, fight over (14%); blended: tavern, combat"
+     },
+     "latencyMs": 136665
+    },
+    {
+     "t": 1077.2,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "tavern ignored: only 33% confident.",
+      "intensity": "still combat; dropped the pending change to tense."
+     }
+    },
+    {
+     "t": 1178.9,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1178.9,
+     "kind": "music",
+     "text": "Playing Battle Requiem (the last track ended). Local model: closest match (similarity 0.59)."
+    },
+    {
+     "t": 1225.9,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.4082299283349782,
+      "intensity": "tense",
+      "intensityConfidence": 0.4721268872154041,
+      "reason": "embeddings: travel, tense; qwen35-2b: wilderness, combat, fight over (20%); blended: wilderness, tense"
+     },
+     "latencyMs": 133848
+    },
+    {
+     "t": 1225.9,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 41% confident.",
+      "intensity": "tense ignored: only 47% confident."
+     }
+    },
+    {
+     "t": 1361.2,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1361.3,
+     "kind": "music",
+     "text": "Playing There be Dragons (the last track ended). Local model: closest match (similarity 0.67)."
+    },
+    {
+     "t": 1369.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.42307652613623886,
+      "intensity": "combat",
+      "intensityConfidence": 0.6295792318469261,
+      "reason": "embeddings: wilderness, combat; qwen35-2b: wilderness, combat, fight over (22%); blended: wilderness, combat"
+     },
+     "latencyMs": 140114
+    },
+    {
+     "t": 1369.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 42% confident.",
+      "intensity": "still combat."
+     }
+    },
+    {
+     "t": 1522.5,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.3903867232512669,
+      "intensity": "combat",
+      "intensityConfidence": 0,
+      "tableTalk": true,
+      "reason": "embeddings: dungeon, offtopic; qwen35-2b: wilderness, combat, fight over (26%); blended: wilderness, off-topic"
+     },
+     "latencyMs": 141298
+    },
+    {
+     "t": 1522.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 39% confident.",
+      "intensity": "sounds like table talk, so no change."
+     }
+    },
+    {
+     "t": 1560.4,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1560.4,
+     "kind": "music",
+     "text": "Playing Fire Dance (the last track ended). Local model: closest match (similarity 0.69)."
+    },
+    {
+     "t": 1677.7,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.368420928458279,
+      "intensity": "combat",
+      "intensityConfidence": 0.4846704351529332,
+      "reason": "embeddings: dungeon, tense; qwen35-2b: wilderness, combat, fight over (44%); blended: dungeon, combat"
+     },
+     "latencyMs": 145406
+    },
+    {
+     "t": 1677.7,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "dungeon ignored: only 37% confident.",
+      "intensity": "combat ignored: only 48% confident."
+     }
+    },
+    {
+     "t": 1746.7,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1746.7,
+     "kind": "music",
+     "text": "Playing Goblin Ambush (the last track ended). Local model: closest match (similarity 0.68)."
+    },
+    {
+     "t": 1834.8,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.3432590326954099,
+      "intensity": "combat",
+      "intensityConfidence": 0.6413354018151964,
+      "reason": "embeddings: travel, combat; qwen35-2b: wilderness, combat, fight over (21%); blended: wilderness, combat"
+     },
+     "latencyMs": 149420
+    },
+    {
+     "t": 1834.8,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 34% confident.",
+      "intensity": "still combat."
+     }
+    },
+    {
+     "t": 1925.9,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1925.9,
+     "kind": "music",
+     "text": "Playing Terror in the Woods (the last track ended). Local model: closest match (similarity 0.70)."
+    },
+    {
+     "t": 1980.1,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "interior",
+      "settingConfidence": 0.33004399287645586,
+      "intensity": "tense",
+      "intensityConfidence": 0.5871505614384849,
+      "reason": "embeddings: interior, tense; qwen35-2b: wilderness, combat, fight over (19%); blended: interior, tense"
+     },
+     "latencyMs": 144784
+    },
+    {
+     "t": 1980.1,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "interior ignored: only 33% confident.",
+      "intensity": "maybe tense (59% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 2109.6,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 2109.6,
+     "kind": "music",
+     "text": "Playing Rope Bridge (the last track ended). Local model: closest match (similarity 0.63)."
+    },
+    {
+     "t": 2126.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.35314305158866455,
+      "intensity": "combat",
+      "intensityConfidence": 0.5709518031202275,
+      "reason": "embeddings: tavern, combat; qwen35-2b: wilderness, combat, fight over (32%); blended: wilderness, combat"
+     },
+     "latencyMs": 140941
+    },
+    {
+     "t": 2126.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 35% confident.",
+      "intensity": "still combat; dropped the pending change to tense."
+     }
+    },
+    {
+     "t": 2278.5,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.5749172350580767,
+      "intensity": "combat",
+      "intensityConfidence": 0.7709563521180187,
+      "reason": "embeddings: wilderness, combat; qwen35-2b: wilderness, combat, fight over (20%); blended: wilderness, combat"
+     },
+     "latencyMs": 129921
+    },
+    {
+     "t": 2278.5,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "still wilderness.",
+      "intensity": "still combat."
+     }
+    }
+   ]
+  },
+  "3": {
+   "startOffset": 0,
+   "end": 2103.69,
+   "speech": 785,
+   "events": [
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Session started."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Listening to a replayed transcript."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Local model decides the scene and picks the tracks."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Local scene checks blend the embedding model with qwen35-2b, once it has downloaded."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Opening scene: tavern, calm (default; describe the opening scene next time to choose it)."
+    },
+    {
+     "t": 0,
+     "kind": "decision",
+     "changed": true,
+     "from": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "town",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "tavern → town, set by you.",
+      "intensity": "still calm."
+     }
+    },
+    {
+     "t": 16.3,
+     "kind": "music",
+     "text": "Playing Rainy Village (you set the scene to town). Local model: closest match (similarity 0.71)."
+    },
+    {
+     "t": 76.9,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.45196682070171684,
+      "intensity": "combat",
+      "intensityConfidence": 0.4005606429100843,
+      "reason": "embeddings: dungeon, combat; qwen35-2b: tavern, calm; blended: dungeon, combat"
+     },
+     "latencyMs": 60628
+    },
+    {
+     "t": 77,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "town",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "town",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "dungeon ignored: only 45% confident.",
+      "intensity": "combat ignored: only 40% confident."
+     }
+    },
+    {
+     "t": 193.4,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "travel",
+      "settingConfidence": 0.2527903702783923,
+      "intensity": "tense",
+      "intensityConfidence": 0.29711332069310525,
+      "reason": "embeddings: travel, offtopic; qwen35-2b: wilderness, tense; blended: travel, tense"
+     },
+     "latencyMs": 99096
+    },
+    {
+     "t": 193.4,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "town",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "town",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "travel ignored: only 25% confident.",
+      "intensity": "tense ignored: only 30% confident."
+     }
+    },
+    {
+     "t": 220.7,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 220.8,
+     "kind": "music",
+     "text": "Playing Between Adventures (the last track ended). Local model: closest match (similarity 0.62)."
+    },
+    {
+     "t": 307.5,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.5844062279877994,
+      "intensity": "tense",
+      "intensityConfidence": 0.6763698410632379,
+      "reason": "embeddings: tavern, tense; qwen35-2b: wilderness, tense; blended: tavern, tense"
+     },
+     "latencyMs": 106027
+    },
+    {
+     "t": 307.5,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "town",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "town",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "maybe tavern (58% sure): changes if the next scene check agrees, or one is 80%+ sure.",
+      "intensity": "maybe tense (68% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 414.6,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 414.6,
+     "kind": "music",
+     "text": "Playing River Town (the last track ended). Local model: closest match (similarity 0.65)."
+    },
+    {
+     "t": 430.4,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.54473367996342,
+      "intensity": "calm",
+      "intensityConfidence": 0.5864621247383428,
+      "reason": "embeddings: tavern, calm; qwen35-2b: tavern, tense; blended: tavern, calm"
+     },
+     "latencyMs": 108115
+    },
+    {
+     "t": 430.4,
+     "kind": "decision",
+     "changed": true,
+     "from": {
+      "setting": "town",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "town → tavern (2 checks in a row agree).",
+      "intensity": "still calm; dropped the pending change to tense."
+     }
+    },
+    {
+     "t": 430.4,
+     "kind": "music",
+     "text": "Playing Mountain Tavern (setting changed to tavern). Local model: closest match (similarity 0.64)."
+    },
+    {
+     "t": 552.8,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.6917669321648704,
+      "intensity": "tense",
+      "intensityConfidence": 0.46829239357551067,
+      "reason": "embeddings: tavern, tense; qwen35-2b: tavern, tense; blended: tavern, tense"
+     },
+     "latencyMs": 108201
+    },
+    {
+     "t": 552.8,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "still tavern.",
+      "intensity": "tense ignored: only 47% confident."
+     }
+    },
+    {
+     "t": 636.7,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 636.7,
+     "kind": "music",
+     "text": "Playing Tavern Celebration (the last track ended). Local model: closest match (similarity 0.67)."
+    },
+    {
+     "t": 675.5,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.43811556811742197,
+      "intensity": "tense",
+      "intensityConfidence": 0.6755398720680686,
+      "reason": "embeddings: wilderness, tense; qwen35-2b: wilderness, tense; blended: wilderness, tense"
+     },
+     "latencyMs": 109256
+    },
+    {
+     "t": 675.5,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 44% confident.",
+      "intensity": "maybe tense (68% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 795,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.6644560850317044,
+      "intensity": "tense",
+      "intensityConfidence": 0.4512431489145632,
+      "reason": "embeddings: tavern, tense; qwen35-2b: tavern, tense; blended: tavern, tense"
+     },
+     "latencyMs": 106702
+    },
+    {
+     "t": 795,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "still tavern.",
+      "intensity": "tense ignored: only 45% confident."
+     }
+    },
+    {
+     "t": 841.5,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 841.5,
+     "kind": "music",
+     "text": "Playing Viking Tavern (the last track ended). Local model: closest match (similarity 0.69)."
+    },
+    {
+     "t": 918.9,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "travel",
+      "settingConfidence": 0.31454331259008683,
+      "intensity": "combat",
+      "intensityConfidence": 0.6623915471081299,
+      "reason": "embeddings: travel, combat; qwen35-2b: wilderness, tense; blended: travel, combat"
+     },
+     "latencyMs": 110403
+    },
+    {
+     "t": 918.9,
+     "kind": "decision",
+     "changed": true,
+     "from": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "travel ignored: only 31% confident.",
+      "intensity": "calm → combat at once (66% confident)."
+     }
+    },
+    {
+     "t": 918.9,
+     "kind": "music",
+     "text": "Playing Pit Fighter (intensity changed to combat). Local model: closest match (similarity 0.62); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 1063.2,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.30558111135609284,
+      "intensity": "combat",
+      "intensityConfidence": 0.7842357954478071,
+      "reason": "embeddings: dungeon, combat; qwen35-2b: tavern, combat, fight over (14%); blended: dungeon, combat"
+     },
+     "latencyMs": 134094
+    },
+    {
+     "t": 1063.3,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "dungeon ignored: only 31% confident.",
+      "intensity": "still combat."
+     }
+    },
+    {
+     "t": 1109.2,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1109.2,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.60); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 1197.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.42501303317526884,
+      "intensity": "tense",
+      "intensityConfidence": 0.5818405422737003,
+      "reason": "embeddings: wilderness, tense; qwen35-2b: wilderness, combat, fight over (28%); blended: wilderness, tense"
+     },
+     "latencyMs": 132585
+    },
+    {
+     "t": 1197.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 43% confident.",
+      "intensity": "maybe tense (58% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 1292,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1292,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.59); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 1342,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.25330306786257417,
+      "intensity": "combat",
+      "intensityConfidence": 0.588748694544313,
+      "reason": "embeddings: dungeon, combat; qwen35-2b: wilderness, combat, fight over (9%); blended: dungeon, combat"
+     },
+     "latencyMs": 140363
+    },
+    {
+     "t": 1342,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "dungeon ignored: only 25% confident.",
+      "intensity": "still combat; dropped the pending change to tense."
+     }
+    },
+    {
+     "t": 1480.8,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1480.8,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.59); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 1496,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.36488555860856486,
+      "intensity": "combat",
+      "intensityConfidence": 0,
+      "tableTalk": true,
+      "reason": "embeddings: dungeon, offtopic; qwen35-2b: town, combat, fight over (15%); blended: dungeon, off-topic"
+     },
+     "latencyMs": 143690
+    },
+    {
+     "t": 1496,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "dungeon ignored: only 36% confident.",
+      "intensity": "sounds like table talk, so no change."
+     }
+    },
+    {
+     "t": 1645.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.25875645387027185,
+      "intensity": "combat",
+      "intensityConfidence": 0.7653838307863288,
+      "reason": "embeddings: travel, combat; qwen35-2b: interior, combat, fight over (17%); blended: tavern, combat"
+     },
+     "latencyMs": 142780
+    },
+    {
+     "t": 1645.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "tavern ignored: only 26% confident.",
+      "intensity": "still combat."
+     }
+    },
+    {
+     "t": 1673.5,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1673.5,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.57); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 1801.1,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.5096845259023824,
+      "intensity": "combat",
+      "intensityConfidence": 0.7182779555649713,
+      "reason": "embeddings: dungeon, combat; qwen35-2b: interior, combat, fight over (25%); blended: dungeon, combat"
+     },
+     "latencyMs": 147613
+    },
+    {
+     "t": 1801.1,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "maybe dungeon (51% sure): changes if the next scene check agrees, or one is 80%+ sure.",
+      "intensity": "still combat."
+     }
+    },
+    {
+     "t": 1855.7,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1855.7,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.55); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 1953.5,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.4531523658478201,
+      "intensity": "tense",
+      "intensityConfidence": 0.5911339684324401,
+      "reason": "embeddings: tavern, tense; qwen35-2b: tavern, combat, fight over (25%); blended: tavern, tense"
+     },
+     "latencyMs": 148981
+    },
+    {
+     "t": 1953.5,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "tavern ignored: only 45% confident.",
+      "intensity": "maybe tense (59% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 2036.1,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 2036.2,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.61); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 2098.1,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.35671535697496803,
+      "intensity": "combat",
+      "intensityConfidence": 0.7146319641890556,
+      "reason": "embeddings: travel, combat; qwen35-2b: wilderness, combat, fight over (12%); blended: wilderness, combat"
+     },
+     "latencyMs": 142725
+    },
+    {
+     "t": 2098.1,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 36% confident.",
+      "intensity": "still combat; dropped the pending change to tense."
+     }
+    }
+   ]
+  },
+  "6": {
+   "startOffset": 0,
+   "end": 2015.75,
+   "speech": 660,
+   "events": [
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Session started."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Listening to a replayed transcript."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Local model decides the scene and picks the tracks."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Local scene checks blend the embedding model with qwen35-2b, once it has downloaded."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Opening scene: tavern, calm (default; describe the opening scene next time to choose it)."
+    },
+    {
+     "t": 0,
+     "kind": "decision",
+     "changed": true,
+     "from": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "interior",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "tavern → interior, set by you.",
+      "intensity": "still calm."
+     }
+    },
+    {
+     "t": 32.8,
+     "kind": "music",
+     "text": "Playing Temple Garden (you set the scene to interior). Local model: closest match (similarity 0.68)."
+    },
+    {
+     "t": 105.2,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "travel",
+      "settingConfidence": 0.484786554828101,
+      "intensity": "tense",
+      "intensityConfidence": 0.47045321234803555,
+      "reason": "embeddings: travel, tense; qwen35-2b: interior, calm; blended: travel, tense"
+     },
+     "latencyMs": 61716
+    },
+    {
+     "t": 105.2,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "interior",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "interior",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "travel ignored: only 48% confident.",
+      "intensity": "tense ignored: only 47% confident."
+     }
+    },
+    {
+     "t": 219.2,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.5396784660931524,
+      "intensity": "combat",
+      "intensityConfidence": 0.48337732989537974,
+      "reason": "embeddings: dungeon, combat; qwen35-2b: interior, tense; blended: dungeon, combat"
+     },
+     "latencyMs": 100116
+    },
+    {
+     "t": 219.2,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "interior",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "interior",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "maybe dungeon (54% sure): changes if the next scene check agrees, or one is 80%+ sure.",
+      "intensity": "combat ignored: only 48% confident."
+     }
+    },
+    {
+     "t": 243.1,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 243.2,
+     "kind": "music",
+     "text": "Playing Halfling Sneak (the last track ended). Local model: closest match (similarity 0.64)."
+    },
+    {
+     "t": 333.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "interior",
+      "settingConfidence": 0.7299322805648871,
+      "intensity": "tense",
+      "intensityConfidence": 0.43838709352199456,
+      "reason": "embeddings: interior, combat; qwen35-2b: interior, tense; blended: interior, tense"
+     },
+     "latencyMs": 107775
+    },
+    {
+     "t": 333.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "interior",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "interior",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "still interior; dropped the pending change to dungeon.",
+      "intensity": "tense ignored: only 44% confident."
+     }
+    },
+    {
+     "t": 435,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 435.1,
+     "kind": "music",
+     "text": "Playing Drawing Room: Night (the last track ended). Local model: closest match (similarity 0.62)."
+    },
+    {
+     "t": 453.2,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.6152952756818626,
+      "intensity": "combat",
+      "intensityConfidence": 0.6115942841781306,
+      "reason": "embeddings: tavern, combat; qwen35-2b: tavern, tense; blended: tavern, combat"
+     },
+     "latencyMs": 106840
+    },
+    {
+     "t": 453.2,
+     "kind": "decision",
+     "changed": true,
+     "from": {
+      "setting": "interior",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "interior",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "maybe tavern (62% sure): changes if the next scene check agrees, or one is 80%+ sure.",
+      "intensity": "calm → combat at once (61% confident)."
+     }
+    },
+    {
+     "t": 453.2,
+     "kind": "music",
+     "text": "Playing Danse de Vampyr (intensity changed to combat). Local model: closest match (similarity 0.61)."
+    },
+    {
+     "t": 603.5,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.5264690318061622,
+      "intensity": "combat",
+      "intensityConfidence": 0.4349917367929116,
+      "reason": "embeddings: tavern, tense; qwen35-2b: interior, combat, fight over (44%); blended: tavern, combat"
+     },
+     "latencyMs": 129711
+    },
+    {
+     "t": 603.5,
+     "kind": "decision",
+     "changed": true,
+     "from": {
+      "setting": "interior",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "interior → tavern (2 checks in a row agree).",
+      "intensity": "combat ignored: only 43% confident."
+     }
+    },
+    {
+     "t": 603.6,
+     "kind": "music",
+     "text": "Playing Pit Fighter (setting changed to tavern). Local model: closest match (similarity 0.53); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 734.8,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "interior",
+      "settingConfidence": 0.26586434405965415,
+      "intensity": "combat",
+      "intensityConfidence": 0.7718019729494492,
+      "reason": "embeddings: dungeon, combat; qwen35-2b: wilderness, combat, fight over (26%); blended: interior, combat"
+     },
+     "latencyMs": 116852
+    },
+    {
+     "t": 734.8,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "interior ignored: only 27% confident.",
+      "intensity": "still combat."
+     }
+    },
+    {
+     "t": 802.9,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 802.9,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.57); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 872.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.5196267420714961,
+      "intensity": "tense",
+      "intensityConfidence": 0.4608622260746659,
+      "reason": "embeddings: dungeon, tense; qwen35-2b: tavern, combat, fight over (28%); blended: dungeon, tense"
+     },
+     "latencyMs": 131471
+    },
+    {
+     "t": 872.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "maybe dungeon (52% sure): changes if the next scene check agrees, or one is 80%+ sure.",
+      "intensity": "tense ignored: only 46% confident."
+     }
+    },
+    {
+     "t": 986.2,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 986.2,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.61); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 1008.9,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.5538034205882004,
+      "intensity": "tense",
+      "intensityConfidence": 0.6566004381486454,
+      "reason": "embeddings: wilderness, tense; qwen35-2b: interior, combat, fight over (25%); blended: wilderness, tense"
+     },
+     "latencyMs": 131948
+    },
+    {
+     "t": 1008.9,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "maybe wilderness (55% sure): changes if the next scene check agrees, or one is 80%+ sure.",
+      "intensity": "maybe tense (66% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 1147.9,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.3422294216248237,
+      "intensity": "combat",
+      "intensityConfidence": 0,
+      "tableTalk": true,
+      "reason": "embeddings: dungeon, offtopic; qwen35-2b: interior, combat, fight over (16%); blended: dungeon, off-topic"
+     },
+     "latencyMs": 133468
+    },
+    {
+     "t": 1147.9,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "dungeon ignored: only 34% confident.",
+      "intensity": "sounds like table talk, so no change; still maybe tense."
+     }
+    },
+    {
+     "t": 1179.9,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1179.9,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.61); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 1291.7,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.2988157688083435,
+      "intensity": "combat",
+      "intensityConfidence": 0.5744647028048229,
+      "reason": "embeddings: dungeon, combat; qwen35-2b: interior, combat, fight over (16%); blended: tavern, combat"
+     },
+     "latencyMs": 133751
+    },
+    {
+     "t": 1291.7,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "tavern ignored: only 30% confident.",
+      "intensity": "still combat; dropped the pending change to tense."
+     }
+    },
+    {
+     "t": 1361.3,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1361.4,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.62); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 1438.8,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.5646104285916396,
+      "intensity": "combat",
+      "intensityConfidence": 0.7835441635054785,
+      "reason": "embeddings: tavern, combat; qwen35-2b: interior, combat, fight over (10%); blended: tavern, combat"
+     },
+     "latencyMs": 144333
+    },
+    {
+     "t": 1438.8,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "still tavern; dropped the pending change to wilderness.",
+      "intensity": "still combat."
+     }
+    },
+    {
+     "t": 1550.1,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1550.2,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.65); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 1590.9,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.2907419602186734,
+      "intensity": "combat",
+      "intensityConfidence": 0.4543793064553078,
+      "reason": "embeddings: dungeon, tense; qwen35-2b: interior, combat, fight over (20%); blended: dungeon, combat"
+     },
+     "latencyMs": 142008
+    },
+    {
+     "t": 1591,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "dungeon ignored: only 29% confident.",
+      "intensity": "combat ignored: only 45% confident."
+     }
+    },
+    {
+     "t": 1748.6,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1748.7,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.64); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 1754.9,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "travel",
+      "settingConfidence": 0.27143213078423334,
+      "intensity": "tense",
+      "intensityConfidence": 0.39700012586211164,
+      "reason": "embeddings: travel, tense; qwen35-2b: interior, combat, fight over (25%); blended: travel, tense"
+     },
+     "latencyMs": 144057
+    },
+    {
+     "t": 1754.9,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "travel ignored: only 27% confident.",
+      "intensity": "tense ignored: only 40% confident."
+     }
+    },
+    {
+     "t": 1906.2,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "travel",
+      "settingConfidence": 0.2982900379751199,
+      "intensity": "combat",
+      "intensityConfidence": 0,
+      "tableTalk": true,
+      "reason": "embeddings: travel, offtopic; qwen35-2b: interior, combat, fight over (27%); blended: travel, off-topic"
+     },
+     "latencyMs": 143673
+    },
+    {
+     "t": 1906.2,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "travel ignored: only 30% confident.",
+      "intensity": "sounds like table talk, so no change."
+     }
+    },
+    {
+     "t": 1942.7,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1942.7,
+     "kind": "music",
+     "text": "Playing Pit Fighter (the last track ended). Local model: closest match (similarity 0.62); no tavern track fits, so borrowed from town."
+    },
+    {
+     "t": 2058.1,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.4986635130669268,
+      "intensity": "combat",
+      "intensityConfidence": 0.495047590390397,
+      "reason": "embeddings: dungeon, combat; qwen35-2b: wilderness, combat, fight over (30%); blended: dungeon, combat"
+     },
+     "latencyMs": 143230
+    },
+    {
+     "t": 2058.1,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "to": {
+      "setting": "tavern",
+      "intensity": "combat"
+     },
+     "notes": {
+      "setting": "dungeon ignored: only 50% confident.",
+      "intensity": "combat ignored: only 50% confident."
+     }
+    }
+   ]
+  },
+  "7": {
+   "startOffset": 0,
+   "end": 1546.8000000000002,
+   "speech": 624,
+   "events": [
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Session started."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Listening to a replayed transcript."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Local model decides the scene and picks the tracks."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Local scene checks blend the embedding model with qwen35-2b, once it has downloaded."
+    },
+    {
+     "t": 0,
+     "kind": "session",
+     "text": "Opening scene: tavern, calm (default; describe the opening scene next time to choose it)."
+    },
+    {
+     "t": 0,
+     "kind": "decision",
+     "changed": true,
+     "from": {
+      "setting": "tavern",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "tavern → wilderness, set by you.",
+      "intensity": "still calm."
+     }
+    },
+    {
+     "t": 17.1,
+     "kind": "music",
+     "text": "Playing Winter Woods (you set the scene to wilderness). Local model: closest match (similarity 0.70)."
+    },
+    {
+     "t": 85.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.4366421263926147,
+      "intensity": "combat",
+      "intensityConfidence": 0.4084008968925168,
+      "reason": "embeddings: dungeon, combat; qwen35-2b: wilderness, calm; blended: wilderness, combat"
+     },
+     "latencyMs": 68491
+    },
+    {
+     "t": 85.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 44% confident.",
+      "intensity": "combat ignored: only 41% confident."
+     }
+    },
+    {
+     "t": 193.9,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.6051280878107606,
+      "intensity": "combat",
+      "intensityConfidence": 0.4995819441324697,
+      "reason": "embeddings: wilderness, combat; qwen35-2b: wilderness, tense; blended: wilderness, combat"
+     },
+     "latencyMs": 100740
+    },
+    {
+     "t": 193.9,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "still wilderness.",
+      "intensity": "combat ignored: only 50% confident."
+     }
+    },
+    {
+     "t": 211.1,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 211.1,
+     "kind": "music",
+     "text": "Playing Hidden Valley (the last track ended). Local model: closest match (similarity 0.63)."
+    },
+    {
+     "t": 308.8,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "tavern",
+      "settingConfidence": 0.5132546590050039,
+      "intensity": "tense",
+      "intensityConfidence": 0.5213669954493716,
+      "reason": "embeddings: tavern, tense; qwen35-2b: wilderness, tense; blended: tavern, tense"
+     },
+     "latencyMs": 107568
+    },
+    {
+     "t": 308.8,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "maybe tavern (51% sure): changes if the next scene check agrees, or one is 80%+ sure.",
+      "intensity": "maybe tense (52% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 402.6,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 402.7,
+     "kind": "music",
+     "text": "Playing Before the Storm (the last track ended). Local model: closest match (similarity 0.66)."
+    },
+    {
+     "t": 423.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.5701836384670989,
+      "intensity": "tense",
+      "intensityConfidence": 0.3292068653573968,
+      "reason": "embeddings: wilderness, offtopic; qwen35-2b: wilderness, tense; blended: wilderness, tense"
+     },
+     "latencyMs": 102335
+    },
+    {
+     "t": 423.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "still wilderness; dropped the pending change to tavern.",
+      "intensity": "tense ignored: only 33% confident."
+     }
+    },
+    {
+     "t": 531.4,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.6788179232039477,
+      "intensity": "tense",
+      "intensityConfidence": 0.37342473460385667,
+      "reason": "embeddings: wilderness, combat; qwen35-2b: wilderness, tense; blended: wilderness, tense"
+     },
+     "latencyMs": 102947
+    },
+    {
+     "t": 531.4,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "still wilderness.",
+      "intensity": "tense ignored: only 37% confident."
+     }
+    },
+    {
+     "t": 588.6,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 588.6,
+     "kind": "music",
+     "text": "Playing Desert Temple (the last track ended). Local model: closest match (similarity 0.72)."
+    },
+    {
+     "t": 636.4,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.38116813224840407,
+      "intensity": "calm",
+      "intensityConfidence": 0.48186484505487603,
+      "reason": "embeddings: travel, calm; qwen35-2b: wilderness, tense; blended: wilderness, calm"
+     },
+     "latencyMs": 102523
+    },
+    {
+     "t": 636.4,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 38% confident.",
+      "intensity": "calm ignored: only 48% confident."
+     }
+    },
+    {
+     "t": 741.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.5366111912933571,
+      "intensity": "combat",
+      "intensityConfidence": 0.5739143867709341,
+      "reason": "embeddings: wilderness, combat; qwen35-2b: wilderness, tense; blended: wilderness, combat"
+     },
+     "latencyMs": 102400
+    },
+    {
+     "t": 741.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "still wilderness.",
+      "intensity": "maybe combat (57% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 774.8,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 774.8,
+     "kind": "music",
+     "text": "Playing Lorekeeper Grove (the last track ended). Local model: closest match (similarity 0.68)."
+    },
+    {
+     "t": 848.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "travel",
+      "settingConfidence": 0.23848761230462484,
+      "intensity": "tense",
+      "intensityConfidence": 0.3934625109815283,
+      "reason": "embeddings: travel, calm; qwen35-2b: wilderness, tense; blended: travel, tense"
+     },
+     "latencyMs": 102151
+    },
+    {
+     "t": 848.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "travel ignored: only 24% confident.",
+      "intensity": "tense ignored: only 39% confident."
+     }
+    },
+    {
+     "t": 955.1,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.4986828560194104,
+      "intensity": "tense",
+      "intensityConfidence": 0.6925835189580675,
+      "reason": "embeddings: travel, tense; qwen35-2b: wilderness, tense; blended: wilderness, tense"
+     },
+     "latencyMs": 101610
+    },
+    {
+     "t": 955.1,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 50% confident.",
+      "intensity": "maybe tense (69% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 962.5,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 962.6,
+     "kind": "music",
+     "text": "Playing Battle Requiem (the last track ended). Local model: closest match (similarity 0.67)."
+    },
+    {
+     "t": 1061.2,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.44058980470812603,
+      "intensity": "tense",
+      "intensityConfidence": 0.6683406647227617,
+      "reason": "embeddings: wilderness, tense; qwen35-2b: wilderness, tense; blended: wilderness, tense"
+     },
+     "latencyMs": 101402
+    },
+    {
+     "t": 1061.2,
+     "kind": "decision",
+     "changed": true,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "calm"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "tense"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 44% confident.",
+      "intensity": "calm → tense (2 checks in a row agree)."
+     }
+    },
+    {
+     "t": 1061.2,
+     "kind": "music",
+     "text": "Playing Terror in the Woods (intensity changed to tense). Local model: closest match (similarity 0.73)."
+    },
+    {
+     "t": 1168.4,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "interior",
+      "settingConfidence": 0.30856394973163376,
+      "intensity": "combat",
+      "intensityConfidence": 0.5829655104664515,
+      "reason": "embeddings: tavern, combat; qwen35-2b: wilderness, tense; blended: interior, combat"
+     },
+     "latencyMs": 101756
+    },
+    {
+     "t": 1168.4,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "tense"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "tense"
+     },
+     "notes": {
+      "setting": "interior ignored: only 31% confident.",
+      "intensity": "maybe combat (58% sure): changes if the next scene check agrees, or one is 80%+ sure."
+     }
+    },
+    {
+     "t": 1248.9,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1249,
+     "kind": "music",
+     "text": "Playing Ravaged Lands (the last track ended). Local model: closest match (similarity 0.75)."
+    },
+    {
+     "t": 1274.4,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "travel",
+      "settingConfidence": 0.3287627751619837,
+      "intensity": "tense",
+      "intensityConfidence": 0,
+      "tableTalk": true,
+      "reason": "embeddings: travel, offtopic; qwen35-2b: wilderness, tense; blended: travel, off-topic"
+     },
+     "latencyMs": 101722
+    },
+    {
+     "t": 1274.4,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "tense"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "tense"
+     },
+     "notes": {
+      "setting": "travel ignored: only 33% confident.",
+      "intensity": "sounds like table talk, so no change; still maybe combat."
+     }
+    },
+    {
+     "t": 1380.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.6187746906100604,
+      "intensity": "tense",
+      "intensityConfidence": 0.67986076763114,
+      "reason": "embeddings: wilderness, tense; qwen35-2b: wilderness, tense; blended: wilderness, tense"
+     },
+     "latencyMs": 100708
+    },
+    {
+     "t": 1380.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "tense"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "tense"
+     },
+     "notes": {
+      "setting": "still wilderness.",
+      "intensity": "still tense; dropped the pending change to combat."
+     }
+    },
+    {
+     "t": 1440.8,
+     "kind": "music",
+     "text": "Track ended."
+    },
+    {
+     "t": 1440.8,
+     "kind": "music",
+     "text": "Playing Before the Storm (the last track ended). Local model: closest match (similarity 0.69)."
+    },
+    {
+     "t": 1492.3,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "wilderness",
+      "settingConfidence": 0.4108984490415645,
+      "intensity": "tense",
+      "intensityConfidence": 0.4918609525476054,
+      "reason": "embeddings: wilderness, tense; qwen35-2b: wilderness, tense; blended: wilderness, tense"
+     },
+     "latencyMs": 103513
+    },
+    {
+     "t": 1492.4,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "tense"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "tense"
+     },
+     "notes": {
+      "setting": "wilderness ignored: only 41% confident.",
+      "intensity": "tense ignored: only 49% confident."
+     }
+    },
+    {
+     "t": 1598.6,
+     "kind": "call",
+     "purpose": "scene",
+     "model": "local (bge-small + qwen35-2b)",
+     "result": {
+      "setting": "dungeon",
+      "settingConfidence": 0.3890782393670312,
+      "intensity": "tense",
+      "intensityConfidence": 0.4631484744178836,
+      "reason": "embeddings: dungeon, tense; qwen35-2b: wilderness, tense; blended: dungeon, tense"
+     },
+     "latencyMs": 103201
+    },
+    {
+     "t": 1598.6,
+     "kind": "decision",
+     "changed": false,
+     "from": {
+      "setting": "wilderness",
+      "intensity": "tense"
+     },
+     "to": {
+      "setting": "wilderness",
+      "intensity": "tense"
+     },
+     "notes": {
+      "setting": "dungeon ignored: only 39% confident.",
+      "intensity": "tense ignored: only 46% confident."
+     }
+    }
+   ]
+  }
+ }
+}

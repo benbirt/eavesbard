@@ -1,0 +1,13 @@
+diff --git a/src/classify/llm-prompt.ts b/src/classify/llm-prompt.ts
+index f8babf6..66c330c 100644
+--- a/src/classify/llm-prompt.ts
++++ b/src/classify/llm-prompt.ts
+@@ -130,7 +130,7 @@ export const FIGHT_QUESTIONS = {
+ 
+ /** Calm against tense, asked as yes or no (E13: the three-way question heard calm play as tense). */
+ export const DANGER_QUESTION =
+-  "Is the party in danger or under threat right now: enemies close by, a hostile or tense encounter, sneaking or hiding, being watched or hunted, a chase, a trap, or exploring somewhere dangerous? Say no only if the characters are safe: talking among friends, planning, shopping, travelling, resting, eating or looting with no threat present, or the players are chatting about the game.";
++  "Is the party in danger or under threat right now: enemies close by, a hostile or tense encounter, sneaking or hiding, being watched or hunted, a chase, a trap, or exploring somewhere dangerous. Rolling for stealth or perception, keeping watch at night, or being somewhere they could be caught also count. Say no only if the characters are safe: talking among friends, planning, shopping, travelling, resting, eating or looting with no threat present, or the players are chatting about the game.";
+ 
+ /** The transcript, with the newest line apart from the earlier ones. */
+ export function transcriptBlock(lines: readonly string[], words: number): string {

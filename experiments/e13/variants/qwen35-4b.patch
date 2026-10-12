@@ -1,0 +1,18 @@
+diff --git a/src/llm/llm-protocol.ts b/src/llm/llm-protocol.ts
+index f0f9112..ff4a3a6 100644
+--- a/src/llm/llm-protocol.ts
++++ b/src/llm/llm-protocol.ts
+@@ -3,10 +3,10 @@
+ 
+ /** The LLM blended with the embeddings in local scene checks (experiments/E9.md). */
+ export const SCENE_LLM: { name: string; repo: string; downloadMb: number; load?: Omit<LlmLoad, "repo"> } = {
+-  name: "Gemma 4 E2B",
+-  repo: "onnx-community/gemma-4-E2B-it-ONNX",
++  name: "qwen35-4b",
++  repo: "onnx-community/Qwen3.5-4B-ONNX",
+   /** Text only, 4-bit with 16-bit activations; GPUs without 16-bit floats need about 3.6 GB. */
+-  downloadMb: 3110,
++  downloadMb: 2810,
+ };
+ 
+ /** What the worker needs to load a model. */

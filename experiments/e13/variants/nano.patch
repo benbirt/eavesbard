@@ -1,0 +1,109 @@
+diff --git a/src/llm/llm-protocol.ts b/src/llm/llm-protocol.ts
+index f0f9112..3420f83 100644
+--- a/src/llm/llm-protocol.ts
++++ b/src/llm/llm-protocol.ts
+@@ -3,8 +3,8 @@
+ 
+ /** The LLM blended with the embeddings in local scene checks (experiments/E9.md). */
+ export const SCENE_LLM: { name: string; repo: string; downloadMb: number; load?: Omit<LlmLoad, "repo"> } = {
+-  name: "Gemma 4 E2B",
+-  repo: "onnx-community/gemma-4-E2B-it-ONNX",
++  name: "Gemini Nano",
++  repo: "chrome:gemini-nano",
+   /** Text only, 4-bit with 16-bit activations; GPUs without 16-bit floats need about 3.6 GB. */
+   downloadMb: 3110,
+ };
+diff --git a/src/llm/nano-client.ts b/src/llm/nano-client.ts
+new file mode 100644
+index 0000000..c952a86
+--- /dev/null
++++ b/src/llm/nano-client.ts
+@@ -0,0 +1,58 @@
++// Gemini Nano, built into Chrome (the Prompt API), in place of the worker's
++// LLM (experiments/E13.md, round 4). It answers with a label, not with each
++// label's probability, so the chosen one gets CHOSEN and the rest share what's left.
++
++import type { LoadProgress } from "./llm-client.js";
++
++/** The probability given to the label Nano chose. */
++export const CHOSEN = 0.9;
++
++interface Session {
++  prompt(text: string, options?: { responseConstraint?: unknown }): Promise<string>;
++  clone(): Promise<Session>;
++  destroy(): void;
++}
++declare const LanguageModel: {
++  availability(options?: unknown): Promise<string>;
++  create(options?: unknown): Promise<Session>;
++};
++
++const LANGUAGES = { expectedInputs: [{ type: "text", languages: ["en"] }], expectedOutputs: [{ type: "text", languages: ["en"] }] };
++
++export class NanoClient {
++  private base?: Session;
++
++  async load(_model: unknown, onProgress?: (p: LoadProgress) => void): Promise<void> {
++    if (typeof LanguageModel === "undefined") throw new Error("this browser has no built-in Gemini Nano");
++    const availability = await LanguageModel.availability(LANGUAGES);
++    if (availability === "unavailable") throw new Error("Gemini Nano is unavailable in this browser");
++    this.base = await LanguageModel.create({
++      ...LANGUAGES,
++      // The most likely answer every time, not a sample (web pages may not be allowed to set these).
++      temperature: 0,
++      topK: 1,
++      monitor(m: EventTarget) {
++        m.addEventListener("downloadprogress", (e) => onProgress?.({ loaded: (e as ProgressEvent).loaded, total: 1, preparing: false }));
++      },
++    });
++  }
++
++  /** Each question in a fresh copy of the session, so none sees another's. */
++  async ask(content: string, _prefill: string, spellings: string[][]): Promise<number[]> {
++    const labels = spellings.map((s) => s[0]!.trim().toLowerCase());
++    const session = await this.base!.clone();
++    try {
++      const raw = await session.prompt(content, { responseConstraint: { type: "string", enum: labels } });
++      const chosen = labels.indexOf(String(JSON.parse(raw)).toLowerCase());
++      if (chosen < 0) throw new Error(`Gemini Nano answered ${raw}`);
++      return labels.map((_, i) => (i === chosen ? CHOSEN : (1 - CHOSEN) / (labels.length - 1)));
++    } finally {
++      session.destroy();
++    }
++  }
++
++  terminate(): void {
++    this.base?.destroy();
++    this.base = undefined;
++  }
++}
+diff --git a/src/llm/scene-llm.ts b/src/llm/scene-llm.ts
+index 554193e..02bdcbd 100644
+--- a/src/llm/scene-llm.ts
++++ b/src/llm/scene-llm.ts
+@@ -7,6 +7,7 @@ import { ANSWER_PREFIX, DANGER_QUESTION, fightOverQuestion, fightQuestion, llmQu
+ import { INTENSITIES, SETTINGS } from "../library/scenes.js";
+ import { markDownloaded } from "../downloads.js";
+ import { LlmClient } from "./llm-client.js";
++import { NanoClient } from "./nano-client.js";
+ import { hasWebGpu } from "../gpu.js";
+ import { SCENE_LLM } from "./llm-protocol.js";
+ import { record } from "../timeline.js";
+@@ -19,7 +20,7 @@ export type SceneLlmState =
+ 
+ export const sceneLlm = signal<SceneLlmState>({ phase: "off" });
+ 
+-let client: LlmClient | undefined;
++let client: LlmClient | NanoClient | undefined;
+ let loaded: Promise<void> | undefined;
+ 
+ /** Starts downloading the model, once. Resolves when it's ready. */
+@@ -27,7 +28,7 @@ export function prepareSceneLlm(): Promise<void> {
+   if (!hasWebGpu) return Promise.reject(new Error("this browser has no WebGPU"));
+   loaded ??= (async () => {
+     sceneLlm.value = { phase: "loading", loaded: 0, total: 0, preparing: false };
+-    client = new LlmClient();
++    client = SCENE_LLM.repo === "chrome:gemini-nano" ? new NanoClient() : new LlmClient();
+     try {
+       await client.load({ repo: SCENE_LLM.repo, ...SCENE_LLM.load }, (p) => {
+         if (sceneLlm.value.phase !== "loading") return;

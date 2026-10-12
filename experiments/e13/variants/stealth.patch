@@ -1,0 +1,39 @@
+diff --git a/src/classify/llm-prompt.ts b/src/classify/llm-prompt.ts
+index f8babf6..04102d1 100644
+--- a/src/classify/llm-prompt.ts
++++ b/src/classify/llm-prompt.ts
+@@ -129,6 +129,10 @@ export const FIGHT_QUESTIONS = {
+ };
+ 
+ /** Calm against tense, asked as yes or no (E13: the three-way question heard calm play as tense). */
++/** E13 round 4: the danger question missed sneaking and spying. */
++export const STEALTH_QUESTION =
++  "Are the characters sneaking, hiding, scouting, spying or keeping watch right now, trying not to be noticed or expecting trouble? Say no if they are openly talking, shopping, resting or travelling with nothing to hide.";
++
+ export const DANGER_QUESTION =
+   "Is the party in danger or under threat right now: enemies close by, a hostile or tense encounter, sneaking or hiding, being watched or hunted, a chase, a trap, or exploring somewhere dangerous? Say no only if the characters are safe: talking among friends, planning, shopping, travelling, resting, eating or looting with no threat present, or the players are chatting about the game.";
+ 
+diff --git a/src/llm/scene-llm.ts b/src/llm/scene-llm.ts
+index 92b467d..d62c050 100644
+--- a/src/llm/scene-llm.ts
++++ b/src/llm/scene-llm.ts
+@@ -3,7 +3,7 @@
+ 
+ import { signal } from "@preact/signals";
+ import type { LlmAnswer } from "../classify/local-classifier.js";
+-import { ANSWER_PREFIX, DANGER_QUESTION, fightOverQuestion, fightQuestion, llmQuestions, mixIntensity, yesNoQuestion, type LlmInput } from "../classify/llm-prompt.js";
++import { ANSWER_PREFIX, DANGER_QUESTION, STEALTH_QUESTION, fightOverQuestion, fightQuestion, llmQuestions, mixIntensity, yesNoQuestion, type LlmInput } from "../classify/llm-prompt.js";
+ import { INTENSITIES, SETTINGS } from "../library/scenes.js";
+ import { markDownloaded } from "../downloads.js";
+ import { LlmClient } from "./llm-client.js";
+@@ -90,7 +90,9 @@ async function askReady(input: LlmInput): Promise<LlmAnswer> {
+   if (!("lines" in input)) threeWay = byLabel(INTENSITIES, await ask(intensityQ));
+   else {
+     // Calm against tense from a yes/no question about danger, in place of the three-way answer's.
+-    const danger = (await ask(yesNoQuestion(input.current, input.lines, DANGER_QUESTION)))[0]!;
++    const threat = (await ask(yesNoQuestion(input.current, input.lines, DANGER_QUESTION)))[0]!;
++    const stealth = (await ask(yesNoQuestion(input.current, input.lines, STEALTH_QUESTION)))[0]!;
++    const danger = Math.max(threat, stealth);
+     threeWay = { calm: 1 - danger, tense: danger, combat: 0 };
+   }
+   let intensity = threeWay;

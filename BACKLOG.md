@@ -29,12 +29,9 @@ A third engine beside Local and Claude: scene checks and track picks through the
 - Accuracy and speed against Claude and the local models, with the E13 replay (it would need the key in the replayed page).
 - Whether item 1's "Remote" choice should then mean Claude or Gemini, or either.
 
-## 6. Gemini Nano, built into Chrome (investigate)
+## 6. Gemini Nano, built into Chrome (tried: not good enough)
 
-Chrome's Prompt API runs Gemini Nano on the user's own device: free, private, no key, stable for ordinary web pages since Chrome 138, with JSON-schema answers (`responseConstraint`). If it judges scenes as well as Gemma 4 E2B, desktop users wouldn't need our 3.1 GB download (Chrome downloads and manages its own model). Limits (https://developer.chrome.com/docs/ai/prompt-api, 2026-10-11): desktop only (Windows, macOS, Linux, Chromebook Plus), not Android or iOS; 22 GB free disk, and 16 GB of RAM or more than 4 GB of video memory; the first download needs an unmetered connection. To find out:
-- Accuracy against Gemma on the E13 replays (Bardo and CRD3), fights first; and speed per check. The replay's headless Chrome needs Nano enabled and downloaded.
-- How it fits the blend with the embeddings, which Gemma's answers feed today (DESIGN.md 7.5): the Prompt API returns text, with no token probabilities in its documentation, so the blend would need a different input.
-- Detection and fallback: use Nano where available, Gemma elsewhere (phones), or leave it as a choice.
+Tried in E13 round 4 (experiments/E13.md, "Other models"): it runs in Chrome 155 (headless too), answers in about 0.2 s, and Chrome manages its 4 GB download, but the Prompt API gives no probabilities, and with Gemma's prompts its danger answers were at chance and it called fights on half the checks of a scene with none (average 49% and 50% against Gemma's 73% and 66%). The client is in `experiments/e13/variants/nano.patch`. Worth another look if Chrome ships a stronger Nano, adds token probabilities, or prompts written for Nano do much better.
 
 ## Smaller items
 
@@ -44,5 +41,5 @@ Chrome's Prompt API runs Gemini Nano on the user's own device: free, private, no
 - More art per intensity, especially tense (three images), and a few with known artists.
 - Score Claude Haiku on the held-out set as a reference (needs an API key).
 - Grow the held-out set from real session logs, especially fights starting and ending.
-- Replay E13 on the Mac: Gemma's speed there against the RTX 5080, and confirm the memory-leak fix (the leak was in shared code, so long sessions on the Mac were likely affected too).
+- Replay E13 on the Mac: Gemma's speed there against the RTX 5080, and confirm the memory-leak fix (the leak was in shared code, so long sessions on the Mac were likely affected too). It also tests the files most users get: Chrome on Linux offers no 16-bit floats, so every E13 replay so far ran Gemma's `q4` files, not the `q4f16` ones Macs use.
 - Remaining design experiments: Cast from desktop Chrome (E1), Whisper model choice and microphones (E5, E6), a full session's browser behaviour (E10).

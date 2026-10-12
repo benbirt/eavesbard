@@ -1,0 +1,32 @@
+diff --git a/src/classify/llm-prompt.ts b/src/classify/llm-prompt.ts
+index f8babf6..3759805 100644
+--- a/src/classify/llm-prompt.ts
++++ b/src/classify/llm-prompt.ts
+@@ -140,12 +140,12 @@ export function transcriptBlock(lines: readonly string[], words: number): string
+ }
+ 
+ /** A yes/no question about the transcript, given the scene so far. */
+-export function yesNoQuestion(current: { setting: Setting; intensity: Intensity }, lines: readonly string[], question: string): LlmQuestion {
++export function yesNoQuestion(current: { setting: Setting; intensity: Intensity }, lines: readonly string[], question: string, words = INTENSITY_WORDS): LlmQuestion {
+   return {
+     axis: "intensity",
+     content:
+       "You are following a tabletop role-playing game (like D&D) from a speech transcript (speech recognition, may contain errors).\n\n" +
+-      `The scene so far: ${current.setting}, ${current.intensity}.\n\n${transcriptBlock(lines, INTENSITY_WORDS)}\n\nQuestion: ${question}\nAnswer yes or no.`,
++      `The scene so far: ${current.setting}, ${current.intensity}.\n\n${transcriptBlock(lines, words)}\n\nQuestion: ${question}\nAnswer yes or no.`,
+     labels: ["yes", "no"],
+   };
+ }
+diff --git a/src/llm/scene-llm.ts b/src/llm/scene-llm.ts
+index 92b467d..0bfa1f1 100644
+--- a/src/llm/scene-llm.ts
++++ b/src/llm/scene-llm.ts
+@@ -90,7 +90,7 @@ async function askReady(input: LlmInput): Promise<LlmAnswer> {
+   if (!("lines" in input)) threeWay = byLabel(INTENSITIES, await ask(intensityQ));
+   else {
+     // Calm against tense from a yes/no question about danger, in place of the three-way answer's.
+-    const danger = (await ask(yesNoQuestion(input.current, input.lines, DANGER_QUESTION)))[0]!;
++    const danger = (await ask(yesNoQuestion(input.current, input.lines, DANGER_QUESTION, 150)))[0]!;
+     threeWay = { calm: 1 - danger, tense: danger, combat: 0 };
+   }
+   let intensity = threeWay;

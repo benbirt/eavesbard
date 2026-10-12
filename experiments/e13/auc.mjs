@@ -44,7 +44,7 @@ function labelAt(stretches, t) {
 const top = (o) => Object.entries(o).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
 const pct = (x) => (x === undefined ? "–" : `${Math.round(100 * x)}%`);
 
-console.log("run".padEnd(30) + "danger AUC".padStart(11) + "fight AUC".padStart(11) + "setting".padStart(9) + "   checks");
+console.log("run".padEnd(30) + "danger AUC (n)".padStart(17) + "fight AUC (n)".padStart(17) + "setting".padStart(9) + "   checks");
 for (const name of process.argv.slice(2)) {
   const run = JSON.parse(readFileSync(join(here, "results", `${name}.json`), "utf8"));
   const details = JSON.parse(readFileSync(join(here, "results", `${name}.details.json`), "utf8"));
@@ -74,8 +74,8 @@ for (const name of process.argv.slice(2)) {
   }
   console.log(
     name.padEnd(30) +
-      pct(auc(danger.pos, danger.neg)).padStart(11) +
-      pct(auc(fight.pos, fight.neg)).padStart(11) +
+      `${pct(auc(danger.pos, danger.neg))} (${danger.pos.length}/${danger.neg.length})`.padStart(17) +
+      `${pct(auc(fight.pos, fight.neg))} (${fight.pos.length}/${fight.neg.length})`.padStart(17) +
       pct(settingN ? settingOk / settingN : undefined).padStart(9) +
       `   ${n}`,
   );
