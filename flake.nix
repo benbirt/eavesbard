@@ -33,11 +33,24 @@
           export CHROME_PATH=${pkgs.google-chrome}/bin/google-chrome-stable
         '';
       };
+      # Every process in the env inherits EAVESBARD_FHS, and ${fhs} depends on
+      # the bubblewrap script and the rootfs, so Nix's GC keeps them while any
+      # of those processes run. Without it the GC can delete the rootfs from
+      # under a long-running Bazel server: bubblewrap only bind-mounts it (as
+      # /usr, /lib64, ...), and the GC doesn't look at mounts. Chrome writes its
+      # process title over its environ, so it's covered only while the process
+      # that launched it (Playwright's node) runs.
+      run = pkgs.writeShellScriptBin "eavesbard" ''
+        export EAVESBARD_FHS=${fhs}
+        exec ${fhs}/bin/eavesbard "$@"
+      '';
     in
     {
       # `nix develop` for an interactive shell; for one command,
       # `nix run . -- -c 'bazel test //...'`.
-      devShells.${system}.default = fhs.env;
-      packages.${system}.default = fhs;
+      devShells.${system}.default = pkgs.mkShell {
+        shellHook = "exec ${run}/bin/eavesbard";
+      };
+      packages.${system}.default = run;
     };
 }
