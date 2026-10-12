@@ -83,6 +83,11 @@ export const VARIANTS = new Map([
   ...[0.5, 0.25, 0.1, 0.01].map((k) => V(`calm weighed x${k}`, { calmBoost: k })),
   ...[0.1, 0.01, 0.001].map((k) => V(`calm x${k} in fights`, { calmInFight: k })),
   ...[0.5, 0.25, 0.1].flatMap((k) => [0.01, 0.001].map((f) => V(`calm x${k}, x${f} in fights`, { calmBoost: k, calmInFight: f }))),
+  // Round 4, tense against calm (with the danger question, "calm weighed" moves its threshold).
+  ...[0.7, 0.8, 0.9, 0.95].map((x) => V(`calm ends tense only at ${x}`, { calmFromTense: x })),
+  ...[0.5, 0.25, 0.1].map((k) => V(`danger leans tense x${1 / k} in dungeons`, { calmBySetting: { dungeon: k } })),
+  ...[0.5, 0.25, 0.1].map((k) => V(`danger leans tense x${1 / k} in dungeons, wilds`, { calmBySetting: { dungeon: k, wilderness: k } })),
+  ...[0.5, 0.25].flatMap((k) => [0.8, 0.9].map((x) => V(`calm x${k}, calm ends tense at ${x}`, { calmBoost: k, calmFromTense: x }))),
   V("Gemma for setting only", { blend: { weight: { setting: 0.5, intensity: 0 } } }),
   V("Gemma for intensity only", { blend: { weight: { setting: 0, intensity: 0.5 } } }),
   V("table talk as calm", { tableTalkCalm: true }),
@@ -118,9 +123,10 @@ function classify(d, current, v) {
     // calmBoost: weigh Gemma's "calm" answer k times more against "tense" (and "combat").
     const inCombat = current.intensity === "combat";
     const k = inCombat ? (v.calmInFight ?? (v.calmOutsideFight ? 1 : (v.calmBoost ?? 1))) : (v.calmBoost ?? 1);
+    const kSetting = inCombat ? 1 : (v.calmBySetting?.[current.setting] ?? 1);
     const raw = parts.threeWay;
-    const sum = k * raw.calm + raw.tense + raw.combat;
-    const threeWay = { calm: (k * raw.calm) / sum, tense: raw.tense / sum, combat: raw.combat / sum };
+    const sum = k * kSetting * raw.calm + raw.tense + raw.combat;
+    const threeWay = { calm: (k * kSetting * raw.calm) / sum, tense: raw.tense / sum, combat: raw.combat / sum };
     threeWayUsed = threeWay;
     if (v.intensityFrom === "threeWay" || combatChance === undefined) intensity = threeWay;
     else intensity = LP.mixIntensity(threeWay, combatChance);
@@ -155,6 +161,12 @@ function gemmaAlone(llm, current, blend) {
   return { setting: s, settingConfidence: llm.setting[s], intensity: i, intensityConfidence: llm.intensity[i], reason: "" };
 }
 
+/** calmFromTense: leaving tense for calm takes a check at least this sure; less sure ones are ignored. */
+function sticky(c, state, v) {
+  if (v.calmFromTense === undefined || state.intensity !== "tense" || c.intensity !== "calm" || c.intensityConfidence >= v.calmFromTense) return c;
+  return { ...c, intensityConfidence: 0 };
+}
+
 /** Replays one episode's recorded checks through a variant; returns run-like events. */
 function simulate(details, first, v) {
   const options = { ...SM.DEFAULT_SCENE_OPTIONS, ...v.scene };
@@ -162,7 +174,7 @@ function simulate(details, first, v) {
   let state = SM.initialScene(t0 * 1000, { setting: first.setting[0], intensity: first.intensity[0], reason: "start" }, options);
   const events = [];
   for (const d of details) {
-    const c = classify(d, state, v);
+    const c = sticky(classify(d, state, v), state, v);
     events.push({ t: d.t, kind: "call", purpose: "scene", model: "sim +", result: c });
     const before = state;
     const tr = SM.nextScene(state, { type: "classification", at: d.t * 1000, ...c }, options);
