@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-11T10:27:45.773Z",
+  "generated": "2026-10-12T15:39:17.201Z",
   "source": "https://tabletopaudio.com/",
   "tracks": [
     {
@@ -433,6 +433,36 @@
         "ethereal",
         "astral",
         "drone"
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Alien Machine Shop",
+      "description": "You want the latest modifications? You want to squeeze a few more years out of those ancient matter displacers? It's gonna cost you.",
+      "genres": [
+        "scifi"
+      ],
+      "hasMusic": false,
+      "type": "ambience",
+      "file": "15_Alien_Machine_Shop",
+      "tags": {
+        "civ": [
+          "facilities"
+        ],
+        "biome": [
+          "planar"
+        ],
+        "mood": [
+          "peaceful"
+        ],
+        "action": [
+          "explore"
+        ]
+      },
+      "keywords": [
+        "spaceship",
+        "repair",
+        "mechanic"
       ]
     },
     {
@@ -1527,6 +1557,37 @@
       ]
     },
     {
+      "id": 49,
+      "title": "Goblin's Cave",
+      "description": "Journey up the winding path, follow the stream into the mouth of the cavern. Light your torches. Proceed...cautiously.",
+      "genres": [
+        "fantasy"
+      ],
+      "hasMusic": false,
+      "type": "ambience",
+      "file": "49_Goblins_Cave",
+      "tags": {
+        "civ": [],
+        "biome": [
+          "underground"
+        ],
+        "mood": [
+          "somber"
+        ],
+        "action": [
+          "monster"
+        ]
+      },
+      "keywords": [
+        "dark",
+        "dripping",
+        "stream",
+        "cavern",
+        "monsters",
+        "kobolds"
+      ]
+    },
+    {
       "id": 50,
       "title": "Super Hero",
       "description": "Like a Michael Bay movie in your head. Calling all heroes. The villainous tropes are on the loose!",
@@ -1922,6 +1983,33 @@
         "sleeping",
         "elves",
         "hobbits"
+      ]
+    },
+    {
+      "id": 63,
+      "title": "Industrial Shipyard",
+      "description": "Massive derricks heave containers from cargo ships overhead, while all manner of human activity occurs down below.",
+      "genres": [
+        "modern"
+      ],
+      "hasMusic": false,
+      "type": "ambience",
+      "file": "63_Industrial_Shipyard",
+      "tags": {
+        "civ": [],
+        "biome": [],
+        "mood": [],
+        "action": []
+      },
+      "keywords": [
+        "boats",
+        "ships",
+        "industry",
+        "docks",
+        "harbor",
+        "freight",
+        "cargo",
+        "Shipyard"
       ]
     },
     {
@@ -6218,6 +6306,36 @@
         "strahd",
         "dracula",
         "Ravenloft"
+      ]
+    },
+    {
+      "id": 189,
+      "title": "Yuletide",
+      "description": "A cozy fireside gathering of family and friends for the holidays.",
+      "genres": [
+        "historical",
+        "modern"
+      ],
+      "hasMusic": true,
+      "type": "music + ambience",
+      "file": "189_Yuletide",
+      "tags": {
+        "civ": [
+          "interiors"
+        ],
+        "biome": [],
+        "mood": [
+          "peaceful"
+        ],
+        "action": []
+      },
+      "keywords": [
+        "Christmas",
+        "fireplace",
+        "peaceful",
+        "winter",
+        "snow",
+        "holiday"
       ]
     },
     {
