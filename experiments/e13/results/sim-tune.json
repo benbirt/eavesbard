@@ -1,0 +1,3048 @@
+[
+ {
+  "name": "shipped",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6692913385826772,
+    "setting": 0.717948717948718,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 255,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47698390285230163,
+    "setting": 0.6178934769599043,
+    "calm": 0.09311950336264874,
+    "tense": 0.8776595744680851,
+    "combat": 0.6646706586826348,
+    "combatDropped": 0.03143712574850299,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1689,
+     "rawI": 1740,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1681,
+     "calm→calm": 180,
+     "tense→tense": 825,
+     "calm→combat": 72,
+     "tense→calm": 34,
+     "tense→combat": 81,
+     "combat→tense": 203,
+     "combat→combat": 444,
+     "combat→calm": 21
+    }
+   }
+  ]
+ },
+ {
+  "name": "embeddings alone",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.5170603674540682,
+    "setting": 0.5081585081585082,
+    "calm": 0.16535433070866143,
+    "tense": 0.5084745762711864,
+    "combat": 0.75,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 34.299999999999955,
+    "falseCombat": 0.4122448979591837,
+    "total": {
+     "steadyI": 381,
+     "okI": 197,
+     "rawI": 204,
+     "steadyS": 429,
+     "okS": 218,
+     "rawS": 20,
+     "falseCombatS": 1515,
+     "calmTenseS": 3675,
+     "falseEntries": 20
+    },
+    "confusion": {
+     "calm→calm": 21,
+     "calm→tense": 55,
+     "calm→combat": 51,
+     "tense→combat": 50,
+     "combat→tense": 31,
+     "combat→combat": 102,
+     "tense→tense": 60,
+     "combat→calm": 3,
+     "tense→calm": 8
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.39113244846088674,
+    "setting": 0.4796529024536206,
+    "calm": 0.10553543714433523,
+    "tense": 0.5393617021276595,
+    "combat": 0.7065868263473054,
+    "combatDropped": 0.0074850299401197605,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 0,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.3393665158371041,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1385,
+     "rawI": 1457,
+     "steadyS": 3342,
+     "okS": 1603,
+     "rawS": 539,
+     "falseCombatS": 14625,
+     "calmTenseS": 43095,
+     "falseEntries": 151
+    },
+    "confusion": {
+     "calm→tense": 1096,
+     "calm→calm": 204,
+     "calm→combat": 633,
+     "tense→calm": 91,
+     "tense→tense": 507,
+     "tense→combat": 342,
+     "combat→combat": 472,
+     "combat→tense": 191,
+     "combat→calm": 5
+    }
+   }
+  ]
+ },
+ {
+  "name": "Gemma alone",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6272965879265092,
+    "setting": 0.6386946386946387,
+    "calm": 0.1732283464566929,
+    "tense": 0.7966101694915254,
+    "combat": 0.7647058823529411,
+    "combatDropped": 0.029411764705882353,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.12244897959183673,
+    "total": {
+     "steadyI": 381,
+     "okI": 239,
+     "rawI": 248,
+     "steadyS": 429,
+     "okS": 274,
+     "rawS": 306,
+     "falseCombatS": 450,
+     "calmTenseS": 3675,
+     "falseEntries": 6
+    },
+    "confusion": {
+     "calm→tense": 99,
+     "calm→calm": 22,
+     "tense→combat": 24,
+     "combat→tense": 28,
+     "combat→combat": 104,
+     "calm→combat": 6,
+     "tense→tense": 94,
+     "combat→calm": 4
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.481219994351878,
+    "setting": 0.5448833034111311,
+    "calm": 0.11277806518365235,
+    "tense": 0.8148936170212766,
+    "combat": 0.6976047904191617,
+    "combatDropped": 0.03293413173652695,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 0,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.07866341802993387,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1704,
+     "rawI": 1745,
+     "steadyS": 3342,
+     "okS": 1821,
+     "rawS": 1965,
+     "falseCombatS": 3390,
+     "calmTenseS": 43095,
+     "falseEntries": 47
+    },
+    "confusion": {
+     "calm→tense": 1615,
+     "calm→calm": 218,
+     "tense→tense": 766,
+     "calm→combat": 100,
+     "tense→calm": 48,
+     "tense→combat": 126,
+     "combat→tense": 180,
+     "combat→combat": 466,
+     "combat→calm": 22
+    }
+   }
+  ]
+ },
+ {
+  "name": "Gemma alone, no fight question",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6640419947506562,
+    "setting": 0.6386946386946387,
+    "calm": 0.1732283464566929,
+    "tense": 0.847457627118644,
+    "combat": 0.8235294117647058,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 0,
+    "leaveLag": 29.299999999999955,
+    "falseCombat": 0.10612244897959183,
+    "total": {
+     "steadyI": 381,
+     "okI": 253,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 274,
+     "rawS": 306,
+     "falseCombatS": 390,
+     "calmTenseS": 3675,
+     "falseEntries": 7
+    },
+    "confusion": {
+     "calm→tense": 97,
+     "calm→calm": 22,
+     "tense→tense": 100,
+     "tense→combat": 18,
+     "combat→combat": 112,
+     "combat→tense": 21,
+     "calm→combat": 8,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.48573849195142615,
+    "setting": 0.5448833034111311,
+    "calm": 0.11122607346094154,
+    "tense": 0.8521276595744681,
+    "combat": 0.6646706586826348,
+    "combatDropped": 0.020958083832335328,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 27.399999999999636,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05777932474765054,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1720,
+     "rawI": 1724,
+     "steadyS": 3342,
+     "okS": 1821,
+     "rawS": 1965,
+     "falseCombatS": 2490,
+     "calmTenseS": 43095,
+     "falseEntries": 37
+    },
+    "confusion": {
+     "calm→tense": 1643,
+     "calm→calm": 215,
+     "tense→tense": 801,
+     "calm→combat": 75,
+     "tense→calm": 48,
+     "tense→combat": 91,
+     "combat→tense": 210,
+     "combat→combat": 444,
+     "combat→calm": 14
+    }
+   }
+  ]
+ },
+ {
+  "name": "Gemma alone, no fight-over question",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6404199475065617,
+    "setting": 0.6386946386946387,
+    "calm": 0.1732283464566929,
+    "tense": 0.788135593220339,
+    "combat": 0.8088235294117647,
+    "combatDropped": 0.007352941176470588,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 34.299999999999955,
+    "falseCombat": 0.1306122448979592,
+    "total": {
+     "steadyI": 381,
+     "okI": 244,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 274,
+     "rawS": 306,
+     "falseCombatS": 480,
+     "calmTenseS": 3675,
+     "falseEntries": 6
+    },
+    "confusion": {
+     "calm→tense": 98,
+     "calm→calm": 22,
+     "tense→combat": 25,
+     "combat→tense": 25,
+     "combat→combat": 110,
+     "calm→combat": 7,
+     "tense→tense": 93,
+     "combat→calm": 1
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4843264614515674,
+    "setting": 0.5448833034111311,
+    "calm": 0.1107087428867046,
+    "tense": 0.801063829787234,
+    "combat": 0.7485029940119761,
+    "combatDropped": 0.01347305389221557,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 0,
+    "leaveLag": 68.10000000000036,
+    "falseCombat": 0.08840932822833275,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1715,
+     "rawI": 1743,
+     "steadyS": 3342,
+     "okS": 1821,
+     "rawS": 1965,
+     "falseCombatS": 3810,
+     "calmTenseS": 43095,
+     "falseEntries": 44
+    },
+    "confusion": {
+     "calm→tense": 1606,
+     "calm→calm": 214,
+     "tense→tense": 753,
+     "calm→combat": 113,
+     "tense→calm": 46,
+     "tense→combat": 141,
+     "combat→tense": 159,
+     "combat→combat": 500,
+     "combat→calm": 9
+    }
+   }
+  ]
+ },
+ {
+  "name": "Gemma alone, three-way only",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6745406824146981,
+    "setting": 0.6386946386946387,
+    "calm": 0.1732283464566929,
+    "tense": 0.847457627118644,
+    "combat": 0.8529411764705882,
+    "combatDropped": 0.007352941176470588,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 0,
+    "leaveLag": 34.299999999999955,
+    "falseCombat": 0.10612244897959183,
+    "total": {
+     "steadyI": 381,
+     "okI": 257,
+     "rawI": 257,
+     "steadyS": 429,
+     "okS": 274,
+     "rawS": 306,
+     "falseCombatS": 390,
+     "calmTenseS": 3675,
+     "falseEntries": 7
+    },
+    "confusion": {
+     "calm→tense": 97,
+     "calm→calm": 22,
+     "tense→tense": 100,
+     "tense→combat": 18,
+     "combat→combat": 116,
+     "combat→tense": 19,
+     "calm→combat": 8,
+     "combat→calm": 1
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.48771533465122846,
+    "setting": 0.5448833034111311,
+    "calm": 0.1107087428867046,
+    "tense": 0.851063829787234,
+    "combat": 0.6781437125748503,
+    "combatDropped": 0.008982035928143712,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 27.399999999999636,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.058823529411764705,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1727,
+     "rawI": 1745,
+     "steadyS": 3342,
+     "okS": 1821,
+     "rawS": 1965,
+     "falseCombatS": 2535,
+     "calmTenseS": 43095,
+     "falseEntries": 36
+    },
+    "confusion": {
+     "calm→tense": 1643,
+     "calm→calm": 214,
+     "tense→tense": 800,
+     "calm→combat": 76,
+     "tense→calm": 47,
+     "tense→combat": 93,
+     "combat→tense": 209,
+     "combat→combat": 453,
+     "combat→calm": 6
+    }
+   }
+  ]
+ },
+ {
+  "name": "no fight question",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6797900262467191,
+    "setting": 0.717948717948718,
+    "calm": 0.18110236220472442,
+    "tense": 0.9067796610169492,
+    "combat": 0.8014705882352942,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 0,
+    "leaveLag": 29.299999999999955,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 259,
+     "rawI": 249,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 4
+    },
+    "confusion": {
+     "calm→calm": 23,
+     "calm→tense": 97,
+     "tense→tense": 107,
+     "tense→combat": 11,
+     "combat→tense": 24,
+     "combat→combat": 109,
+     "calm→combat": 7,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47896074555210394,
+    "setting": 0.6178934769599043,
+    "calm": 0.08535954474909467,
+    "tense": 0.8893617021276595,
+    "combat": 0.6646706586826348,
+    "combatDropped": 0.017964071856287425,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 27.399999999999636,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.047337278106508875,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1696,
+     "rawI": 1717,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2040,
+     "calmTenseS": 43095,
+     "falseEntries": 28
+    },
+    "confusion": {
+     "calm→tense": 1706,
+     "calm→calm": 165,
+     "tense→tense": 836,
+     "calm→combat": 62,
+     "tense→calm": 30,
+     "tense→combat": 74,
+     "combat→tense": 212,
+     "combat→combat": 444,
+     "combat→calm": 12
+    }
+   }
+  ]
+ },
+ {
+  "name": "no fight-over question",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6876640419947506,
+    "setting": 0.717948717948718,
+    "calm": 0.18110236220472442,
+    "tense": 0.8728813559322034,
+    "combat": 0.8676470588235294,
+    "combatDropped": 0,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 93.40000000000009,
+    "falseCombat": 0.09795918367346938,
+    "total": {
+     "steadyI": 381,
+     "okI": 262,
+     "rawI": 255,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 360,
+     "calmTenseS": 3675,
+     "falseEntries": 2
+    },
+    "confusion": {
+     "calm→calm": 23,
+     "calm→tense": 95,
+     "tense→combat": 15,
+     "combat→combat": 118,
+     "combat→tense": 18,
+     "calm→combat": 9,
+     "tense→tense": 103
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4840440553515956,
+    "setting": 0.6178934769599043,
+    "calm": 0.08484221417485774,
+    "tense": 0.8521276595744681,
+    "combat": 0.7784431137724551,
+    "combatDropped": 0,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 86.10000000000036,
+    "falseCombat": 0.07518273581621998,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1714,
+     "rawI": 1737,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 3240,
+     "calmTenseS": 43095,
+     "falseEntries": 27
+    },
+    "confusion": {
+     "calm→tense": 1667,
+     "calm→calm": 164,
+     "tense→tense": 801,
+     "calm→combat": 102,
+     "tense→calm": 25,
+     "tense→combat": 114,
+     "combat→tense": 148,
+     "combat→combat": 520
+    }
+   }
+  ]
+ },
+ {
+  "name": "fight question decides combat",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6430446194225722,
+    "setting": 0.717948717948718,
+    "calm": 0.15748031496062992,
+    "tense": 0.7796610169491526,
+    "combat": 0.8455882352941176,
+    "combatDropped": 0,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 93.40000000000009,
+    "falseCombat": 0.14285714285714285,
+    "total": {
+     "steadyI": 381,
+     "okI": 245,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 525,
+     "calmTenseS": 3675,
+     "falseEntries": 5
+    },
+    "confusion": {
+     "calm→calm": 20,
+     "calm→tense": 98,
+     "tense→combat": 26,
+     "combat→combat": 115,
+     "combat→tense": 21,
+     "calm→combat": 9,
+     "tense→tense": 92
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4735950296526405,
+    "setting": 0.6178934769599043,
+    "calm": 0.08535954474909467,
+    "tense": 0.8031914893617021,
+    "combat": 0.7949101796407185,
+    "combatDropped": 0,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 0,
+    "leaveLag": 86.10000000000036,
+    "falseCombat": 0.10024364775495997,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1677,
+     "rawI": 1735,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 4320,
+     "calmTenseS": 43095,
+     "falseEntries": 44
+    },
+    "confusion": {
+     "calm→tense": 1640,
+     "calm→calm": 165,
+     "tense→tense": 755,
+     "calm→combat": 128,
+     "tense→calm": 25,
+     "tense→combat": 160,
+     "combat→tense": 137,
+     "combat→combat": 531
+    }
+   }
+  ]
+ },
+ {
+  "name": "setting weight 0.25",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6692913385826772,
+    "setting": 0.3986013986013986,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 255,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 171,
+     "rawS": 171,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47698390285230163,
+    "setting": 0.49251944943147813,
+    "calm": 0.09311950336264874,
+    "tense": 0.8776595744680851,
+    "combat": 0.6646706586826348,
+    "combatDropped": 0.03143712574850299,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1689,
+     "rawI": 1740,
+     "steadyS": 3342,
+     "okS": 1646,
+     "rawS": 1666,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1681,
+     "calm→calm": 180,
+     "tense→tense": 825,
+     "calm→combat": 72,
+     "tense→calm": 34,
+     "tense→combat": 81,
+     "combat→tense": 203,
+     "combat→combat": 444,
+     "combat→calm": 21
+    }
+   }
+  ]
+ },
+ {
+  "name": "setting weight 0.75",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6692913385826772,
+    "setting": 0.710955710955711,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 255,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 305,
+     "rawS": 305,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47698390285230163,
+    "setting": 0.585278276481149,
+    "calm": 0.09311950336264874,
+    "tense": 0.8776595744680851,
+    "combat": 0.6646706586826348,
+    "combatDropped": 0.03143712574850299,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1689,
+     "rawI": 1740,
+     "steadyS": 3342,
+     "okS": 1956,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1681,
+     "calm→calm": 180,
+     "tense→tense": 825,
+     "calm→combat": 72,
+     "tense→calm": 34,
+     "tense→combat": 81,
+     "combat→tense": 203,
+     "combat→combat": 444,
+     "combat→calm": 21
+    }
+   }
+  ]
+ },
+ {
+  "name": "intensity weight 0.25",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.5905511811023622,
+    "setting": 0.717948717948718,
+    "calm": 0.13385826771653545,
+    "tense": 0.7372881355932204,
+    "combat": 0.7647058823529411,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 38.200000000000045,
+    "falseCombat": 0.2571428571428571,
+    "total": {
+     "steadyI": 381,
+     "okI": 225,
+     "rawI": 220,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 945,
+     "calmTenseS": 3675,
+     "falseEntries": 13
+    },
+    "confusion": {
+     "calm→calm": 17,
+     "calm→combat": 32,
+     "calm→tense": 78,
+     "tense→combat": 31,
+     "tense→tense": 87,
+     "combat→tense": 29,
+     "combat→combat": 104,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4111832815588817,
+    "setting": 0.6178934769599043,
+    "calm": 0.05794102431453699,
+    "tense": 0.7106382978723405,
+    "combat": 0.655688622754491,
+    "combatDropped": 0.019461077844311378,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 0,
+    "leaveLag": 14.100000000000364,
+    "falseCombat": 0.211277410372433,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1456,
+     "rawI": 1612,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 9105,
+     "calmTenseS": 43095,
+     "falseEntries": 100
+    },
+    "confusion": {
+     "calm→tense": 1436,
+     "calm→combat": 385,
+     "calm→calm": 112,
+     "tense→tense": 668,
+     "tense→calm": 50,
+     "tense→combat": 222,
+     "combat→combat": 438,
+     "combat→tense": 217,
+     "combat→calm": 13
+    }
+   }
+  ]
+ },
+ {
+  "name": "intensity weight 0.75",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6614173228346457,
+    "setting": 0.717948717948718,
+    "calm": 0.1889763779527559,
+    "tense": 0.8898305084745762,
+    "combat": 0.7647058823529411,
+    "combatDropped": 0.014705882352941176,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07755102040816327,
+    "total": {
+     "steadyI": 381,
+     "okI": 252,
+     "rawI": 249,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 285,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 24,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 30,
+     "combat→combat": 104,
+     "calm→combat": 6,
+     "tense→tense": 105,
+     "combat→calm": 2
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4786783394521322,
+    "setting": 0.6178934769599043,
+    "calm": 0.10398344542162442,
+    "tense": 0.8393617021276596,
+    "combat": 0.688622754491018,
+    "combatDropped": 0.02844311377245509,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 11.700000000000728,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.0685694396101636,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1695,
+     "rawI": 1739,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2955,
+     "calmTenseS": 43095,
+     "falseEntries": 39
+    },
+    "confusion": {
+     "calm→tense": 1648,
+     "calm→calm": 201,
+     "tense→tense": 789,
+     "calm→combat": 84,
+     "tense→calm": 38,
+     "tense→combat": 113,
+     "combat→tense": 189,
+     "combat→combat": 460,
+     "combat→calm": 19
+    }
+   }
+  ]
+ },
+ {
+  "name": "weights 0.75, 0.75",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6614173228346457,
+    "setting": 0.710955710955711,
+    "calm": 0.1889763779527559,
+    "tense": 0.8898305084745762,
+    "combat": 0.7647058823529411,
+    "combatDropped": 0.014705882352941176,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07755102040816327,
+    "total": {
+     "steadyI": 381,
+     "okI": 252,
+     "rawI": 249,
+     "steadyS": 429,
+     "okS": 305,
+     "rawS": 305,
+     "falseCombatS": 285,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 24,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 30,
+     "combat→combat": 104,
+     "calm→combat": 6,
+     "tense→tense": 105,
+     "combat→calm": 2
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4786783394521322,
+    "setting": 0.585278276481149,
+    "calm": 0.10398344542162442,
+    "tense": 0.8393617021276596,
+    "combat": 0.688622754491018,
+    "combatDropped": 0.02844311377245509,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 11.700000000000728,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.0685694396101636,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1695,
+     "rawI": 1739,
+     "steadyS": 3342,
+     "okS": 1956,
+     "rawS": 1974,
+     "falseCombatS": 2955,
+     "calmTenseS": 43095,
+     "falseEntries": 39
+    },
+    "confusion": {
+     "calm→tense": 1648,
+     "calm→calm": 201,
+     "tense→tense": 789,
+     "calm→combat": 84,
+     "tense→calm": 38,
+     "tense→combat": 113,
+     "combat→tense": 189,
+     "combat→combat": 460,
+     "combat→calm": 19
+    }
+   }
+  ]
+ },
+ {
+  "name": "softening 1 (none)",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6666666666666666,
+    "setting": 0.703962703962704,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07755102040816327,
+    "total": {
+     "steadyI": 381,
+     "okI": 254,
+     "rawI": 252,
+     "steadyS": 429,
+     "okS": 302,
+     "rawS": 304,
+     "falseCombatS": 285,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 96,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 6,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47613668455238634,
+    "setting": 0.5987432675044884,
+    "calm": 0.10036213140196586,
+    "tense": 0.8531914893617021,
+    "combat": 0.6676646706586826,
+    "combatDropped": 0.03143712574850299,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.06160807518273582,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1686,
+     "rawI": 1745,
+     "steadyS": 3342,
+     "okS": 2001,
+     "rawS": 1964,
+     "falseCombatS": 2655,
+     "calmTenseS": 43095,
+     "falseEntries": 35
+    },
+    "confusion": {
+     "calm→tense": 1659,
+     "calm→calm": 194,
+     "tense→tense": 802,
+     "calm→combat": 80,
+     "tense→calm": 41,
+     "tense→combat": 97,
+     "combat→tense": 201,
+     "combat→combat": 446,
+     "combat→calm": 21
+    }
+   }
+  ]
+ },
+ {
+  "name": "softening 3",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6692913385826772,
+    "setting": 0.6806526806526807,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 59.59999999999991,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 255,
+     "rawI": 252,
+     "steadyS": 429,
+     "okS": 292,
+     "rawS": 290,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4755718723524428,
+    "setting": 0.6140035906642729,
+    "calm": 0.08949818934299017,
+    "tense": 0.8776595744680851,
+    "combat": 0.6706586826347305,
+    "combatDropped": 0.029940119760479042,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05464671075530804,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1684,
+     "rawI": 1724,
+     "steadyS": 3342,
+     "okS": 2052,
+     "rawS": 1949,
+     "falseCombatS": 2355,
+     "calmTenseS": 43095,
+     "falseEntries": 31
+    },
+    "confusion": {
+     "calm→tense": 1687,
+     "calm→calm": 173,
+     "tense→tense": 825,
+     "calm→combat": 73,
+     "tense→calm": 31,
+     "tense→combat": 84,
+     "combat→tense": 200,
+     "combat→combat": 448,
+     "combat→calm": 20
+    }
+   }
+  ]
+ },
+ {
+  "name": "calm weighed x2",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6692913385826772,
+    "setting": 0.717948717948718,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 255,
+     "rawI": 252,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4775487150522451,
+    "setting": 0.6178934769599043,
+    "calm": 0.09467149508535955,
+    "tense": 0.875531914893617,
+    "combat": 0.6646706586826348,
+    "combatDropped": 0.0344311377245509,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1691,
+     "rawI": 1746,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1678,
+     "calm→calm": 183,
+     "tense→tense": 823,
+     "calm→combat": 72,
+     "tense→calm": 36,
+     "tense→combat": 81,
+     "combat→tense": 201,
+     "combat→combat": 444,
+     "combat→calm": 23
+    }
+   }
+  ]
+ },
+ {
+  "name": "calm weighed x16",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6692913385826772,
+    "setting": 0.717948717948718,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 255,
+     "rawI": 253,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4874329285512567,
+    "setting": 0.6178934769599043,
+    "calm": 0.11174340403517848,
+    "tense": 0.8680851063829788,
+    "combat": 0.6751497005988024,
+    "combatDropped": 0.02694610778443114,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1726,
+     "rawI": 1770,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1645,
+     "calm→calm": 216,
+     "tense→tense": 816,
+     "calm→combat": 72,
+     "tense→calm": 43,
+     "tense→combat": 81,
+     "combat→tense": 199,
+     "combat→combat": 451,
+     "combat→calm": 18
+    }
+   }
+  ]
+ },
+ {
+  "name": "calm weighed x1000",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6745406824146981,
+    "setting": 0.717948717948718,
+    "calm": 0.2125984251968504,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 59.59999999999991,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 257,
+     "rawI": 256,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 27,
+     "calm→tense": 95,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.5007060152499294,
+    "setting": 0.6178934769599043,
+    "calm": 0.14019658561821002,
+    "tense": 0.8489361702127659,
+    "combat": 0.6736526946107785,
+    "combatDropped": 0.02844311377245509,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05464671075530804,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1773,
+     "rawI": 1830,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2355,
+     "calmTenseS": 43095,
+     "falseEntries": 31
+    },
+    "confusion": {
+     "calm→tense": 1586,
+     "calm→calm": 271,
+     "tense→tense": 798,
+     "calm→combat": 76,
+     "tense→calm": 61,
+     "tense→combat": 81,
+     "combat→tense": 199,
+     "combat→combat": 450,
+     "combat→calm": 19
+    }
+   }
+  ]
+ },
+ {
+  "name": "calm weighed x100000",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.7034120734908137,
+    "setting": 0.717948717948718,
+    "calm": 0.33858267716535434,
+    "tense": 0.8728813559322034,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 59.59999999999991,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 268,
+     "rawI": 267,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 43,
+     "calm→tense": 79,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 103,
+     "combat→calm": 3,
+     "tense→calm": 2
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.536289183846371,
+    "setting": 0.6178934769599043,
+    "calm": 0.22193481634764614,
+    "tense": 0.8053191489361702,
+    "combat": 0.6736526946107785,
+    "combatDropped": 0.03293413173652695,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05534284719805082,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1899,
+     "rawI": 1989,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2385,
+     "calmTenseS": 43095,
+     "falseEntries": 31
+    },
+    "confusion": {
+     "calm→tense": 1426,
+     "calm→calm": 429,
+     "tense→tense": 757,
+     "tense→calm": 102,
+     "calm→combat": 78,
+     "tense→combat": 81,
+     "combat→tense": 196,
+     "combat→combat": 450,
+     "combat→calm": 22
+    }
+   }
+  ]
+ },
+ {
+  "name": "calm weighed x10000000",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.7427821522309711,
+    "setting": 0.717948717948718,
+    "calm": 0.49606299212598426,
+    "tense": 0.788135593220339,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.051470588235294115,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 59.59999999999991,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 283,
+     "rawI": 268,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 63,
+     "calm→tense": 59,
+     "tense→combat": 13,
+     "combat→tense": 24,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 93,
+     "combat→calm": 7,
+     "tense→calm": 12
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.6207286077379272,
+    "setting": 0.6178934769599043,
+    "calm": 0.42421107087428866,
+    "tense": 0.6627659574468086,
+    "combat": 0.6586826347305389,
+    "combatDropped": 0.08682634730538923,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.058127392969021925,
+    "total": {
+     "steadyI": 3541,
+     "okI": 2198,
+     "rawI": 2247,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2505,
+     "calmTenseS": 43095,
+     "falseEntries": 32
+    },
+    "confusion": {
+     "calm→tense": 1027,
+     "calm→calm": 820,
+     "tense→tense": 623,
+     "tense→calm": 236,
+     "calm→combat": 86,
+     "tense→combat": 81,
+     "combat→tense": 170,
+     "combat→combat": 440,
+     "combat→calm": 58
+    }
+   }
+  ]
+ },
+ {
+  "name": "calm x1000, table talk as calm",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6850393700787402,
+    "setting": 0.717948717948718,
+    "calm": 0.31496062992125984,
+    "tense": 0.847457627118644,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.07352941176470588,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 59.59999999999991,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 261,
+     "rawI": 263,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 40,
+     "calm→tense": 82,
+     "tense→combat": 13,
+     "combat→tense": 21,
+     "combat→combat": 105,
+     "combat→calm": 10,
+     "calm→combat": 5,
+     "tense→tense": 100,
+     "tense→calm": 5
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.5425021180457498,
+    "setting": 0.6178934769599043,
+    "calm": 0.23797206414899122,
+    "tense": 0.7893617021276595,
+    "combat": 0.6736526946107785,
+    "combatDropped": 0.08532934131736528,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.054994778976679426,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1921,
+     "rawI": 1962,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2370,
+     "calmTenseS": 43095,
+     "falseEntries": 32
+    },
+    "confusion": {
+     "calm→tense": 1397,
+     "calm→calm": 460,
+     "tense→tense": 742,
+     "tense→calm": 116,
+     "calm→combat": 76,
+     "tense→combat": 82,
+     "combat→tense": 161,
+     "combat→combat": 450,
+     "combat→calm": 57
+    }
+   }
+  ]
+ },
+ {
+  "name": "calm x100000, table talk as calm",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.7086614173228346,
+    "setting": 0.717948717948718,
+    "calm": 0.4330708661417323,
+    "tense": 0.8135593220338984,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.07352941176470588,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 59.59999999999991,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 270,
+     "rawI": 269,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 55,
+     "calm→tense": 67,
+     "tense→combat": 13,
+     "combat→tense": 21,
+     "combat→combat": 105,
+     "combat→calm": 10,
+     "calm→combat": 5,
+     "tense→tense": 96,
+     "tense→calm": 9
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.6139508613386049,
+    "setting": 0.6178934769599043,
+    "calm": 0.3993792033109157,
+    "tense": 0.6882978723404255,
+    "combat": 0.6721556886227545,
+    "combatDropped": 0.12574850299401197,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05534284719805082,
+    "total": {
+     "steadyI": 3541,
+     "okI": 2174,
+     "rawI": 2158,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2385,
+     "calmTenseS": 43095,
+     "falseEntries": 32
+    },
+    "confusion": {
+     "calm→tense": 1084,
+     "calm→calm": 772,
+     "tense→tense": 647,
+     "tense→calm": 211,
+     "calm→combat": 77,
+     "tense→combat": 82,
+     "combat→tense": 135,
+     "combat→combat": 449,
+     "combat→calm": 84
+    }
+   }
+  ]
+ },
+ {
+  "name": "Gemma alone, calm x1000",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6325459317585301,
+    "setting": 0.6386946386946387,
+    "calm": 0.23622047244094488,
+    "tense": 0.7542372881355932,
+    "combat": 0.7647058823529411,
+    "combatDropped": 0.07352941176470588,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.12244897959183673,
+    "total": {
+     "steadyI": 381,
+     "okI": 241,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 274,
+     "rawS": 306,
+     "falseCombatS": 450,
+     "calmTenseS": 3675,
+     "falseEntries": 6
+    },
+    "confusion": {
+     "calm→calm": 30,
+     "calm→tense": 91,
+     "tense→combat": 24,
+     "combat→tense": 22,
+     "combat→combat": 104,
+     "combat→calm": 10,
+     "calm→combat": 6,
+     "tense→tense": 89,
+     "tense→calm": 5
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.5032476701496752,
+    "setting": 0.5448833034111311,
+    "calm": 0.16658044490429386,
+    "tense": 0.7819148936170213,
+    "combat": 0.6976047904191617,
+    "combatDropped": 0.0658682634730539,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 0,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.07866341802993387,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1782,
+     "rawI": 1823,
+     "steadyS": 3342,
+     "okS": 1821,
+     "rawS": 1965,
+     "falseCombatS": 3390,
+     "calmTenseS": 43095,
+     "falseEntries": 47
+    },
+    "confusion": {
+     "calm→tense": 1511,
+     "calm→calm": 322,
+     "tense→tense": 735,
+     "tense→calm": 79,
+     "calm→combat": 100,
+     "tense→combat": 126,
+     "combat→calm": 44,
+     "combat→combat": 466,
+     "combat→tense": 158
+    }
+   }
+  ]
+ },
+ {
+  "name": "Gemma alone, calm x100000",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6535433070866141,
+    "setting": 0.6386946386946387,
+    "calm": 0.3779527559055118,
+    "tense": 0.6779661016949152,
+    "combat": 0.7647058823529411,
+    "combatDropped": 0.11764705882352941,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.1306122448979592,
+    "total": {
+     "steadyI": 381,
+     "okI": 249,
+     "rawI": 261,
+     "steadyS": 429,
+     "okS": 274,
+     "rawS": 306,
+     "falseCombatS": 480,
+     "calmTenseS": 3675,
+     "falseEntries": 6
+    },
+    "confusion": {
+     "calm→calm": 48,
+     "calm→tense": 71,
+     "tense→combat": 24,
+     "combat→calm": 16,
+     "combat→tense": 16,
+     "combat→combat": 104,
+     "calm→combat": 8,
+     "tense→tense": 80,
+     "tense→calm": 14
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.5617057328438294,
+    "setting": 0.5448833034111311,
+    "calm": 0.29798241076047594,
+    "tense": 0.7074468085106383,
+    "combat": 0.6946107784431138,
+    "combatDropped": 0.1122754491017964,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 0,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.07727114514444831,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1989,
+     "rawI": 2033,
+     "steadyS": 3342,
+     "okS": 1821,
+     "rawS": 1965,
+     "falseCombatS": 3330,
+     "calmTenseS": 43095,
+     "falseEntries": 45
+    },
+    "confusion": {
+     "calm→tense": 1261,
+     "calm→calm": 576,
+     "tense→tense": 665,
+     "tense→calm": 149,
+     "calm→combat": 96,
+     "tense→combat": 126,
+     "combat→calm": 75,
+     "combat→combat": 464,
+     "combat→tense": 129
+    }
+   }
+  ]
+ },
+ {
+  "name": "Gemma for setting only",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.5328083989501312,
+    "setting": 0.717948717948718,
+    "calm": 0.15748031496062992,
+    "tense": 0.5084745762711864,
+    "combat": 0.7647058823529411,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.39183673469387753,
+    "total": {
+     "steadyI": 381,
+     "okI": 203,
+     "rawI": 214,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 1440,
+     "calmTenseS": 3675,
+     "falseEntries": 21
+    },
+    "confusion": {
+     "calm→calm": 20,
+     "calm→tense": 61,
+     "calm→combat": 46,
+     "tense→combat": 50,
+     "combat→tense": 29,
+     "combat→combat": 104,
+     "tense→tense": 60,
+     "combat→calm": 3,
+     "tense→calm": 8
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.38407229596159276,
+    "setting": 0.6178934769599043,
+    "calm": 0.11174340403517848,
+    "tense": 0.5414893617021277,
+    "combat": 0.6317365269461078,
+    "combatDropped": 0.025449101796407185,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 0,
+    "leaveLag": 48.20000000000073,
+    "falseCombat": 0.32996867386007656,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1360,
+     "rawI": 1526,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 14220,
+     "calmTenseS": 43095,
+     "falseEntries": 154
+    },
+    "confusion": {
+     "calm→tense": 1094,
+     "calm→calm": 216,
+     "calm→combat": 623,
+     "tense→calm": 106,
+     "tense→tense": 509,
+     "tense→combat": 325,
+     "combat→combat": 422,
+     "combat→tense": 229,
+     "combat→calm": 17
+    }
+   }
+  ]
+ },
+ {
+  "name": "Gemma for intensity only",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6692913385826772,
+    "setting": 0.27505827505827507,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 255,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 118,
+     "rawS": 107,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47698390285230163,
+    "setting": 0.4452423698384201,
+    "calm": 0.09311950336264874,
+    "tense": 0.8776595744680851,
+    "combat": 0.6646706586826348,
+    "combatDropped": 0.03143712574850299,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1689,
+     "rawI": 1740,
+     "steadyS": 3342,
+     "okS": 1488,
+     "rawS": 1379,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1681,
+     "calm→calm": 180,
+     "tense→tense": 825,
+     "calm→combat": 72,
+     "tense→calm": 34,
+     "tense→combat": 81,
+     "combat→tense": 203,
+     "combat→combat": 444,
+     "combat→calm": 21
+    }
+   }
+  ]
+ },
+ {
+  "name": "table talk as calm",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6771653543307087,
+    "setting": 0.717948717948718,
+    "calm": 0.23622047244094488,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.04411764705882353,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 258,
+     "rawI": 252,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 30,
+     "calm→tense": 92,
+     "tense→combat": 13,
+     "combat→tense": 25,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 6
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4944930810505507,
+    "setting": 0.6178934769599043,
+    "calm": 0.13760993274702535,
+    "tense": 0.8446808510638298,
+    "combat": 0.6646706586826348,
+    "combatDropped": 0.06736526946107785,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.054994778976679426,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1751,
+     "rawI": 1772,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2370,
+     "calmTenseS": 43095,
+     "falseEntries": 32
+    },
+    "confusion": {
+     "calm→tense": 1591,
+     "calm→calm": 266,
+     "tense→tense": 794,
+     "calm→combat": 76,
+     "tense→calm": 64,
+     "tense→combat": 82,
+     "combat→tense": 179,
+     "combat→combat": 444,
+     "combat→calm": 45
+    }
+   }
+  ]
+ },
+ {
+  "name": "table talk ignored",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6692913385826772,
+    "setting": 0.717948717948718,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 255,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47726630895227334,
+    "setting": 0.6178934769599043,
+    "calm": 0.09363683393688567,
+    "tense": 0.8776595744680851,
+    "combat": 0.6646706586826348,
+    "combatDropped": 0.03143712574850299,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1690,
+     "rawI": 1741,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1680,
+     "calm→calm": 181,
+     "tense→tense": 825,
+     "calm→combat": 72,
+     "tense→calm": 34,
+     "tense→combat": 81,
+     "combat→tense": 203,
+     "combat→combat": 444,
+     "combat→calm": 21
+    }
+   }
+  ]
+ },
+ {
+  "name": "table talk veto",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6771653543307087,
+    "setting": 0.717948717948718,
+    "calm": 0.2204724409448819,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 258,
+     "rawI": 254,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 28,
+     "calm→tense": 94,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4735950296526405,
+    "setting": 0.6178934769599043,
+    "calm": 0.08794619762027936,
+    "tense": 0.875531914893617,
+    "combat": 0.6616766467065869,
+    "combatDropped": 0.0374251497005988,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1677,
+     "rawI": 1702,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1691,
+     "calm→calm": 170,
+     "tense→tense": 823,
+     "calm→combat": 72,
+     "tense→calm": 36,
+     "tense→combat": 81,
+     "combat→tense": 201,
+     "combat→combat": 442,
+     "combat→calm": 25
+    }
+   }
+  ]
+ },
+ {
+  "name": "one check at 0.7",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6666666666666666,
+    "setting": 0.717948717948718,
+    "calm": 0.1889763779527559,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 254,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 24,
+     "calm→tense": 98,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4778311211522169,
+    "setting": 0.6199880311190904,
+    "calm": 0.09518882565959648,
+    "tense": 0.875531914893617,
+    "combat": 0.6661676646706587,
+    "combatDropped": 0.02245508982035928,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1692,
+     "rawI": 1739,
+     "steadyS": 3342,
+     "okS": 2072,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1677,
+     "calm→calm": 184,
+     "tense→tense": 823,
+     "calm→combat": 72,
+     "tense→calm": 36,
+     "tense→combat": 81,
+     "combat→tense": 208,
+     "combat→combat": 445,
+     "combat→calm": 15
+    }
+   }
+  ]
+ },
+ {
+  "name": "one check at 0.9",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6719160104986877,
+    "setting": 0.717948717948718,
+    "calm": 0.2047244094488189,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 256,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 26,
+     "calm→tense": 96,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47952555775204747,
+    "setting": 0.6175942549371634,
+    "calm": 0.09518882565959648,
+    "tense": 0.8776595744680851,
+    "combat": 0.6721556886227545,
+    "combatDropped": 0.02844311377245509,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1698,
+     "rawI": 1740,
+     "steadyS": 3342,
+     "okS": 2064,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1677,
+     "calm→calm": 184,
+     "tense→tense": 825,
+     "calm→combat": 72,
+     "tense→calm": 34,
+     "tense→combat": 81,
+     "combat→tense": 200,
+     "combat→combat": 449,
+     "combat→calm": 19
+    }
+   }
+  ]
+ },
+ {
+  "name": "three agreeing checks",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6666666666666666,
+    "setting": 0.7202797202797203,
+    "calm": 0.2047244094488189,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.08163265306122448,
+    "total": {
+     "steadyI": 381,
+     "okI": 254,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 309,
+     "rawS": 301,
+     "falseCombatS": 300,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 26,
+     "calm→tense": 94,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 7,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47500706015249927,
+    "setting": 0.6193895870736086,
+    "calm": 0.09053285049146405,
+    "tense": 0.8787234042553191,
+    "combat": 0.6631736526946108,
+    "combatDropped": 0.038922155688622756,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1682,
+     "rawI": 1740,
+     "steadyS": 3342,
+     "okS": 2070,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1686,
+     "calm→calm": 175,
+     "tense→tense": 826,
+     "calm→combat": 72,
+     "tense→calm": 33,
+     "tense→combat": 81,
+     "combat→tense": 199,
+     "combat→combat": 443,
+     "combat→calm": 26
+    }
+   }
+  ]
+ },
+ {
+  "name": "combat entry 0.5",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6719160104986877,
+    "setting": 0.717948717948718,
+    "calm": 0.1968503937007874,
+    "tense": 0.8559322033898306,
+    "combat": 0.8088235294117647,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 59.59999999999991,
+    "falseCombat": 0.09387755102040816,
+    "total": {
+     "steadyI": 381,
+     "okI": 256,
+     "rawI": 252,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 345,
+     "calmTenseS": 3675,
+     "falseEntries": 5
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 96,
+     "tense→combat": 17,
+     "combat→tense": 23,
+     "combat→combat": 110,
+     "calm→combat": 6,
+     "tense→tense": 101,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47387743575261226,
+    "setting": 0.6178934769599043,
+    "calm": 0.09311950336264874,
+    "tense": 0.8382978723404255,
+    "combat": 0.7035928143712575,
+    "combatDropped": 0.023952095808383235,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.07796728158719109,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1678,
+     "rawI": 1741,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 3360,
+     "calmTenseS": 43095,
+     "falseEntries": 46
+    },
+    "confusion": {
+     "calm→tense": 1647,
+     "calm→calm": 180,
+     "tense→tense": 788,
+     "calm→combat": 106,
+     "tense→calm": 34,
+     "tense→combat": 118,
+     "combat→tense": 182,
+     "combat→combat": 470,
+     "combat→calm": 16
+    }
+   }
+  ]
+ },
+ {
+  "name": "combat entry 0.7",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6614173228346457,
+    "setting": 0.717948717948718,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.75,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 32.90000000000009,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 252,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 31,
+     "combat→combat": 102,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4775487150522451,
+    "setting": 0.6178934769599043,
+    "calm": 0.09105018106570098,
+    "tense": 0.8829787234042553,
+    "combat": 0.6407185628742516,
+    "combatDropped": 0.03143712574850299,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.04524886877828054,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1691,
+     "rawI": 1742,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 1950,
+     "calmTenseS": 43095,
+     "falseEntries": 25
+    },
+    "confusion": {
+     "calm→tense": 1703,
+     "calm→calm": 176,
+     "tense→tense": 830,
+     "calm→combat": 54,
+     "tense→calm": 34,
+     "tense→combat": 76,
+     "combat→tense": 219,
+     "combat→combat": 428,
+     "combat→calm": 21
+    }
+   }
+  ]
+ },
+ {
+  "name": "combat lasts 2 min",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6561679790026247,
+    "setting": 0.717948717948718,
+    "calm": 0.16535433070866143,
+    "tense": 0.8813559322033898,
+    "combat": 0.7941176470588235,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 0.8,
+    "callLag": 18.200000000000045,
+    "leaveLag": 13.600000000000023,
+    "falseCombat": 0.12244897959183673,
+    "total": {
+     "steadyI": 381,
+     "okI": 250,
+     "rawI": 253,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 450,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 21,
+     "calm→tense": 90,
+     "tense→combat": 14,
+     "combat→combat": 108,
+     "combat→tense": 25,
+     "calm→combat": 16,
+     "tense→tense": 104,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4693589381530641,
+    "setting": 0.6178934769599043,
+    "calm": 0.08122090015519917,
+    "tense": 0.8553191489361702,
+    "combat": 0.7050898203592815,
+    "combatDropped": 0.017964071856287425,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 48.20000000000073,
+    "falseCombat": 0.07622694048033414,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1662,
+     "rawI": 1738,
+     "steadyS": 3342,
+     "okS": 2065,
+     "rawS": 1974,
+     "falseCombatS": 3285,
+     "calmTenseS": 43095,
+     "falseEntries": 27
+    },
+    "confusion": {
+     "calm→tense": 1668,
+     "calm→calm": 157,
+     "tense→tense": 804,
+     "calm→combat": 108,
+     "tense→calm": 25,
+     "tense→combat": 111,
+     "combat→tense": 185,
+     "combat→combat": 471,
+     "combat→calm": 12
+    }
+   }
+  ]
+ },
+ {
+  "name": "setting lasts 5 min",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6692913385826772,
+    "setting": 0.717948717948718,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 255,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 308,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47698390285230163,
+    "setting": 0.6071214841412328,
+    "calm": 0.09311950336264874,
+    "tense": 0.8776595744680851,
+    "combat": 0.6646706586826348,
+    "combatDropped": 0.03143712574850299,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1689,
+     "rawI": 1740,
+     "steadyS": 3342,
+     "okS": 2029,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1681,
+     "calm→calm": 180,
+     "tense→tense": 825,
+     "calm→combat": 72,
+     "tense→calm": 34,
+     "tense→combat": 81,
+     "combat→tense": 203,
+     "combat→combat": 444,
+     "combat→calm": 21
+    }
+   }
+  ]
+ },
+ {
+  "name": "setting lasts 1 min",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6692913385826772,
+    "setting": 0.7272727272727273,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.07346938775510205,
+    "total": {
+     "steadyI": 381,
+     "okI": 255,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 312,
+     "rawS": 301,
+     "falseCombatS": 270,
+     "calmTenseS": 3675,
+     "falseEntries": 3
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 97,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "calm→combat": 5,
+     "tense→tense": 105,
+     "combat→calm": 3
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.47698390285230163,
+    "setting": 0.6172950329144224,
+    "calm": 0.09311950336264874,
+    "tense": 0.8776595744680851,
+    "combat": 0.6646706586826348,
+    "combatDropped": 0.03143712574850299,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1689,
+     "rawI": 1740,
+     "steadyS": 3342,
+     "okS": 2063,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1681,
+     "calm→calm": 180,
+     "tense→tense": 825,
+     "calm→combat": 72,
+     "tense→calm": 34,
+     "tense→combat": 81,
+     "combat→tense": 203,
+     "combat→combat": 444,
+     "combat→calm": 21
+    }
+   }
+  ]
+ },
+ {
+  "name": "min confidence 0.6",
+  "scores": [
+   {
+    "llmChecks": 468,
+    "allChecks": 468,
+    "intensity": 0.6719160104986877,
+    "setting": 0.7202797202797203,
+    "calm": 0.1968503937007874,
+    "tense": 0.8898305084745762,
+    "combat": 0.7720588235294118,
+    "combatDropped": 0.022058823529411766,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 18.200000000000045,
+    "leaveLag": 14.099999999999909,
+    "falseCombat": 0.06938775510204082,
+    "total": {
+     "steadyI": 381,
+     "okI": 256,
+     "rawI": 251,
+     "steadyS": 429,
+     "okS": 309,
+     "rawS": 301,
+     "falseCombatS": 255,
+     "calmTenseS": 3675,
+     "falseEntries": 2
+    },
+    "confusion": {
+     "calm→calm": 25,
+     "calm→tense": 98,
+     "tense→combat": 13,
+     "combat→tense": 28,
+     "combat→combat": 105,
+     "tense→tense": 105,
+     "combat→calm": 3,
+     "calm→combat": 4
+    }
+   },
+   {
+    "llmChecks": 3721,
+    "allChecks": 3721,
+    "intensity": 0.4696413442530359,
+    "setting": 0.6223818073010173,
+    "calm": 0.08122090015519917,
+    "tense": 0.8840425531914894,
+    "combat": 0.6631736526946108,
+    "combatDropped": 0.040419161676646706,
+    "fightsCalled": 1,
+    "fightsLeft": 1,
+    "callLag": 94.89999999999964,
+    "leaveLag": 27.799999999999272,
+    "falseCombat": 0.05325443786982249,
+    "total": {
+     "steadyI": 3541,
+     "okI": 1663,
+     "rawI": 1740,
+     "steadyS": 3342,
+     "okS": 2080,
+     "rawS": 1974,
+     "falseCombatS": 2295,
+     "calmTenseS": 43095,
+     "falseEntries": 30
+    },
+    "confusion": {
+     "calm→tense": 1704,
+     "calm→calm": 157,
+     "tense→tense": 831,
+     "calm→combat": 72,
+     "tense→calm": 28,
+     "tense→combat": 81,
+     "combat→tense": 198,
+     "combat→combat": 443,
+     "combat→calm": 27
+    }
+   }
+  ]
+ }
+]
