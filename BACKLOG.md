@@ -17,9 +17,9 @@ Kevin MacLeod's catalogue at incompetech.com: 1,443 tracks (87 hours, median 3 m
 
 Know roughly how many people use the app (and so how much traffic we send to incompetech and Tabletop Audio). A cookieless, privacy-friendly service that counts page views and sessions, never anything said at the table. About's Privacy section must say what is counted and by whom.
 
-## 4. More labelled real play, for calm against tense
+## 4. More labelled real play, for tense against calm
 
-E13 replays Bardo's 9 episodes through the app (`//experiments/e13:replay`). Fights are good on real play, but calm play is mostly heard as tense, and town as tavern; tuning on 4 episodes didn't hold on the other 5, as calm and fights traded off (experiments/E13.md, round 2). More varied labelled play would show whether calm can improve without costing fights: label more transcripts the same way (other groups and styles; CRD3's Critical Role transcripts lack timestamps, but its "roll initiative" calls mark fights), and judge any change on fights first.
+E13 replays real play through the app: Bardo's 9 episodes and 10 of Critical Role's (CRD3), labelled by hand with the wiki's help (`//experiments/e13:replay`, three at a time). Fights are good. The danger question (round 3) fixed calm play heard as tense; the gap now is the reverse, tense play heard as calm (68% and 60% of tense checks right on the held-out half), mostly stealth and watching: sneaking, scouting, keeping watch at night. Rounds 4 and 5 found no fix in the prompt's wording, thresholds, more context, or other models (E13.md). More varied labelled play is what's left: other groups and styles, home tables especially, with plenty of quiet tense scenes, labelled the same way, tuned on one half and judged on the other, fights first.
 
 ## 5. Gemini with the user's own API key (investigate)
 
