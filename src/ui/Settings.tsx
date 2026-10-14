@@ -1,4 +1,5 @@
 import { useState } from "preact/hooks";
+import { countingOn, setCounting } from "../analytics.js";
 import { auto, compare, engine, sessionActive, setAuto, setCompare, setEngine } from "../director.js";
 import { loadApiKey, resetSettings, saveApiKey } from "../settings.js";
 import { Choice, SpeechModelChooser } from "./Listening.js";
@@ -114,6 +115,22 @@ function DebugSection() {
   );
 }
 
+/** Whether this browser's visits are counted (src/analytics.ts). */
+function UsageCountsSection() {
+  return (
+    <section class="section">
+      <label class="toggle">
+        <h3>Count my visits</h3>
+        <input type="checkbox" checked={countingOn.value} onChange={(e) => setCounting(e.currentTarget.checked)} />
+      </label>
+      <p>
+        Counts visits, sessions and tracks played, without cookies and never anything said at the table, so we know how
+        many people use Eavesbard. See Privacy in About.
+      </p>
+    </section>
+  );
+}
+
 /** Back to the defaults: options and the API key, with a confirmation step. */
 function ResetSection() {
   const [asking, setAsking] = useState(false);
@@ -121,7 +138,10 @@ function ResetSection() {
   return (
     <section class="section">
       <h3>Reset to defaults</h3>
-      <p>Clears the options above and the Anthropic API key saved in this browser, then reloads the page. Downloaded models stay.</p>
+      <p>
+        Clears the options above and the Anthropic API key saved in this browser, then reloads the page. Downloaded models
+        and your choice about counting visits stay.
+      </p>
       {sessionActive.value ? (
         <p class="small">Stop the session first.</p>
       ) : asking ? (
@@ -183,6 +203,8 @@ export function Settings() {
           {engine.value === "claude" && <ApiKey />}
         </section>
       </fieldset>
+
+      <UsageCountsSection />
 
       <DebugSection />
 

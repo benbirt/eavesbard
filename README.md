@@ -16,6 +16,7 @@ bazel run //scripts:build_index    # regenerate data/tracks.json from tabletopau
 ANTHROPIC_API_KEY=... bazel run //scripts:classifier_check   # try the classifier on scripted transcripts
 bazel run //experiments/ui:ui_check         # drive the app through its main states in headless Chrome
 bazel run //experiments/ui:download_check   # model downloads: pause, resume, resume after a reload
+bazel run //experiments/ui:analytics_check  # usage analytics: what is sent, and when nothing is
 ```
 
 To compare scene models on this computer's GPU (experiment E9), run `bazel run //experiments/e9:browser_eval -- --repo <model> --variants current --name <run>`, then score the run with `bazel run //experiments/e9:analyse -- experiments/e9/results/<run>.json`. The browser targets drive your installed Chrome headless, keeping downloaded models in `experiments/e9/.chrome-profile`. Each experiment's targets are listed in its `BUILD.bazel`.

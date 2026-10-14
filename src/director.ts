@@ -11,7 +11,8 @@ import type { Usage } from "./classify/cost.js";
 import { library, tagMap } from "./library-data.js";
 import type { Intensity, Setting } from "./library/scenes.js";
 import type { LibraryTrack } from "./library/tag-map.js";
-import { onTranscriptLine, prepareSpeech, start as startListening, stop as stopListening } from "./listener.js";
+import { countSessionEnded, countSessionStarted } from "./analytics.js";
+import { model as speechModel, onTranscriptLine, prepareSpeech, start as startListening, stop as stopListening } from "./listener.js";
 import { LOCAL_MODEL_NAME, localClassify, prepareLocalModels, prepareTrackIndex } from "./local-models.js";
 import { allowDownloads, mayLoad, onDownloadsAllowed } from "./downloads.js";
 import { hasWebGpu } from "./gpu.js";
@@ -22,7 +23,7 @@ import { prepareSceneLlm } from "./llm/scene-llm.js";
 import { claudePick } from "./pick/claude-picker.js";
 import { localPick } from "./pick/local-picker.js";
 import type { PickRequest } from "./pick/request.js";
-import { hasFailed, nowPlaying, onTrackEnded, onTrackFailed, play, stop as stopMusic } from "./player.js";
+import { hasFailed, nowPlaying, onTrackEnded, onTrackFailed, output, play, stop as stopMusic } from "./player.js";
 import { choices, suits } from "./scene/selector.js";
 import { guessScene } from "./scene/guess.js";
 import { initialScene, nextScene, type SceneState } from "./scene/state-machine.js";
@@ -153,6 +154,7 @@ export async function startSession(): Promise<void> {
   sessionActive.value = true;
   const opening = description.value.trim();
   record({ kind: "session", text: opening ? `Session started. Opening scene: “${opening}”.` : "Session started." });
+  countSessionStarted({ automatic: auto.value, scene_engine: effectiveEngine(), speech_model: speechModel.value, output: output.value });
   // Listening only feeds automatic music: with it off, the music is picked by hand.
   if (auto.value) void startListening();
   if (auto.value) await startAuto(opening);
@@ -165,6 +167,7 @@ export function stopSession(): void {
   void stopMusic();
   sessionActive.value = false;
   record({ kind: "session", text: "Session stopped." });
+  countSessionEnded("stop");
 }
 
 async function startAuto(opening: string): Promise<void> {

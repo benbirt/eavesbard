@@ -15,12 +15,13 @@ const store = new Map<string, string>();
 
 const { loadApiKey, loadSetting, resetSettings, saveApiKey, saveSetting } = await import("./settings.js");
 
-test("reset clears options and the API key but keeps the opening description, downloaded models and other sites' data", () => {
+test("reset clears options and the API key but keeps the opening description, the usage-count choice, downloaded models and other sites' data", () => {
   saveApiKey("sk-test");
   saveSetting("engine", "claude");
   saveSetting("whisperModel", "tiny.en");
   saveSetting("auto", "off");
   saveSetting("openingDescription", "a smoky tavern");
+  saveSetting("analytics", "off");
   saveSetting("downloaded.onnx-community/gemma-4-E2B-it-ONNX", "yes");
   store.set("someone-else", "x");
   assert.equal(resetSettings(), true);
@@ -29,6 +30,8 @@ test("reset clears options and the API key but keeps the opening description, do
   assert.equal(loadSetting("whisperModel"), undefined);
   assert.equal(loadSetting("auto"), undefined);
   assert.equal(loadSetting("openingDescription"), "a smoky tavern");
+  // Turning usage counts off is a privacy choice, not an option to reset.
+  assert.equal(loadSetting("analytics"), "off");
   // The models stay, so the record of them does too.
   assert.equal(loadSetting("downloaded.onnx-community/gemma-4-E2B-it-ONNX"), "yes");
   assert.equal(store.get("someone-else"), "x");
