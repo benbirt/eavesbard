@@ -6,7 +6,7 @@ Deployed at <https://eavesbard.com/>. Needs an up-to-date Chrome with WebGPU (de
 
 ## Building
 
-Everything builds and runs through [Bazel](https://bazel.build/), via [Bazelisk](https://github.com/bazelbuild/bazelisk), which picks up the pinned version from `.bazelversion`. Nothing else needs installing: Bazel fetches Node, pnpm, TypeScript, esbuild and the npm packages itself. On NixOS, where those downloaded binaries can't run directly, `nix develop` opens a shell with Bazelisk and Chrome (`flake.nix`); for a single command, `nix run . -- -c 'bazel test //...'`.
+Everything builds and runs through [Bazel](https://bazel.build/), via [Bazelisk](https://github.com/bazelbuild/bazelisk), which picks up the pinned version from `.bazelversion`. Nothing else needs installing: Bazel fetches Node, pnpm, TypeScript, esbuild and the npm packages itself. On NixOS, those downloaded binaries can't run directly: run Bazelisk inside an FHS environment (`buildFHSEnv`). The browser experiments use Chrome from `CHROME_PATH`, else `google-chrome-stable` on the PATH, else Chrome's usual install location.
 
 ```sh
 bazel test //...                   # type-check, build and run the tests
