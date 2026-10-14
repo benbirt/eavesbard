@@ -2,7 +2,7 @@
 
 Listens to a tabletop RPG session and plays fitting ambient music without anyone touching it. See [DESIGN.md](DESIGN.md).
 
-Deployed at <https://benbirt.github.io/eavesbard/>. Needs an up-to-date Chrome with WebGPU (desktop or Android). Work still to do is in [BACKLOG.md](BACKLOG.md).
+Deployed at <https://eavesbard.com/>. Needs an up-to-date Chrome with WebGPU (desktop or Android). Work still to do is in [BACKLOG.md](BACKLOG.md).
 
 ## Building
 
