@@ -14,7 +14,7 @@ export POSTHOG_API_KEY AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
 
 case "${1:-}" in
   plan | apply) exec bazel run "//posthog:posthog.$1" ;;
-  check-queries) exec "$(dirname "$0")/check-queries.sh" ;;
+  check-queries) exec bazel run //posthog:check_queries ;;
   *)
     echo "usage: $0 plan|apply|check-queries" >&2
     exit 2

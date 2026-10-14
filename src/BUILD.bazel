@@ -9,6 +9,7 @@ ts_lib(
     name = "app",
     visibility = [
         "//experiments:__subpackages__",
+        "//posthog:__pkg__",
         "//scripts:__pkg__",
     ],
     srcs = glob(
@@ -177,6 +178,5 @@ copy_to_directory(
 ts_tests(
     name = "tests",
     srcs = TESTS,
-    data = ["//posthog:queries"],
     deps = [":app"],
 )
