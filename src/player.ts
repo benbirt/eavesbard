@@ -2,6 +2,7 @@
 // components update when playback or Cast events change it.
 
 import { signal } from "@preact/signals";
+import { countTrackStarted } from "./analytics.js";
 import type { PlaybackAdapter, PlaybackEvent } from "./playback/adapter.js";
 import { CastAdapter, loadCastSdk } from "./playback/cast.js";
 import { LocalAdapter } from "./playback/local.js";
@@ -149,6 +150,7 @@ export async function play(entry: LibraryTrack | undefined): Promise<void> {
     if (!entry) throw new Error("No track selected");
     const url = audioUrl(entry.track.file);
     log(source, { type: "info", detail: `requesting ${entry.track.title} (${url})` });
+    countTrackStarted(url, source);
     nowPlaying.value = entry;
     paused.value = false;
     loading.value = true;

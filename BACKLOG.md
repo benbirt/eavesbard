@@ -13,9 +13,13 @@ Kevin MacLeod's catalogue at incompetech.com: 1,443 tracks (87 hours, median 3 m
 - These are music, not ambience, and most are short and don't loop seamlessly, so playback needs to move on rather than loop one track.
 - Linking to his files uses his bandwidth. Fine at our scale; write to him if traffic grows (see section 3), and host copies ourselves if he'd rather.
 
-## 3. Usage analytics
+## 3. Usage analytics: PostHog's configuration as code
 
-Know roughly how many people use the app (and so how much traffic we send to incompetech and Tabletop Audio). A cookieless, privacy-friendly service that counts page views and sessions, never anything said at the table. About's Privacy section must say what is counted and by whom.
+Visits, downloads, sessions and tracks are counted (DESIGN.md 7.11). Still to do: PostHog's insights, funnels and dashboard, kept in this repo as OpenTofu rather than made in its UI.
+- OpenTofu through rules_tofu (pinned with `git_override` until it has a release), with the `PostHog/posthog` provider; the funnels and insights name events from `src/analytics-events.ts`, and a test checks they all exist there.
+- State in Cloudflare R2: bucket `eavesbard-tofu-state` (EU jurisdiction), `https://5154cc96c06ec81c712d8fd51a642c9c.eu.r2.cloudflarestorage.com`, through the `s3` backend with `use_lockfile` (R2's conditional writes were checked to work).
+- Applied by CI on pushes to `main`, planned on pull requests. The repository secrets `POSTHOG_API_KEY` (a personal key limited to the project), `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY` are set.
+- Worth having: visits and sessions by day; the funnel from page view to downloads allowed, model downloaded, session started and a first track; how long sessions run; tracks per host (the traffic we send each); which engines and speech models sessions use (item 1).
 
 ## 4. More labelled real play, for tense against calm
 

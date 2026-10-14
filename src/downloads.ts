@@ -4,6 +4,7 @@
 // visit (the start card's "Download now", or "Download … and begin").
 
 import { signal } from "@preact/signals";
+import { countDownloadsAllowed, countModelDownloaded } from "./analytics.js";
 import { loadSetting, saveSetting } from "./settings.js";
 
 /** Whether the user has chosen to download models, this visit. */
@@ -15,6 +16,7 @@ const allowListeners: (() => void)[] = [];
 export function allowDownloads(): void {
   if (downloadsAllowed.value) return;
   downloadsAllowed.value = true;
+  countDownloadsAllowed();
   for (const listener of allowListeners) listener();
 }
 
@@ -28,6 +30,8 @@ export const DOWNLOADED_PREFIX = "downloaded.";
 
 /** Records that a model loaded completely, so its files are all in the browser. */
 export function markDownloaded(repo: string): void {
+  // Counted once per browser: later visits load it from the cache and land here again.
+  if (loadSetting(DOWNLOADED_PREFIX + repo) !== "yes") countModelDownloaded(repo);
   saveSetting(DOWNLOADED_PREFIX + repo, "yes");
   if (downloadedModels.value.get(repo) !== true) downloadedModels.value = new Map(downloadedModels.value).set(repo, true);
 }

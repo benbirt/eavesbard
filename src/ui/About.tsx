@@ -53,6 +53,17 @@ export function About() {
           </li>
         </ul>
         <p>The session log is kept only until you close or reload the page.</p>
+        <p>
+          <b>Counting visits.</b> So we know how many people use Eavesbard (and how much we're asking of the sites the
+          music comes from), it counts visits with <a href="https://posthog.com/">PostHog</a>, on its servers in the EU:
+          the page opening, model downloads, sessions starting and stopping (with the options chosen and how long they
+          ran), and each track played (which site it came from), with the usual browser details: browser, operating
+          system, screen size, language and time zone. Never anything said at the table, the transcript, the scene, your
+          description or your API key. Nothing is stored in your browser for it: no cookies. PostHog counts
+          each day's visitors from a scrambled code made from your IP address and browser, which it can't turn back into
+          either and discards each day, and it doesn't keep your IP address. Browsers asking not to be tracked (Global
+          Privacy Control or Do Not Track) aren't counted, and you can turn it off in Setup ("Count my visits").
+        </p>
       </section>
 
       <section class="section">

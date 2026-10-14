@@ -40,8 +40,8 @@ export function saveSetting(name: string, value: string): void {
   }
 }
 
-/** Settings kept by a reset: the user's own text, and which models are downloaded (the models stay). */
-const KEPT_ON_RESET = ["eavesbard.openingDescription"];
+/** Settings kept by a reset: the user's own text, whether usage is counted (a privacy choice), and which models are downloaded (the models stay). */
+const KEPT_ON_RESET = ["eavesbard.openingDescription", "eavesbard.analytics"];
 const KEPT_PREFIX_ON_RESET = "eavesbard.downloaded.";
 
 /**
