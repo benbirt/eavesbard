@@ -1,0 +1,25 @@
+load("@aspect_rules_js//js:defs.bzl", "js_library")
+load("@rules_tofu//tf:defs.bzl", "tf_deploy")
+
+QUERIES = glob(["queries/*.json"])
+
+# PostHog's usage dashboard (main.tf). `bazel build //posthog` validates it;
+# posthog/run.sh plans or applies it with the keys from KDE Wallet, and CI
+# does the same with repository secrets (.github/workflows/posthog.yml).
+tf_deploy(
+    name = "posthog",
+    srcs = [
+        "dashboard.tf",
+        "main.tf",
+    ],
+    data = QUERIES,
+    providers = ["@tf_providers_posthog_posthog//:provider"],
+)
+
+# The insights' queries, also checked against the app's event names
+# (src/analytics-events.test.ts).
+js_library(
+    name = "queries",
+    srcs = QUERIES,
+    visibility = ["//src:__pkg__"],
+)

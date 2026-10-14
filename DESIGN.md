@@ -296,7 +296,7 @@ To know roughly how many people use Eavesbard, and so how much traffic it sends 
 - **When it counts** (`mayCount`): only on eavesbard.com (not localhost, the experiments, or forks), not when replaying a transcript or driven by automation (`navigator.webdriver`), not when the browser sends Do Not Track or Global Privacy Control, and not when the user turns off "Count my visits" in Setup (stored as a setting, kept by Reset to defaults since it's a privacy choice).
 - **Its own bundle:** PostHog's SDK (about 110 KB gzipped) is built as `analytics-posthog.js` (`src/analytics-client.ts`) and imported only when a visit may be counted, so the main bundle doesn't grow and nobody else downloads it. Events sent before it loads are queued; if it can't load (an ad blocker, say), nothing is counted.
 - **Checked** by `bazel run //experiments/ui:analytics_check`, which points eavesbard.com at a local server and answers PostHog's requests itself: the events and their properties, no cookies or storage, nothing sent in the cases above, and the beacon on leaving mid-session.
-- **Configuration** of PostHog's insights, funnels and dashboards is to be kept in this repo as OpenTofu (BACKLOG.md).
+- **Configuration as code** (`posthog/`): PostHog's "Usage" dashboard and its insights are OpenTofu, built with rules_tofu (pinned to a commit with `git_override` until it has a release) and the `PostHog/posthog` provider, whose digests are recorded in `MODULE.bazel.lock`. Each insight's query is a file in `posthog/queries/`: `posthog/check-queries.sh` runs them through PostHog's query API, which checks them against its schema (`tofu plan` doesn't), and `src/analytics-events.test.ts` checks every event they name is one the app sends. `dashboard.tf` names them and lays out the tiles. State is in Cloudflare R2 (bucket `eavesbard-tofu-state`, EU jurisdiction) through the `s3` backend, locked with `use_lockfile`. The PostHog workflow (`.github/workflows/posthog.yml`) plans on pull requests that touch it and applies on pushes to main, with the repository secrets `POSTHOG_API_KEY` (a personal key limited to the project), `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`. `posthog/run.sh plan` does the same from termina, with the keys from KDE Wallet. The dashboard says it's managed here: changes made in PostHog's UI are undone by the next apply.
 
 ## 8. Tech stack and repo layout
 
@@ -405,7 +405,7 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 - **M4 — Instrumentation:** the timeline (7.9) doubles as the session log, exported as JSONL, and the page is reorganised around it (7.10). Done; next, run E8 over real sessions, and E10 alongside it.
 - **M5 — Local classifier experiments:** E9, then decide whether the API key remains necessary. Done: local models are the default, with Gemma 4 E2B (7.5).
 
-Agreed next steps (one local-or-remote choice, music from incompetech, usage analytics' PostHog configuration) are in [BACKLOG.md](BACKLOG.md).
+Agreed next steps (one local-or-remote choice, music from incompetech, more labelled play) are in [BACKLOG.md](BACKLOG.md).
 
 ## 11. Later and out of scope
 

@@ -1,0 +1,24 @@
+{
+  "kind": "InsightVizNode",
+  "source": {
+    "kind": "TrendsQuery",
+    "dateRange": {
+      "date_from": "-90d"
+    },
+    "interval": "day",
+    "series": [
+      {
+        "kind": "EventsNode",
+        "event": "session_started",
+        "math": "total"
+      }
+    ],
+    "breakdownFilter": {
+      "breakdown": "scene_engine",
+      "breakdown_type": "event"
+    },
+    "trendsFilter": {
+      "display": "ActionsBarValue"
+    }
+  }
+}

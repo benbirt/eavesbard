@@ -1,0 +1,18 @@
+{
+  "kind": "InsightVizNode",
+  "source": {
+    "kind": "TrendsQuery",
+    "dateRange": {
+      "date_from": "-90d"
+    },
+    "interval": "week",
+    "series": [
+      {
+        "kind": "EventsNode",
+        "event": "session_ended",
+        "math": "avg",
+        "math_property": "tracks"
+      }
+    ]
+  }
+}

@@ -177,5 +177,6 @@ copy_to_directory(
 ts_tests(
     name = "tests",
     srcs = TESTS,
+    data = ["//posthog:queries"],
     deps = [":app"],
 )

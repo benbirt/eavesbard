@@ -50,3 +50,22 @@ test("event names are unique and use PostHog's own name for page views", () => {
   assert.ok(EVENT_NAMES.includes("$pageview"));
   for (const name of EVENT_NAMES) assert.match(name, /^(\$pageview|[a-z]+(_[a-z]+)*)$/, name);
 });
+
+test("every event PostHog's insights use is one the app sends", async () => {
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const dir = "posthog/queries";
+  const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
+  assert.ok(files.length > 0, `no queries found in ${dir}`);
+  const used = new Set<string>();
+  const collect = (node: unknown): void => {
+    if (Array.isArray(node)) node.forEach(collect);
+    else if (node && typeof node === "object") {
+      for (const [key, value] of Object.entries(node)) {
+        if (key === "event" && typeof value === "string") used.add(value);
+        else collect(value);
+      }
+    }
+  };
+  for (const file of files) collect(JSON.parse(readFileSync(`${dir}/${file}`, "utf8")));
+  for (const event of used) assert.ok((EVENT_NAMES as readonly string[]).includes(event), `${event} is used in ${dir} but never sent`);
+});
