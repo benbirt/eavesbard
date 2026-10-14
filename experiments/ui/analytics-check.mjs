@@ -68,7 +68,9 @@ async function open({ automation = false, extraArgs = [] } = {}) {
     headless: true,
     userAgent,
     args: [
-      `--host-resolver-rules=MAP eavesbard.com 127.0.0.1`,
+      // eavesbard.com is the local server. PostHog resolves nowhere, so a request the routes below
+      // miss (a beacon sent as a page unloads, say) fails rather than reaching the real project.
+      `--host-resolver-rules=MAP eavesbard.com 127.0.0.1, MAP *.posthog.com ~NOTFOUND`,
       ...(automation ? [] : ["--disable-blink-features=AutomationControlled"]),
       ...extraArgs,
     ],
