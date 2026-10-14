@@ -9,6 +9,7 @@ ts_lib(
     name = "app",
     visibility = [
         "//experiments:__subpackages__",
+        "//posthog:__pkg__",
         "//scripts:__pkg__",
     ],
     srcs = glob(

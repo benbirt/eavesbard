@@ -1,0 +1,52 @@
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_run_binary")
+load("@rules_tofu//tf:defs.bzl", "tf_deploy")
+load("//tools:ts.bzl", "ts_lib")
+
+# The dashboard's insights, typed against the app's events (insights.ts).
+ts_lib(
+    name = "insights",
+    srcs = [
+        "check-queries.ts",
+        "insights.ts",
+        "write-insights.ts",
+    ],
+    tsconfig = "//:tsconfig_node",
+    deps = [
+        "//:node_modules/@types/node",
+        "//src:app",
+    ],
+)
+
+js_binary(
+    name = "write_insights",
+    data = [":insights"],
+    entry_point = "write-insights.js",
+)
+
+js_run_binary(
+    name = "insights_json",
+    outs = ["insights.json"],
+    args = ["$(rootpath insights.json)"],
+    tool = ":write_insights",
+)
+
+# Runs each query through PostHog's API, which checks it; needs POSTHOG_API_KEY.
+js_binary(
+    name = "check_queries",
+    data = [":insights"],
+    entry_point = "check-queries.js",
+)
+
+# PostHog's usage dashboard (main.tf, dashboard.tf). `bazel build //posthog`
+# validates it; posthog/run.sh plans or applies it with the keys from KDE
+# Wallet, and CI does the same with repository secrets
+# (.github/workflows/posthog.yml).
+tf_deploy(
+    name = "posthog",
+    srcs = [
+        "dashboard.tf",
+        "main.tf",
+    ],
+    data = [":insights_json"],
+    providers = ["@tf_providers_posthog_posthog//:provider"],
+)

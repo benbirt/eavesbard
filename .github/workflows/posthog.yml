@@ -1,0 +1,57 @@
+name: PostHog
+
+# Keeps PostHog's usage dashboard in line with posthog/ (DESIGN.md 7.11):
+# plans on pull requests that change it, applies on pushes to main. State is
+# in Cloudflare R2, locked while a run uses it.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "posthog/**"
+      - "src/analytics-events.ts"
+      - "MODULE.bazel"
+      - "MODULE.bazel.lock"
+      - ".github/workflows/posthog.yml"
+  pull_request:
+    paths:
+      - "posthog/**"
+      - "src/analytics-events.ts"
+      - "MODULE.bazel"
+      - "MODULE.bazel.lock"
+      - ".github/workflows/posthog.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One run at a time, never cancelled: an apply stopped half-way leaves the
+# dashboard half-changed (and the state lock held).
+concurrency:
+  group: posthog
+  cancel-in-progress: false
+
+jobs:
+  posthog:
+    # Pull requests from forks get no secrets, so there's nothing to plan with.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: bazel-contrib/setup-bazel@0.19.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+      - name: Check the queries against PostHog
+        run: bazel run //posthog:check_queries
+      - name: Plan
+        if: github.event_name == 'pull_request'
+        run: bazel run //posthog:posthog.plan -- -no-color
+      - name: Apply
+        if: github.event_name != 'pull_request'
+        run: bazel run //posthog:posthog.apply -- -auto-approve -no-color
