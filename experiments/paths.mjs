@@ -3,7 +3,8 @@
 // anything the script keeps (results, screenshots, a browser profile) goes in
 // the source tree.
 
-import { join, resolve } from "node:path";
+import { existsSync } from "node:fs";
+import { delimiter, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const workspace = process.env.BUILD_WORKSPACE_DIRECTORY;
@@ -24,5 +25,13 @@ export const built = (...parts) => join(process.env.JS_BINARY__RUNFILES, "_main"
 /** Imports a built module, e.g. await builtModule("src/eval/large-set.js"). */
 export const builtModule = (...parts) => import(pathToFileURL(built(...parts)).href);
 
-/** How to launch Chrome: CHROME_PATH if set (the Nix shell sets it, flake.nix), else the installed Chrome. */
-export const chrome = process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: "chrome" };
+// Chrome on the PATH, where it isn't in the standard place Playwright looks
+// (/opt/google/chrome on Linux): on NixOS, for one.
+const chromeOnPath = (process.env.PATH ?? "")
+  .split(delimiter)
+  .map((dir) => join(dir, "google-chrome-stable"))
+  .find((path) => existsSync(path));
+
+/** How to launch Chrome: CHROME_PATH if set, else google-chrome-stable from the PATH, else the installed Chrome. */
+const chromePath = process.env.CHROME_PATH ?? chromeOnPath;
+export const chrome = chromePath ? { executablePath: chromePath } : { channel: "chrome" };
