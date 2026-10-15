@@ -5,7 +5,7 @@
 // writes this as insights.json for dashboard.tf; check-queries.ts runs each
 // query through PostHog's API, which checks it against PostHog's schema.
 
-import type { AnalyticsEvent, EventName } from "../src/analytics-events.js";
+import { PRODUCTION_HOST, type AnalyticsEvent, type EventName } from "../src/analytics-events.js";
 
 /** An event's own properties (everything but its name). */
 type PropertyOf<E extends EventName> = Exclude<keyof Extract<AnalyticsEvent, { name: E }>, "name"> & string;
@@ -32,6 +32,10 @@ export interface Insight {
 
 const LAST_90_DAYS = { date_from: "-90d" };
 
+// Only events from the site itself. The app sends none from anywhere else, but a test or a
+// fork that slipped past that would otherwise show up here.
+const FROM_THE_SITE = [{ type: "event", key: "$host", operator: "exact", value: PRODUCTION_HOST }];
+
 /** How many times an event happened, how many visitors it had, or the average of one of its numbers. */
 type Measure<E extends EventName> = { math: "total" | "dau" } | { math: "avg"; of: NumberPropertyOf<E> };
 
@@ -50,6 +54,7 @@ function trend<E extends EventName>(
     source: {
       kind: "TrendsQuery",
       dateRange: LAST_90_DAYS,
+      properties: FROM_THE_SITE,
       interval: options.interval,
       series: [{ kind: "EventsNode", event, math: options.math, ...("of" in options && { math_property: options.of }) }],
       ...(options.breakdown && { breakdownFilter: { breakdown: options.breakdown, breakdown_type: "event" } }),
@@ -65,6 +70,7 @@ function funnel(steps: [EventName, string][]): Insight["query"] {
     source: {
       kind: "FunnelsQuery",
       dateRange: LAST_90_DAYS,
+      properties: FROM_THE_SITE,
       series: steps.map(([event, label]) => ({ kind: "EventsNode", event, custom_name: label })),
       funnelsFilter: { funnelWindowInterval: 1, funnelWindowIntervalUnit: "day", funnelOrderType: "ordered" },
     },
