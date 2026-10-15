@@ -124,8 +124,7 @@ function UsageCountsSection() {
         <input type="checkbox" checked={countingOn.value} onChange={(e) => setCounting(e.currentTarget.checked)} />
       </label>
       <p>
-        Counts visits, sessions and tracks played, without cookies and never anything said at the table, so we know how
-        many people use Eavesbard. See Privacy in About.
+        Cookieless PostHog analytics, counting visits and how Eavesbard is used. Nothing said at the table is ever sent.
       </p>
     </section>
   );
