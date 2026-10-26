@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-19T13:30:51.730Z",
+  "generated": "2026-10-26T13:14:36.377Z",
   "source": "https://tabletopaudio.com/",
   "tracks": [
     {
@@ -1554,66 +1554,6 @@
         "wagon",
         "travel",
         "horses"
-      ]
-    },
-    {
-      "id": 49,
-      "title": "Goblin's Cave",
-      "description": "Journey up the winding path, follow the stream into the mouth of the cavern. Light your torches. Proceed...cautiously.",
-      "genres": [
-        "fantasy"
-      ],
-      "hasMusic": false,
-      "type": "ambience",
-      "file": "49_Goblins_Cave",
-      "tags": {
-        "civ": [],
-        "biome": [
-          "underground"
-        ],
-        "mood": [
-          "somber"
-        ],
-        "action": [
-          "monster"
-        ]
-      },
-      "keywords": [
-        "dark",
-        "dripping",
-        "stream",
-        "cavern",
-        "monsters",
-        "kobolds"
-      ]
-    },
-    {
-      "id": 50,
-      "title": "Super Hero",
-      "description": "Like a Michael Bay movie in your head. Calling all heroes. The villainous tropes are on the loose!",
-      "genres": [
-        "modern"
-      ],
-      "hasMusic": true,
-      "type": "music + ambience",
-      "file": "50_Super_Hero",
-      "tags": {
-        "civ": [
-          "cities"
-        ],
-        "biome": [],
-        "mood": [
-          "optimistic"
-        ],
-        "action": [
-          "skirmish"
-        ]
-      },
-      "keywords": [
-        "action",
-        "city",
-        "explosions",
-        "thriller"
       ]
     },
     {
@@ -4424,6 +4364,40 @@
         "travel",
         "coach",
         "rain"
+      ]
+    },
+    {
+      "id": 135,
+      "title": "Dark Matter",
+      "description": "The sound of the cosmos, or an alternate dimension. Infinite and majestic.",
+      "genres": [
+        "scifi",
+        "fantasy",
+        "horror"
+      ],
+      "hasMusic": false,
+      "type": "ambience + music",
+      "file": "135_Dark_Matter",
+      "tags": {
+        "civ": [],
+        "biome": [
+          "planar"
+        ],
+        "mood": [
+          "peaceful",
+          "mysterious"
+        ],
+        "action": []
+      },
+      "keywords": [
+        "infinity",
+        "cosmos",
+        "universe",
+        "celestial",
+        "cyberpunk",
+        "planets",
+        "computers",
+        "abstract"
       ]
     },
     {
@@ -18342,6 +18316,40 @@
         "crowds",
         "police",
         "action"
+      ]
+    },
+    {
+      "id": 530,
+      "title": "Eldritch Wood",
+      "description": "Ancient. Eternal. Awake. Halloween 2026",
+      "genres": [
+        "horror",
+        "nature"
+      ],
+      "hasMusic": true,
+      "type": "ambience + music",
+      "file": "530_Eldritch_Wood",
+      "tags": {
+        "civ": [],
+        "biome": [
+          "forest",
+          "planar"
+        ],
+        "mood": [
+          "tension"
+        ],
+        "action": [
+          "monster",
+          "boss"
+        ]
+      },
+      "keywords": [
+        "Cthulhu",
+        "Forest",
+        "gothic",
+        "Lovecraft",
+        "monster",
+        "giant"
       ]
     }
   ]
