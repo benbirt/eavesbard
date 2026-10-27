@@ -27,11 +27,21 @@ on:
 permissions:
   contents: read
 
-# One run at a time, never cancelled: an apply stopped half-way leaves the
-# dashboard half-changed (and the state lock held).
+# Plans and applies queue separately. GitHub keeps only one waiting run per
+# group, replacing it with any newer one, so a shared group would cancel one
+# pull request's plan when another's queued.
+# - Pull requests: one plan each, and a new push cancels the old plan. Plans
+#   only read the state, so they take no lock (-lock=false): a cancelled plan
+#   can't leave it held, and plans never wait on an apply.
+# - Applies: one at a time and never cancelled, because an apply stopped
+#   half-way leaves the dashboard half-changed (and the state lock held). A
+#   waiting apply that's replaced loses nothing: the newer one applies a main
+#   that has its changes too.
+# An apply waits for the state lock (-lock-timeout) if someone holds it, for
+# example posthog/run.sh from termina, instead of failing on it.
 concurrency:
-  group: posthog
-  cancel-in-progress: false
+  group: posthog-${{ github.event_name == 'pull_request' && format('plan-{0}', github.event.pull_request.number) || 'apply' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   posthog:
@@ -53,7 +63,7 @@ jobs:
         run: bazel run //posthog:check_queries
       - name: Plan
         if: github.event_name == 'pull_request'
-        run: bazel run //posthog:posthog.plan -- -no-color
+        run: bazel run //posthog:posthog.plan -- -lock=false -no-color
       - name: Apply
         if: github.event_name != 'pull_request'
-        run: bazel run //posthog:posthog.apply -- -auto-approve -no-color
+        run: bazel run //posthog:posthog.apply -- -lock-timeout=15m -auto-approve -no-color
