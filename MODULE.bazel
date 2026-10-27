@@ -37,22 +37,15 @@ typescript.deps(version_from = "//:package.json")
 use_repo(typescript, "npm_typescript")
 
 # PostHog's insights and dashboard as OpenTofu (posthog/), through rules_tofu.
-# rules_tofu has no release yet, so it's pinned to a commit.
-bazel_dep(name = "rules_tofu", version = "0.0.0")
-git_override(
-    module_name = "rules_tofu",
-    commit = "1b6d5f918b5216da5d1f822a16026bde3f622e14",
-    remote = "https://github.com/benbirt/rules_tofu.git",
-)
+bazel_dep(name = "rules_tofu", version = "0.3.1")
 
 tofu = use_extension("@rules_tofu//toolchain:extensions.bzl", "tofu", dev_dependency = True)
 use_repo(tofu, "tofu_toolchains")
 
-# No sha256 pinned: the OpenTofu registry's digests are recorded in
-# MODULE.bazel.lock the first time, and reused from there.
+# Provider versions are pinned in posthog/main.tf and posthog/.terraform.lock.hcl,
+# as in a plain OpenTofu project, so Dependabot can update them. After changing
+# a version in main.tf, rewrite the lock with:
+#   bazel run @tf_providers//:pin
 tf_providers = use_extension("@rules_tofu//tf/providers:extensions.bzl", "tf_providers", dev_dependency = True)
-tf_providers.provider(
-    source = "PostHog/posthog",
-    version = "1.0.24",
-)
-use_repo(tf_providers, "tf_providers_posthog_posthog")
+tf_providers.from_lock(lock = "//posthog:.terraform.lock.hcl")
+use_repo(tf_providers, "tf_providers")
