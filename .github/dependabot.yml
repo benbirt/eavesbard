@@ -1,0 +1,44 @@
+# Weekly version updates, one pull request per ecosystem (and per pnpm
+# workspace) so the shared lockfiles don't conflict between them.
+#
+# Not covered: .bazelversion and the Node version in MODULE.bazel, which
+# Dependabot doesn't update.
+version: 2
+updates:
+  # bazel_dep versions in MODULE.bazel; Dependabot runs `bazel mod tidy` to
+  # update MODULE.bazel.lock.
+  - package-ecosystem: bazel
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      bazel:
+        patterns: ["*"]
+
+  # package.json and pnpm-lock.yaml: the app's, and the experiments' own.
+  - package-ecosystem: npm
+    directories:
+      - /
+      - /experiments
+    schedule:
+      interval: weekly
+    groups:
+      npm:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  # The PostHog provider: its version in posthog/main.tf and the lock beside
+  # it, which rules_tofu reads (tf_providers.from_lock in MODULE.bazel).
+  # "opentofu", not "terraform", which can't read an OpenTofu lock.
+  - package-ecosystem: opentofu
+    directory: /posthog
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]

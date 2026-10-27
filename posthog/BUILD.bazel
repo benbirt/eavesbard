@@ -48,5 +48,5 @@ tf_deploy(
         "main.tf",
     ],
     data = [":insights_json"],
-    providers = ["@tf_providers_posthog_posthog//:provider"],
+    providers = ["@tf_providers//posthog/posthog"],
 )
