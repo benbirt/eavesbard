@@ -2,7 +2,9 @@ name: PostHog
 
 # Keeps PostHog's usage dashboard in line with posthog/ (DESIGN.md 7.11):
 # plans on pull requests that change it, applies on pushes to main. State is
-# in Cloudflare R2, locked while a run uses it.
+# in Cloudflare R2, locked while a run uses it. Dependabot's pull requests get
+# the same secrets from the repository's Dependabot secrets, so its provider
+# updates are planned too.
 
 on:
   push:
