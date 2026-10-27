@@ -37,7 +37,7 @@ typescript.deps(version_from = "//:package.json")
 use_repo(typescript, "npm_typescript")
 
 # PostHog's insights and dashboard as OpenTofu (posthog/), through rules_tofu.
-bazel_dep(name = "rules_tofu", version = "0.3.0")
+bazel_dep(name = "rules_tofu", version = "0.3.1")
 
 tofu = use_extension("@rules_tofu//toolchain:extensions.bzl", "tofu", dev_dependency = True)
 use_repo(tofu, "tofu_toolchains")

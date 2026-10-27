@@ -249,8 +249,8 @@
     "https://bcr.bazel.build/modules/rules_swift/2.4.0/MODULE.bazel": "1639617eb1ede28d774d967a738b4a68b0accb40650beadb57c21846beab5efd",
     "https://bcr.bazel.build/modules/rules_swift/3.1.2/MODULE.bazel": "72c8f5cf9d26427cee6c76c8e3853eb46ce6b0412a081b2b6db6e8ad56267400",
     "https://bcr.bazel.build/modules/rules_swift/3.1.2/source.json": "e85761f3098a6faf40b8187695e3de6d97944e98abd0d8ce579cb2daf6319a66",
-    "https://bcr.bazel.build/modules/rules_tofu/0.3.0/MODULE.bazel": "b28d7a130570c05edaabbe9be9cd0ca0852fc909bce56b84f650575bcb0ef47e",
-    "https://bcr.bazel.build/modules/rules_tofu/0.3.0/source.json": "85c405b00629485e5692ba811c19c06ee587dc32dca6ee2221bf3663d0441e30",
+    "https://bcr.bazel.build/modules/rules_tofu/0.3.1/MODULE.bazel": "a7741c17cd233ceaea6d07c9533fe91dc044a6902fa6426dcbfb8b1c0fdc3b11",
+    "https://bcr.bazel.build/modules/rules_tofu/0.3.1/source.json": "9a36859bdb7b08c8857541ccfc5c0868568c187f818b783ae56ff3584eeb0674",
     "https://bcr.bazel.build/modules/stardoc/0.5.1/MODULE.bazel": "1a05d92974d0c122f5ccf09291442580317cdd859f07a8655f1db9a60374f9f8",
     "https://bcr.bazel.build/modules/stardoc/0.5.3/MODULE.bazel": "c7f6948dae6999bf0db32c1858ae345f112cacf98f174c7a8bb707e41b974f1c",
     "https://bcr.bazel.build/modules/stardoc/0.5.4/MODULE.bazel": "6569966df04610b8520957cb8e97cf2e9faac2c0309657c537ab51c16c18a2a4",
@@ -1087,15 +1087,6 @@
           "go1.26.3.windows-arm64.zip",
           "95cd63bc6b0da77409ba819215afea9ddf5702c55a3b20af3dd90ea95c7b130c"
         ]
-      }
-    },
-    "@@rules_tofu+//tf/providers:extensions.bzl%tf_providers": {
-      "posthog/posthog@1.0.24": {
-        "darwin_amd64": "f6e42b058b5a2f6074490601ef370aa312714840b5fab3054f3b618bf125014b",
-        "darwin_arm64": "1bc9647121eac3694a5ab816e25397e58be2595b0fb1322aad86d4f9ba15872b",
-        "linux_amd64": "4afb3cb829dee5e97f98b51ebdb761b8cc4daf6d0a7f541f9f5a89e0ab86251d",
-        "linux_arm64": "672f48fedf6661afce7e36ff333cd9ea199af2decc5a2985e5d3b25cff8014ab",
-        "windows_amd64": "d01ed2764f869608ef856444b1bef9ae32e751a3dc4045d5f972b000f9ef5351"
       }
     }
   },
