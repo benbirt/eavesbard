@@ -84,7 +84,7 @@ The setting list is provisional. Against Tabletop Audio's tags (7.1), every sett
   - The newest track can be a Patreon-only "sneak peek" with no download link. Tiles without a file are skipped.
   - Sixteen partner tiles (e.g. Starforged, Fragged Empire) show promotional text instead of a description; their description is left empty.
   - Descriptions end with notes such as "[3 Alternate versions available for Patreon Patrons]", which are stripped.
-  - Genre classes include at least one typo (`scif`). The generator keeps the site's values as they are, and `tag-map.json` absorbs typos.
+  - Genre classes include at least one typo (`scif`, on Prisoner Transport). The generator keeps the site's values as they are. `tag-map.json` does not list `scif`, because that track is also `modern`, and the data test fails on any map genre missing from the data, which `scif` is whenever that track drops out.
   - The two data scripts are plain JavaScript, not JSON (comments, unquoted keys, trailing commas, and DOM code after the object). The generator parses them with a JavaScript parser (acorn) and reads only the object literal, never running the script.
 
 **Generated index**
@@ -126,7 +126,7 @@ The file also records when it was generated. Filenames are kept exactly as the s
 **Mapping and reporting**
 
 - **Tag mapping:** a hand-maintained `config/tag-map.json` maps Tabletop Audio's metadata onto our setting and intensity values:
-  - **Scope:** a track is in scope if it has an included genre (`fantasy`, `historical`, `horror`, `nature`) and no excluded one (`scifi`, `scif`, `modern`). `includeTracks` and `excludeTracks` override this for individual track ids; for example, two jazz-age tracks filed as historical (1920s Speakeasy, Cotton Club) are excluded.
+  - **Scope:** a track is in scope if it has an included genre (`fantasy`, `historical`, `horror`, `nature`) and no excluded one (`scifi`, `modern`). `includeTracks` and `excludeTracks` override this for individual track ids; for example, two jazz-age tracks filed as historical (1920s Speakeasy, Cotton Club) are excluded.
   - **Interior:** the `interior` rule uses the site's `temples` tag and words such as castle, throne and library, but not its broad `interiors` tag, which also covers every tavern and many dungeon rooms.
   - **Buckets:** each setting and intensity has a rule listing tag values per facet (`civ`, `biome`, `mood`, `action`) and `words`. A track is in a bucket if it has any listed tag, or any listed word appears as a whole word in its title or keywords, unless it matches the rule's `unless` (combat is `unless` the track is tagged `celebrate`, since Tavern Celebration is tagged both "skirmish" and "celebrate"; travel is `unless` it's a feast or banquet, since Medieval Banquet is tagged "roads"). A track may sit in several buckets.
   - **Unmapped:** in-scope tracks with no setting or no intensity are left out. `maxUnmapped` records how many that currently is.

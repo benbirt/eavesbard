@@ -1,7 +1,7 @@
 {
   "genres": {
     "include": ["fantasy", "historical", "horror", "nature"],
-    "exclude": ["scifi", "scif", "modern"]
+    "exclude": ["scifi", "modern"]
   },
   "includeTracks": [],
   "excludeTracks": [81, 145],
