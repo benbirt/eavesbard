@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-26T13:14:36.377Z",
+  "generated": "2026-11-09T16:33:36.445Z",
   "source": "https://tabletopaudio.com/",
   "tracks": [
     {
@@ -1557,6 +1557,66 @@
       ]
     },
     {
+      "id": 49,
+      "title": "Goblin's Cave",
+      "description": "Journey up the winding path, follow the stream into the mouth of the cavern. Light your torches. Proceed...cautiously.",
+      "genres": [
+        "fantasy"
+      ],
+      "hasMusic": false,
+      "type": "ambience",
+      "file": "49_Goblins_Cave",
+      "tags": {
+        "civ": [],
+        "biome": [
+          "underground"
+        ],
+        "mood": [
+          "somber"
+        ],
+        "action": [
+          "monster"
+        ]
+      },
+      "keywords": [
+        "dark",
+        "dripping",
+        "stream",
+        "cavern",
+        "monsters",
+        "kobolds"
+      ]
+    },
+    {
+      "id": 50,
+      "title": "Super Hero",
+      "description": "Like a Michael Bay movie in your head. Calling all heroes. The villainous tropes are on the loose!",
+      "genres": [
+        "modern"
+      ],
+      "hasMusic": true,
+      "type": "music + ambience",
+      "file": "50_Super_Hero",
+      "tags": {
+        "civ": [
+          "cities"
+        ],
+        "biome": [],
+        "mood": [
+          "optimistic"
+        ],
+        "action": [
+          "skirmish"
+        ]
+      },
+      "keywords": [
+        "action",
+        "city",
+        "explosions",
+        "thriller"
+      ]
+    },
+    {
       "id": 51,
       "title": "Woodland Campsite",
       "description": "Every adventurer needs downtime. Here's a nice spot in the woods to rest the horses and enjoy a hot meal over a fire.",
@@ -2056,43 +2116,6 @@
         "wigs",
         "parlor",
         "court"
-      ]
-    },
-    {
-      "id": 67,
-      "title": "Asylum",
-      "description": "You don't belong here... You don't know how you got here... There's been a mistake...Yeah, that's what everybody says.",
-      "genres": [
-        "modern",
-        "horror"
-      ],
-      "hasMusic": false,
-      "type": "ambience + minimal music",
-      "file": "67_Asylum",
-      "tags": {
-        "civ": [
-          "facilities",
-          "interiors"
-        ],
-        "biome": [],
-        "mood": [
-          "mysterious",
-          "tension"
-        ],
-        "action": [
-          "investigate"
-        ]
-      },
-      "keywords": [
-        "insane",
-        "crazy",
-        "spooky",
-        "madness",
-        "bedlam",
-        "arkham",
-        "straight jackets",
-        "T.I.M.E. Stories",
-        "TIME Stories"
       ]
     },
     {
@@ -3793,35 +3816,6 @@
         "rural",
         "country",
         "traffic"
-      ]
-    },
-    {
-      "id": 118,
-      "title": "Spire: The Heart",
-      "description": "A rotting hole in reality buried at the centre of the mile-high, ancient building that is Spire.",
-      "genres": [
-        "fantasy",
-        "horror"
-      ],
-      "hasMusic": false,
-      "type": "ambience + minimal music",
-      "file": "118_Spire_The_Heart_a",
-      "tags": {
-        "civ": [
-          "cities"
-        ],
-        "biome": [],
-        "mood": [
-          "mysterious"
-        ],
-        "action": []
-      },
-      "keywords": [
-        "decay",
-        "blood",
-        "insects",
-        "rotting",
-        "disease"
       ]
     },
     {
@@ -7137,41 +7131,6 @@
       ]
     },
     {
-      "id": 215,
-      "title": "Space Battle",
-      "description": "Epic finale to a galactic conflict.",
-      "genres": [
-        "scifi"
-      ],
-      "hasMusic": false,
-      "type": "ambience + music",
-      "file": "215_Space_Battle",
-      "tags": {
-        "civ": [
-          "transit"
-        ],
-        "biome": [
-          "planar"
-        ],
-        "mood": [
-          "optimistic"
-        ],
-        "action": [
-          "skirmish",
-          "war"
-        ]
-      },
-      "keywords": [
-        "action",
-        "combat",
-        "Star Wars",
-        "spaceship",
-        "starship",
-        "space opera",
-        "lasers"
-      ]
-    },
-    {
       "id": 216,
       "title": "Waterkeep: Night",
       "description": "Nighttime in the jewel of the north.",
@@ -10259,43 +10218,6 @@
       ]
     },
     {
-      "id": 304,
-      "title": "Fog of War",
-      "description": "A small band of warriors prepares for battle.",
-      "genres": [
-        "fantasy",
-        "horror"
-      ],
-      "hasMusic": false,
-      "type": "ambience + music",
-      "file": "304_Fog_of_War",
-      "tags": {
-        "civ": [
-          "outposts"
-        ],
-        "biome": [
-          "planar"
-        ],
-        "mood": [
-          "tension",
-          "somber"
-        ],
-        "action": [
-          "skirmish",
-          "war"
-        ]
-      },
-      "keywords": [
-        "vikings",
-        "battle",
-        "camp",
-        "bivouac",
-        "suspense",
-        "dread",
-        "ominous"
-      ]
-    },
-    {
       "id": 305,
       "title": "Hidden Valley",
       "description": "After an arduous journey, the vista before you is a welcome sight.",
@@ -12707,38 +12629,6 @@
         "steam",
         "gears",
         "engines"
-      ]
-    },
-    {
-      "id": 374,
-      "title": "Hall of Angels",
-      "description": "Angelic statues turn to observe - but only when you're not looking.",
-      "genres": [
-        "fantasy"
-      ],
-      "hasMusic": true,
-      "type": "ambience + music",
-      "file": "374_Hall_of_Angels",
-      "tags": {
-        "civ": [
-          "temples"
-        ],
-        "biome": [],
-        "mood": [
-          "dramatic",
-          "somber"
-        ],
-        "action": [
-          "ritual"
-        ]
-      },
-      "keywords": [
-        "museum",
-        "sculpture",
-        "statues",
-        "seraphs",
-        "archons",
-        "gallery"
       ]
     },
     {
@@ -18350,6 +18240,76 @@
         "Lovecraft",
         "monster",
         "giant"
+      ]
+    },
+    {
+      "id": 531,
+      "title": "Demon Hunter",
+      "description": "It's a family business.",
+      "genres": [
+        "horror",
+        "fantasy"
+      ],
+      "hasMusic": true,
+      "type": "ambience + music",
+      "file": "531_Demon_Hunter",
+      "tags": {
+        "civ": [
+          "interiors",
+          "temples"
+        ],
+        "biome": [],
+        "mood": [
+          "tension",
+          "dramatic"
+        ],
+        "action": [
+          "monster",
+          "skirmish"
+        ]
+      },
+      "keywords": [
+        "dungeon",
+        "castle",
+        "monster",
+        "haunted",
+        "gothic",
+        "action"
+      ]
+    },
+    {
+      "id": 532,
+      "title": "Exoplanet",
+      "description": "This planet feels both strange, and familiar.",
+      "genres": [
+        "scifi",
+        "nature"
+      ],
+      "hasMusic": true,
+      "type": "ambience + music",
+      "file": "532_Exoplanet",
+      "tags": {
+        "civ": [],
+        "biome": [
+          "forest",
+          "planar"
+        ],
+        "mood": [
+          "peaceful"
+        ],
+        "action": [
+          "explore"
+        ]
+      },
+      "keywords": [
+        "space",
+        "planet",
+        "forest",
+        "jungle",
+        "fauna",
+        "Dagobah",
+        "swamp",
+        "astronaut"
       ]
     }
   ]
