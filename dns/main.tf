@@ -1,10 +1,10 @@
-# eavesbard.com's DNS records in Cloudflare, so they're reviewed and changed
-# here rather than in Cloudflare's dashboard. CI plans on pull requests and
-# applies on pushes to main (.github/workflows/dns.yml).
+# Eavesbard's DNS records and eavesbard.app's redirect in Cloudflare, so they're
+# reviewed and changed here rather than in Cloudflare's dashboard. CI plans on
+# pull requests and applies on pushes to main (.github/workflows/dns.yml).
 #
 # Credentials come from the environment:
-#   CLOUDFLARE_API_TOKEN                       eavesbard's Cloudflare token: Zone Read and DNS Write
-#                                              on the zone, Workers R2 Storage Write on the account
+#   CLOUDFLARE_API_TOKEN                       Eavesbard's Cloudflare token (DESIGN.md 8): DNS,
+#                                              redirects and the state bucket
 #   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY   the state bucket's S3 keys, derived from that token
 #                                              by tools/r2-keys.sh
 # Locally (on termina, with the keys in KDE Wallet): dns/run.sh plan
