@@ -27,10 +27,3 @@ resource "cloudflare_ruleset" "eavesbard_app_redirect" {
     },
   ]
 }
-
-# Adopts the ruleset made in the dashboard. Once an apply has imported it,
-# this does nothing and can go.
-import {
-  to = cloudflare_ruleset.eavesbard_app_redirect
-  id = "zones/${local.zone_ids["eavesbard.app"]}/5e3c6abc2fad47e6a96068fcc7df4d21"
-}
