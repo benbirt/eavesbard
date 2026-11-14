@@ -3,8 +3,10 @@
 # applies on pushes to main (.github/workflows/dns.yml).
 #
 # Credentials come from the environment:
-#   CLOUDFLARE_API_TOKEN                       a token with DNS Edit on the eavesbard.com zone only
-#   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY   the R2 token for the state bucket
+#   CLOUDFLARE_API_TOKEN                       eavesbard's Cloudflare token: DNS Edit on the zone
+#                                              and R2 object read and write on the state bucket
+#   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY   the state bucket's S3 keys, derived from that token
+#                                              by tools/r2-keys.sh
 # Locally (on termina, with the keys in KDE Wallet): dns/run.sh plan
 
 terraform {

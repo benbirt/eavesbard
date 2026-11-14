@@ -4,7 +4,8 @@
 #
 # Credentials come from the environment:
 #   POSTHOG_API_KEY                            a personal API key limited to the project
-#   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY   the R2 token for the state bucket
+#   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY   the state bucket's S3 keys, derived from
+#                                              CLOUDFLARE_API_TOKEN by tools/r2-keys.sh
 # Locally (on termina, with the keys in KDE Wallet): posthog/run.sh plan
 
 terraform {
