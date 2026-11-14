@@ -1,0 +1,15 @@
+load("@rules_tofu//tf:defs.bzl", "tf_deploy")
+
+# Eavesbard's DNS records and eavesbard.app's redirect (main.tf, records.tf,
+# redirect.tf). `bazel build //dns` validates them; dns/run.sh plans or
+# applies them with the token from KDE Wallet, and CI does the same with the
+# repository secret (.github/workflows/dns.yml).
+tf_deploy(
+    name = "dns",
+    srcs = [
+        "main.tf",
+        "records.tf",
+        "redirect.tf",
+    ],
+    providers = ["@tf_providers//cloudflare/cloudflare"],
+)

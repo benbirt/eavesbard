@@ -8,12 +8,15 @@ set -o errexit -o nounset -o pipefail
 secret() { nix shell nixpkgs#libsecret --command secret-tool lookup "$@"; }
 
 POSTHOG_API_KEY=$(secret service posthog project 306168)
-AWS_ACCESS_KEY_ID=$(secret service r2 bucket eavesbard-tofu-state field access-key-id)
-AWS_SECRET_ACCESS_KEY=$(secret service r2 bucket eavesbard-tofu-state field secret-access-key)
-export POSTHOG_API_KEY AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+CLOUDFLARE_API_TOKEN=$(secret service cloudflare token eavesbard-tofu)
+export POSTHOG_API_KEY CLOUDFLARE_API_TOKEN
 
 case "${1:-}" in
-  plan | apply) exec bazel run "//posthog:posthog.$1" ;;
+  plan | apply)
+    keys=$("$(dirname "$0")/../tools/r2-keys.sh")
+    while IFS='=' read -r name value; do export "$name=$value"; done <<<"$keys"
+    exec bazel run "//posthog:posthog.$1"
+    ;;
   check-queries) exec bazel run //posthog:check_queries ;;
   *)
     echo "usage: $0 plan|apply|check-queries" >&2

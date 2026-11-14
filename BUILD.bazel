@@ -1,5 +1,6 @@
 load("@aspect_rules_ts//ts:defs.bzl", "ts_config")
 load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@rules_tofu//tf:defs.bzl", "tf_library")
 
 npm_link_all_packages(name = "node_modules")
 
@@ -16,4 +17,14 @@ ts_config(
     src = "tsconfig.node.json",
     visibility = ["//visibility:public"],
     deps = [":tsconfig"],
+)
+
+# The providers' versions (versions.tf), pinned in .terraform.lock.hcl.
+tf_library(
+    name = "provider_versions",
+    srcs = ["versions.tf"],
+    providers = [
+        "@tf_providers//cloudflare/cloudflare",
+        "@tf_providers//posthog/posthog",
+    ],
 )

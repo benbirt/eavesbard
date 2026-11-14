@@ -27,11 +27,13 @@ updates:
         patterns: ["*"]
         update-types: [minor, patch]
 
-  # The PostHog provider: its version in posthog/main.tf and the lock beside
-  # it, which rules_tofu reads (tf_providers.from_lock in MODULE.bazel).
+  # The OpenTofu providers (PostHog, Cloudflare): their versions in
+  # versions.tf and the lock beside it, both at the root, which rules_tofu
+  # reads (tf_providers.from_lock in MODULE.bazel). Dependabot reads only the
+  # .tf files in this directory, so posthog/ and dns/ declare just a floor.
   # "opentofu", not "terraform", which can't read an OpenTofu lock.
   - package-ecosystem: opentofu
-    directory: /posthog
+    directory: /
     schedule:
       interval: weekly
 
