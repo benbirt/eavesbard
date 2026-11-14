@@ -10,8 +10,9 @@
 terraform {
   required_providers {
     posthog = {
-      source  = "PostHog/posthog"
-      version = "1.0.28"
+      source = "PostHog/posthog"
+      # The exact version is in versions.tf, at the repository's root.
+      version = ">= 1.0"
     }
   }
 

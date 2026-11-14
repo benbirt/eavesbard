@@ -1,0 +1,14 @@
+load("@rules_tofu//tf:defs.bzl", "tf_deploy")
+
+# eavesbard.com's DNS records (main.tf, records.tf). `bazel build //dns`
+# validates them; dns/run.sh plans or applies them with the keys from KDE
+# Wallet, and CI does the same with repository secrets
+# (.github/workflows/dns.yml).
+tf_deploy(
+    name = "dns",
+    srcs = [
+        "main.tf",
+        "records.tf",
+    ],
+    providers = ["@tf_providers//cloudflare/cloudflare"],
+)

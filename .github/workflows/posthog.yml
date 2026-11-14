@@ -11,6 +11,8 @@ on:
     branches: [main]
     paths:
       - "posthog/**"
+      - "versions.tf"
+      - ".terraform.lock.hcl"
       - "src/analytics-events.ts"
       - "MODULE.bazel"
       - "MODULE.bazel.lock"
@@ -18,6 +20,8 @@ on:
   pull_request:
     paths:
       - "posthog/**"
+      - "versions.tf"
+      - ".terraform.lock.hcl"
       - "src/analytics-events.ts"
       - "MODULE.bazel"
       - "MODULE.bazel.lock"

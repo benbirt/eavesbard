@@ -36,16 +36,17 @@ typescript = use_extension("@aspect_rules_ts//ts:extensions.bzl", "typescript", 
 typescript.deps(version_from = "//:package.json")
 use_repo(typescript, "npm_typescript")
 
-# PostHog's insights and dashboard as OpenTofu (posthog/), through rules_tofu.
+# PostHog's insights and dashboard (posthog/) and the DNS records (dns/) as
+# OpenTofu, through rules_tofu.
 bazel_dep(name = "rules_tofu", version = "0.3.1")
 
 tofu = use_extension("@rules_tofu//toolchain:extensions.bzl", "tofu", dev_dependency = True)
 use_repo(tofu, "tofu_toolchains")
 
-# Provider versions are pinned in posthog/main.tf and posthog/.terraform.lock.hcl,
-# as in a plain OpenTofu project, so Dependabot can update them. After changing
-# a version in main.tf, rewrite the lock with:
+# Provider versions are pinned in versions.tf and .terraform.lock.hcl at the
+# root, as in a plain OpenTofu project, so Dependabot can update them. After
+# changing a version in versions.tf, rewrite the lock with:
 #   bazel run @tf_providers//:pin
 tf_providers = use_extension("@rules_tofu//tf/providers:extensions.bzl", "tf_providers", dev_dependency = True)
-tf_providers.from_lock(lock = "//posthog:.terraform.lock.hcl")
+tf_providers.from_lock()
 use_repo(tf_providers, "tf_providers")
