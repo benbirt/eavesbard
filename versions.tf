@@ -12,7 +12,7 @@ terraform {
     }
     posthog = {
       source  = "PostHog/posthog"
-      version = "1.0.28"
+      version = "1.0.29"
     }
   }
 }
