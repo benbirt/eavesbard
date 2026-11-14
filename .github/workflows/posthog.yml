@@ -68,7 +68,7 @@ jobs:
             echo "::add-mask::${line#*=}"
             echo "$line" >> "$GITHUB_ENV"
           done <<<"$keys"
-      - uses: bazel-contrib/setup-bazel@0.19.1
+      - uses: bazel-contrib/setup-bazel@0.19.2
         with:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
