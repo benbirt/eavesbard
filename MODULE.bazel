@@ -38,7 +38,7 @@ use_repo(typescript, "npm_typescript")
 
 # PostHog's insights and dashboard (posthog/) and the DNS records (dns/) as
 # OpenTofu, through rules_tofu.
-bazel_dep(name = "rules_tofu", version = "0.3.1")
+bazel_dep(name = "rules_tofu", version = "0.4.0")
 
 tofu = use_extension("@rules_tofu//toolchain:extensions.bzl", "tofu", dev_dependency = True)
 use_repo(tofu, "tofu_toolchains")
@@ -48,5 +48,5 @@ use_repo(tofu, "tofu_toolchains")
 # changing a version in versions.tf, rewrite the lock with:
 #   bazel run @tf_providers//:pin
 tf_providers = use_extension("@rules_tofu//tf/providers:extensions.bzl", "tf_providers", dev_dependency = True)
-tf_providers.from_lock()
+tf_providers.from_lock(lock_file = "//:.terraform.lock.hcl")
 use_repo(tf_providers, "tf_providers")
