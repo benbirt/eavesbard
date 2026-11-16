@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09T16:33:36.445Z",
+  "generated": "2026-11-16T15:59:31.380Z",
   "source": "https://tabletopaudio.com/",
   "tracks": [
     {
@@ -2119,6 +2119,43 @@
       ]
     },
     {
+      "id": 67,
+      "title": "Asylum",
+      "description": "You don't belong here... You don't know how you got here... There's been a mistake...Yeah, that's what everybody says.",
+      "genres": [
+        "modern",
+        "horror"
+      ],
+      "hasMusic": false,
+      "type": "ambience + minimal music",
+      "file": "67_Asylum",
+      "tags": {
+        "civ": [
+          "facilities",
+          "interiors"
+        ],
+        "biome": [],
+        "mood": [
+          "mysterious",
+          "tension"
+        ],
+        "action": [
+          "investigate"
+        ]
+      },
+      "keywords": [
+        "insane",
+        "crazy",
+        "spooky",
+        "madness",
+        "bedlam",
+        "arkham",
+        "straight jackets",
+        "T.I.M.E. Stories",
+        "TIME Stories"
+      ]
+    },
+    {
       "id": 68,
       "title": "1940's Office",
       "description": "\"It ain't ritzy, and the pay is peanuts, but it's a decent place to get some shut-eye 'til knock-off time\".",
@@ -3819,6 +3856,35 @@
       ]
     },
     {
+      "id": 118,
+      "title": "Spire: The Heart",
+      "description": "A rotting hole in reality buried at the centre of the mile-high, ancient building that is Spire.",
+      "genres": [
+        "fantasy",
+        "horror"
+      ],
+      "hasMusic": false,
+      "type": "ambience + minimal music",
+      "file": "118_Spire_The_Heart_a",
+      "tags": {
+        "civ": [
+          "cities"
+        ],
+        "biome": [],
+        "mood": [
+          "mysterious"
+        ],
+        "action": []
+      },
+      "keywords": [
+        "decay",
+        "blood",
+        "insects",
+        "rotting",
+        "disease"
+      ]
+    },
+    {
       "id": 119,
       "title": "Spire: Amaranth",
       "description": "The crystalline, frozen home of the haughty, masked, high elves that rule Spire. Lit by stolen northern lights and chilled with imported ice.",
@@ -4358,40 +4424,6 @@
         "travel",
         "coach",
         "rain"
-      ]
-    },
-    {
-      "id": 135,
-      "title": "Dark Matter",
-      "description": "The sound of the cosmos, or an alternate dimension. Infinite and majestic.",
-      "genres": [
-        "scifi",
-        "fantasy",
-        "horror"
-      ],
-      "hasMusic": false,
-      "type": "ambience + music",
-      "file": "135_Dark_Matter",
-      "tags": {
-        "civ": [],
-        "biome": [
-          "planar"
-        ],
-        "mood": [
-          "peaceful",
-          "mysterious"
-        ],
-        "action": []
-      },
-      "keywords": [
-        "infinity",
-        "cosmos",
-        "universe",
-        "celestial",
-        "cyberpunk",
-        "planets",
-        "computers",
-        "abstract"
       ]
     },
     {
@@ -7128,6 +7160,41 @@
         "restaurant",
         "feast",
         "oven"
+      ]
+    },
+    {
+      "id": 215,
+      "title": "Space Battle",
+      "description": "Epic finale to a galactic conflict.",
+      "genres": [
+        "scifi"
+      ],
+      "hasMusic": false,
+      "type": "ambience + music",
+      "file": "215_Space_Battle",
+      "tags": {
+        "civ": [
+          "transit"
+        ],
+        "biome": [
+          "planar"
+        ],
+        "mood": [
+          "optimistic"
+        ],
+        "action": [
+          "skirmish",
+          "war"
+        ]
+      },
+      "keywords": [
+        "action",
+        "combat",
+        "Star Wars",
+        "spaceship",
+        "starship",
+        "space opera",
+        "lasers"
       ]
     },
     {
@@ -10218,6 +10285,43 @@
       ]
     },
     {
+      "id": 304,
+      "title": "Fog of War",
+      "description": "A small band of warriors prepares for battle.",
+      "genres": [
+        "fantasy",
+        "horror"
+      ],
+      "hasMusic": false,
+      "type": "ambience + music",
+      "file": "304_Fog_of_War",
+      "tags": {
+        "civ": [
+          "outposts"
+        ],
+        "biome": [
+          "planar"
+        ],
+        "mood": [
+          "tension",
+          "somber"
+        ],
+        "action": [
+          "skirmish",
+          "war"
+        ]
+      },
+      "keywords": [
+        "vikings",
+        "battle",
+        "camp",
+        "bivouac",
+        "suspense",
+        "dread",
+        "ominous"
+      ]
+    },
+    {
       "id": 305,
       "title": "Hidden Valley",
       "description": "After an arduous journey, the vista before you is a welcome sight.",
@@ -12629,6 +12733,38 @@
         "steam",
         "gears",
         "engines"
+      ]
+    },
+    {
+      "id": 374,
+      "title": "Hall of Angels",
+      "description": "Angelic statues turn to observe - but only when you're not looking.",
+      "genres": [
+        "fantasy"
+      ],
+      "hasMusic": true,
+      "type": "ambience + music",
+      "file": "374_Hall_of_Angels",
+      "tags": {
+        "civ": [
+          "temples"
+        ],
+        "biome": [],
+        "mood": [
+          "dramatic",
+          "somber"
+        ],
+        "action": [
+          "ritual"
+        ]
+      },
+      "keywords": [
+        "museum",
+        "sculpture",
+        "statues",
+        "seraphs",
+        "archons",
+        "gallery"
       ]
     },
     {
@@ -18310,6 +18446,38 @@
         "Dagobah",
         "swamp",
         "astronaut"
+      ]
+    },
+    {
+      "id": 533,
+      "title": "Chillwater Reach",
+      "description": "An Old northern city on a river.",
+      "genres": [
+        "fantasy",
+        "historical"
+      ],
+      "hasMusic": true,
+      "type": "ambience + music",
+      "file": "533_Chillwater_Reach",
+      "tags": {
+        "civ": [
+          "cities",
+          "public"
+        ],
+        "biome": [],
+        "mood": [
+          "optimistic"
+        ],
+        "action": []
+      },
+      "keywords": [
+        "city",
+        "town",
+        "bridge",
+        "river",
+        "horses",
+        "carriages",
+        "crowds"
       ]
     }
   ]
