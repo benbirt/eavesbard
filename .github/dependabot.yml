@@ -1,20 +1,11 @@
 # Weekly version updates, one pull request per ecosystem (and per pnpm
 # workspace) so the shared lockfiles don't conflict between them.
 #
-# Not covered: .bazelversion and the Node version in MODULE.bazel, which
-# Dependabot doesn't update.
+# Not covered: .bazelversion and, in MODULE.bazel, the bazel_dep versions and
+# the Node version, which bazel-updates.yaml advances (Dependabot cannot
+# evaluate a MODULE.bazel whose rules_js extensions read package.json).
 version: 2
 updates:
-  # bazel_dep versions in MODULE.bazel; Dependabot runs `bazel mod tidy` to
-  # update MODULE.bazel.lock.
-  - package-ecosystem: bazel
-    directory: /
-    schedule:
-      interval: weekly
-    groups:
-      bazel:
-        patterns: ["*"]
-
   # package.json and pnpm-lock.yaml: the app's, and the experiments' own.
   - package-ecosystem: npm
     directories:
