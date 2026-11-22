@@ -9,13 +9,31 @@ const lm = await AutoModelForCausalLM.from_pretrained(repo, { dtype: "q4" });
 const enc = (t) => tok.encode(t, { add_special_tokens: false });
 const variant = process.argv[2] ?? "names";
 const GENERATE = process.argv.includes("--generate");
-const SETTINGS = { tavern: "a tavern or inn", town: "a town, city, village or market, outdoors", interior: "inside a building that is not a tavern: castle, temple, mansion, shop, library", wilderness: "the wilderness: forest, mountains, swamp, desert, plains", dungeon: "a dungeon, cave, crypt, sewer, mine or ruin", travel: "on the road or at sea, journeying between places" };
-const INTENSITIES = { calm: "nothing threatening; talking, exploring, resting, shopping, or the players chatting about the game", tense: "danger is close but no fight yet: sneaking, a threat, a chase, a trap, a standoff", combat: "a fight is happening: initiative, attacks, damage, spells at enemies" };
-const opts = (d) => (variant === "names" ? Object.keys(d).join(", ") : "\n" + Object.entries(d).map(([k, v]) => `- ${k}: ${v}`).join("\n"));
+const SETTINGS = {
+  tavern: "a tavern or inn",
+  town: "a town, city, village or market, outdoors",
+  interior: "inside a building that is not a tavern: castle, temple, mansion, shop, library",
+  wilderness: "the wilderness: forest, mountains, swamp, desert, plains",
+  dungeon: "a dungeon, cave, crypt, sewer, mine or ruin",
+  travel: "on the road or at sea, journeying between places",
+};
+const INTENSITIES = {
+  calm: "nothing threatening; talking, exploring, resting, shopping, or the players chatting about the game",
+  tense: "danger is close but no fight yet: sneaking, a threat, a chase, a trap, a standoff",
+  combat: "a fight is happening: initiative, attacks, damage, spells at enemies",
+};
+const opts = (d) =>
+  variant === "names"
+    ? Object.keys(d).join(", ")
+    : "\n" +
+      Object.entries(d)
+        .map(([k, v]) => `- ${k}: ${v}`)
+        .join("\n");
 function content(s) {
-  const what = "description" in s.input
-    ? `Opening scene, as described by the game master: ${s.input.description}`
-    : `Last 2.5 minutes of transcript:\n${lines(s).join("\n")}`;
+  const what =
+    "description" in s.input
+      ? `Opening scene, as described by the game master: ${s.input.description}`
+      : `Last 2.5 minutes of transcript:\n${lines(s).join("\n")}`;
   return `We're playing DnD. We need you to identify the current setting & intensity for another system to choose the soundtrack which should currently play.\n\n${what}\n\nSetting options: ${opts(SETTINGS)}\nIntensity options: ${opts(INTENSITIES)}\n\nPlease reply in JSON, i.e. {"setting": "<setting>", "intensity": "<intensity>"}`;
 }
 async function score(prefix, labels) {
@@ -25,16 +43,21 @@ async function score(prefix, labels) {
   const { logits } = await lm(tok(prefix, { add_special_tokens: false }));
   const [, rows, vocab] = logits.dims;
   const row = logits.data.subarray((rows - 1) * vocab, rows * vocab);
-  let m = -Infinity; for (const x of row) m = Math.max(m, x);
+  let m = -Infinity;
+  for (const x of row) m = Math.max(m, x);
   const e = ids.map((id) => Math.exp(row[id] - m));
   const z = e.reduce((a, b) => a + b);
   return Object.fromEntries(labels.map((k, i) => [k, e[i] / z]));
 }
 const argmax = (d) => Object.entries(d).reduce((a, b) => (b[1] > a[1] ? b : a));
 const dists = {};
-let agree = 0, generated = 0;
+let agree = 0,
+  generated = 0;
 async function classify(s) {
-  const chat = tok.apply_chat_template([{ role: "user", content: content(s) }], { tokenize: false, add_generation_prompt: true });
+  const chat = tok.apply_chat_template([{ role: "user", content: content(s) }], {
+    tokenize: false,
+    add_generation_prompt: true,
+  });
   // Gemma writes JSON in a code fence; prefill exactly what it writes.
   const pre = chat + '```json\n{"setting": "';
   const setting = await score(pre, Object.keys(SETTINGS));

@@ -18,7 +18,9 @@ test("data/tracks.json is a valid tracks file", () => {
 
 test("every setting and intensity has tracks of its own or in a nearby setting", () => {
   const none = SETTINGS.flatMap((s) =>
-    INTENSITIES.filter((i) => [s, ...NEARBY[s]].every((n) => bucket(library, n, i).length === 0)).map((i) => `${s}/${i}`),
+    INTENSITIES.filter((i) => [s, ...NEARBY[s]].every((n) => bucket(library, n, i).length === 0)).map(
+      (i) => `${s}/${i}`,
+    ),
   );
   assert.deepEqual(none, []);
 });
@@ -32,14 +34,21 @@ test("unmapped tracks haven't grown beyond maxUnmapped", () => {
 });
 
 test("every tag, genre and track id in the map exists in the data", () => {
-  const known = new Set(tracks.flatMap((t) => [...TAG_FACETS.flatMap((f) => t.tags[f].map((v) => `${f}:${v}`)), ...t.genres.map((g) => `genre:${g}`)]));
+  const known = new Set(
+    tracks.flatMap((t) => [
+      ...TAG_FACETS.flatMap((f) => t.tags[f].map((v) => `${f}:${v}`)),
+      ...t.genres.map((g) => `genre:${g}`),
+    ]),
+  );
   const ids = new Set(tracks.map((t) => t.id));
   const missing: string[] = [];
-  for (const g of [...map.genres.include, ...map.genres.exclude]) if (!known.has(`genre:${g}`)) missing.push(`genre:${g}`);
+  for (const g of [...map.genres.include, ...map.genres.exclude])
+    if (!known.has(`genre:${g}`)) missing.push(`genre:${g}`);
   for (const id of [...map.includeTracks, ...map.excludeTracks]) if (!ids.has(id)) missing.push(`track ${id}`);
   const rules: BucketRule[] = [...Object.values(map.setting), ...Object.values(map.intensity)];
   for (const rule of [...rules, ...rules.flatMap((r) => (r.unless ? [r.unless] : []))]) {
-    for (const facet of TAG_FACETS) for (const v of rule[facet] ?? []) if (!known.has(`${facet}:${v}`)) missing.push(`${facet}:${v}`);
+    for (const facet of TAG_FACETS)
+      for (const v of rule[facet] ?? []) if (!known.has(`${facet}:${v}`)) missing.push(`${facet}:${v}`);
   }
   assert.deepEqual(missing, []);
 });
@@ -51,7 +60,8 @@ test("the map's hand-picked tracks exist and fit their intensity", () => {
     for (const id of ids) {
       const t = library.tracks.find((x) => x.track.id === id);
       if (!t) problems.push(`${bucketName}: track ${id} isn't in the library`);
-      else if (!t.intensities.includes(intensity as never)) problems.push(`${bucketName}: ${t.track.title} isn't ${intensity}`);
+      else if (!t.intensities.includes(intensity as never))
+        problems.push(`${bucketName}: ${t.track.title} isn't ${intensity}`);
     }
   }
   assert.deepEqual(problems, []);

@@ -76,20 +76,34 @@ export const VARIANTS = new Map([
   // Strong calm weights, kept out of fights, or with the fight-over question dropped.
   ...[1e5, 1e6, 1e7, 1e8].map((k) => V(`calm x${k} outside fights`, { calmBoost: k, calmOutsideFight: true })),
   ...[1e6, 1e7].map((k) => V(`calm x${k}, no fight-over`, { calmBoost: k, fightOver: false })),
-  ...[1e6, 1e7].map((k) => V(`calm x${k} outside fights, no fight-over`, { calmBoost: k, calmOutsideFight: true, fightOver: false })),
-  ...[1e6, 1e7].map((k) => V(`calm x${k} outside fights, table talk calm`, { calmBoost: k, calmOutsideFight: true, tableTalkCalm: true })),
+  ...[1e6, 1e7].map((k) =>
+    V(`calm x${k} outside fights, no fight-over`, { calmBoost: k, calmOutsideFight: true, fightOver: false }),
+  ),
+  ...[1e6, 1e7].map((k) =>
+    V(`calm x${k} outside fights, table talk calm`, { calmBoost: k, calmOutsideFight: true, tableTalkCalm: true }),
+  ),
   V("no fight-over, combat entry 0.7", { fightOver: false, scene: { combatEntryConfidence: 0.7 } }),
   // Towards tense (for the danger question, which hears tense play as calm), and in fights.
   ...[0.5, 0.25, 0.1, 0.01].map((k) => V(`calm weighed x${k}`, { calmBoost: k })),
   ...[0.1, 0.01, 0.001].map((k) => V(`calm x${k} in fights`, { calmInFight: k })),
-  ...[0.5, 0.25, 0.1].flatMap((k) => [0.01, 0.001].map((f) => V(`calm x${k}, x${f} in fights`, { calmBoost: k, calmInFight: f }))),
+  ...[0.5, 0.25, 0.1].flatMap((k) =>
+    [0.01, 0.001].map((f) => V(`calm x${k}, x${f} in fights`, { calmBoost: k, calmInFight: f })),
+  ),
   // Round 4, tense against calm (with the danger question, "calm weighed" moves its threshold).
   ...[0.7, 0.8, 0.9, 0.95].map((x) => V(`calm ends tense only at ${x}`, { calmFromTense: x })),
   ...[0.5, 0.25, 0.1].map((k) => V(`danger leans tense x${1 / k} in dungeons`, { calmBySetting: { dungeon: k } })),
-  ...[0.5, 0.25, 0.1].map((k) => V(`danger leans tense x${1 / k} in dungeons, wilds`, { calmBySetting: { dungeon: k, wilderness: k } })),
-  ...[0.5, 0.25].flatMap((k) => [0.8, 0.9].map((x) => V(`calm x${k}, calm ends tense at ${x}`, { calmBoost: k, calmFromTense: x }))),
+  ...[0.5, 0.25, 0.1].map((k) =>
+    V(`danger leans tense x${1 / k} in dungeons, wilds`, { calmBySetting: { dungeon: k, wilderness: k } }),
+  ),
+  ...[0.5, 0.25].flatMap((k) =>
+    [0.8, 0.9].map((x) => V(`calm x${k}, calm ends tense at ${x}`, { calmBoost: k, calmFromTense: x })),
+  ),
   // Round 4: recalibrating another model's answers (e.g. Phi-4-mini says yes more readily than Gemma).
-  ...[1, 4, 16, 64, 256].flatMap((k) => [0.6, 0.9, 0.97, 0.99].map((e) => V(`recalibrated: calm x${k}, combat entry ${e}`, { calmBoost: k, scene: { combatEntryConfidence: e } }))),
+  ...[1, 4, 16, 64, 256].flatMap((k) =>
+    [0.6, 0.9, 0.97, 0.99].map((e) =>
+      V(`recalibrated: calm x${k}, combat entry ${e}`, { calmBoost: k, scene: { combatEntryConfidence: e } }),
+    ),
+  ),
   V("Gemma for setting only", { blend: { weight: { setting: 0.5, intensity: 0 } } }),
   V("Gemma for intensity only", { blend: { weight: { setting: 0, intensity: 0.5 } } }),
   V("table talk as calm", { tableTalkCalm: true }),
@@ -134,19 +148,33 @@ function classify(d, current, v) {
     else intensity = LP.mixIntensity(threeWay, combatChance);
   }
   // The fight-over answer exists only where the replay was in a fight.
-  const fightOver = v.fightOver === false || !inFight || d.current?.intensity !== "combat" ? undefined : d.llm.fightOver;
+  const fightOver =
+    v.fightOver === false || !inFight || d.current?.intensity !== "combat" ? undefined : d.llm.fightOver;
   const llm = { ...d.llm, intensity, fightOver };
   if (v.llm === "only") return gemmaAlone(llm, current, blend);
   if (v.intensityFrom === "fight" && combatChance !== undefined) {
     // Combat from the fight question alone; calm against tense from the embeddings.
-    const c = LC.classifyFromScores(settingScores, intensityScores, current, { ...llm, intensity: threeWayUsed }, blend);
+    const c = LC.classifyFromScores(
+      settingScores,
+      intensityScores,
+      current,
+      { ...llm, intensity: threeWayUsed },
+      blend,
+    );
     if (combatChance > 0.5) return { ...c, intensity: "combat", intensityConfidence: combatChance };
-    return c.intensity === "combat" ? { ...c, intensity: threeWayUsed.tense > threeWayUsed.calm ? "tense" : "calm", intensityConfidence: 1 - combatChance } : c;
+    return c.intensity === "combat"
+      ? {
+          ...c,
+          intensity: threeWayUsed.tense > threeWayUsed.calm ? "tense" : "calm",
+          intensityConfidence: 1 - combatChance,
+        }
+      : c;
   }
   if (v.tableTalkCalm) {
     // Fold the embeddings' table-talk descriptions into calm, as round 2's candidate C did.
     const calm = new Map(intensityScores);
-    for (const [k, s] of intensityScores) if (k.startsWith("label:offtopic:")) calm.set(k.replace("offtopic:", "calm:talk"), s), calm.delete(k);
+    for (const [k, s] of intensityScores)
+      if (k.startsWith("label:offtopic:")) (calm.set(k.replace("offtopic:", "calm:talk"), s), calm.delete(k));
     return LC.classifyFromScores(settingScores, calm, current, llm, blend);
   }
   return LC.classifyFromScores(settingScores, intensityScores, current, llm, blend);
@@ -157,15 +185,33 @@ function gemmaAlone(llm, current, blend) {
   const s = top(llm.setting);
   if (current.intensity === "combat" && llm.fightOver !== undefined && llm.fightOver > blend.fightOverThreshold) {
     const after = llm.intensity.tense > llm.intensity.calm ? "tense" : "calm";
-    return { setting: s, settingConfidence: llm.setting[s], intensity: after, intensityConfidence: llm.fightOver, reason: "" };
+    return {
+      setting: s,
+      settingConfidence: llm.setting[s],
+      intensity: after,
+      intensityConfidence: llm.fightOver,
+      reason: "",
+    };
   }
   const i = top(llm.intensity);
-  return { setting: s, settingConfidence: llm.setting[s], intensity: i, intensityConfidence: llm.intensity[i], reason: "" };
+  return {
+    setting: s,
+    settingConfidence: llm.setting[s],
+    intensity: i,
+    intensityConfidence: llm.intensity[i],
+    reason: "",
+  };
 }
 
 /** calmFromTense: leaving tense for calm takes a check at least this sure; less sure ones are ignored. */
 function sticky(c, state, v) {
-  if (v.calmFromTense === undefined || state.intensity !== "tense" || c.intensity !== "calm" || c.intensityConfidence >= v.calmFromTense) return c;
+  if (
+    v.calmFromTense === undefined ||
+    state.intensity !== "tense" ||
+    c.intensity !== "calm" ||
+    c.intensityConfidence >= v.calmFromTense
+  )
+    return c;
   return { ...c, intensityConfidence: 0 };
 }
 
@@ -173,7 +219,11 @@ function sticky(c, state, v) {
 function simulate(details, first, v) {
   const options = { ...SM.DEFAULT_SCENE_OPTIONS, ...v.scene };
   const t0 = details[0]?.t ?? 0;
-  let state = SM.initialScene(t0 * 1000, { setting: first.setting[0], intensity: first.intensity[0], reason: "start" }, options);
+  let state = SM.initialScene(
+    t0 * 1000,
+    { setting: first.setting[0], intensity: first.intensity[0], reason: "start" },
+    options,
+  );
   const events = [];
   for (const d of details) {
     const c = sticky(classify(d, state, v), state, v);
@@ -181,7 +231,13 @@ function simulate(details, first, v) {
     const before = state;
     const tr = SM.nextScene(state, { type: "classification", at: d.t * 1000, ...c }, options);
     state = tr.state;
-    events.push({ t: d.t, kind: "decision", changed: tr.changed, from: { setting: before.setting, intensity: before.intensity }, to: { setting: state.setting, intensity: state.intensity } });
+    events.push({
+      t: d.t,
+      kind: "decision",
+      changed: tr.changed,
+      from: { setting: before.setting, intensity: before.intensity },
+      to: { setting: state.setting, intensity: state.intensity },
+    });
   }
   return events;
 }
@@ -208,7 +264,15 @@ if (args.runs) {
     return { run, details, labels: labelsFor(here, run.set) };
   });
   const all = runs.flatMap(({ run }) => Object.keys(run.episodes));
-  const only = new Set(args.episodes === "tune" ? all.filter((e) => TUNE.has(e)) : args.episodes === "held" ? all.filter((e) => !TUNE.has(e)) : args.episodes === "all" ? all : args.episodes.split(","));
+  const only = new Set(
+    args.episodes === "tune"
+      ? all.filter((e) => TUNE.has(e))
+      : args.episodes === "held"
+        ? all.filter((e) => !TUNE.has(e))
+        : args.episodes === "all"
+          ? all
+          : args.episodes.split(","),
+  );
   const names = args.variants ? args.variants.split("|") : [...VARIANTS.keys()];
   for (const n of names) if (!VARIANTS.has(n)) throw new Error(`no variant "${n}"`);
   const rows = [];
@@ -217,11 +281,46 @@ if (args.runs) {
     rows.push({ name, scores });
   }
   // One row per variant: each run's headline figures.
-  const cols = ["intensity", "setting", "calm", "tense", "combat", "combatDropped", "fightsCalled", "fightsLeft", "falseCombat"];
+  const cols = [
+    "intensity",
+    "setting",
+    "calm",
+    "tense",
+    "combat",
+    "combatDropped",
+    "fightsCalled",
+    "fightsLeft",
+    "falseCombat",
+  ];
   console.log(`episodes: ${[...only].join(", ")}`);
-  console.log(["variant".padEnd(38), ...runs.map(({ run }) => `${run.set}: ` + cols.map((c) => c.slice(0, 8).padStart(8)).join(" ")).join(" | ")].join(""));
+  console.log(
+    [
+      "variant".padEnd(38),
+      ...runs.map(({ run }) => `${run.set}: ` + cols.map((c) => c.slice(0, 8).padStart(8)).join(" ")).join(" | "),
+    ].join(""),
+  );
   for (const { name, scores } of rows) {
-    console.log(name.padEnd(38) + scores.map((s, i) => `${runs[i].run.set}: ` + cols.map((c) => pct(s[c] * 1000, 1000).padStart(8)).join(" ")).join(" | "));
+    console.log(
+      name.padEnd(38) +
+        scores
+          .map((s, i) => `${runs[i].run.set}: ` + cols.map((c) => pct(s[c] * 1000, 1000).padStart(8)).join(" "))
+          .join(" | "),
+    );
   }
-  if (args.out) writeFileSync(join(here, "results", args.out), JSON.stringify(rows.map(({ name, scores }) => ({ name, scores: scores.map(({ fights, perEpisode, confusion, total, latencies, ...s }) => ({ ...s, total, confusion })) })), null, 1));
+  if (args.out)
+    writeFileSync(
+      join(here, "results", args.out),
+      JSON.stringify(
+        rows.map(({ name, scores }) => ({
+          name,
+          scores: scores.map(({ fights, perEpisode, confusion, total, latencies, ...s }) => ({
+            ...s,
+            total,
+            confusion,
+          })),
+        })),
+        null,
+        1,
+      ),
+    );
 }

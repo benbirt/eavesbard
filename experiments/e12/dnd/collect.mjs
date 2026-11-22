@@ -17,7 +17,8 @@ const chosen = Object.entries(picks).filter(([, p]) => p.verdict !== "down");
 const slug = (cell) => cell.replace(/[^a-z]+/gi, "-").replace(/-+$/, "");
 const TYPES = { ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp" };
 const saved = (cell) => readdirSync(artDir).find((f) => f.startsWith(slug(cell) + "."));
-const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const esc = (s) =>
+  String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 function page() {
   const cards = chosen.map(([cell, p]) => {
@@ -75,7 +76,8 @@ createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
   const cell = url.searchParams.get("cell");
   const known = chosen.some(([c]) => c === cell);
-  if (req.method === "GET" && url.pathname === "/") return res.writeHead(200, { "content-type": "text/html" }).end(page());
+  if (req.method === "GET" && url.pathname === "/")
+    return res.writeHead(200, { "content-type": "text/html" }).end(page());
   if (req.method === "GET" && url.pathname.startsWith("/art/")) {
     const f = join(artDir, decodeURIComponent(url.pathname.slice(5)));
     if (!f.startsWith(artDir) || !existsSync(f)) return res.writeHead(404).end();

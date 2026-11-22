@@ -17,7 +17,7 @@ git_override(
     remote = "https://github.com/benbirt/bazel-style.git",
 )
 
-node =use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
 node.toolchain(node_version = "22.22.0")
 
 # pnpm, run through Bazel to change dependencies:

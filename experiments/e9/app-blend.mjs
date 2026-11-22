@@ -24,7 +24,10 @@ async function ask({ content, labels }) {
   const base = encode(prompt).length;
   const cap = (l) => l[0].toUpperCase() + l.slice(1);
   const firsts = labels.map((l) => [...new Set([` ${l}`, ` ${cap(l)}`].map((w) => encode(prompt + w)[base]))]);
-  if (new Set(firsts.flat()).size !== firsts.flat().length) { slow++; throw new Error("slow path needed: " + labels); }
+  if (new Set(firsts.flat()).size !== firsts.flat().length) {
+    slow++;
+    throw new Error("slow path needed: " + labels);
+  }
   const { logits } = await lm(tok(prompt, { add_special_tokens: false }));
   const [, rows, vocab] = logits.dims;
   const row = logits.data.subarray((rows - 1) * vocab, rows * vocab);
@@ -43,7 +46,8 @@ async function classify(s) {
   const [qs, qi] = P.llmQuestions(input);
   const llm = { model: "llm", setting: obj(qs.labels, await ask(qs)), intensity: obj(qi.labels, await ask(qi)) };
   // As in src/llm/scene-llm.ts: during a fight, also ask whether it's over.
-  if ("lines" in input && input.current.intensity === "combat") llm.fightOver = (await ask(P.fightOverQuestion(input.lines)))[1];
+  if ("lines" in input && input.current.intensity === "combat")
+    llm.fightOver = (await ask(P.fightOverQuestion(input.lines)))[1];
   const st = "description" in s.input ? s.input.description : LC.lastWords(ls, 150);
   const it = "description" in s.input ? s.input.description : LC.latest(ls);
   return LC.classifyFromScores(await scores(st), await scores(it), { intensity: current(s)?.intensity ?? "calm" }, llm);

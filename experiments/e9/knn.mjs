@@ -5,7 +5,10 @@ const INTENSITIES = ["calm", "tense", "combat"];
 const tvecs = await embed(library.tracks.map(searchText));
 
 function vote(q, k, temp, axis, labels) {
-  const sims = library.tracks.map((t, i) => ({ t, s: dot(tvecs[i], q) })).sort((a, b) => b.s - a.s).slice(0, k);
+  const sims = library.tracks
+    .map((t, i) => ({ t, s: dot(tvecs[i], q) }))
+    .sort((a, b) => b.s - a.s)
+    .slice(0, k);
   const tally = Object.fromEntries(labels.map((l) => [l, 0]));
   for (const { t, s } of sims) {
     const w = Math.exp(s / temp);
@@ -39,14 +42,31 @@ export function makeKnn({ k = 10, temp = 0.05, minSim = 0.0 } = {}) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   // Tune on DEV only.
   let best;
-  for (const k of [3, 5, 10, 20, 40]) for (const temp of [0.01, 0.03, 0.1]) for (const minSim of [0, 0.5, 0.55]) {
-    const rows = await quiet(() => evaluateSilently(DEV, makeKnn({ k, temp, minSim })));
-    const score = rows.filter((r) => r.okS && r.okI).length;
-    if (!best || score > best.score) best = { k, temp, minSim, score };
-  }
+  for (const k of [3, 5, 10, 20, 40])
+    for (const temp of [0.01, 0.03, 0.1])
+      for (const minSim of [0, 0.5, 0.55]) {
+        const rows = await quiet(() => evaluateSilently(DEV, makeKnn({ k, temp, minSim })));
+        const score = rows.filter((r) => r.okS && r.okI).length;
+        if (!best || score > best.score) best = { k, temp, minSim, score };
+      }
   console.log("best on DEV:", best);
-  await evaluate(`A: nearest-track vote k=${best.k} temp=${best.temp} minSim=${best.minSim} — TEST`, TEST, makeKnn(best), { verbose: process.argv.includes("-v") });
+  await evaluate(
+    `A: nearest-track vote k=${best.k} temp=${best.temp} minSim=${best.minSim} — TEST`,
+    TEST,
+    makeKnn(best),
+    { verbose: process.argv.includes("-v") },
+  );
 }
 
-async function quiet(f) { const log = console.log; console.log = () => {}; try { return await f(); } finally { console.log = log; } }
-async function evaluateSilently(set, c) { return evaluate("", set, c); }
+async function quiet(f) {
+  const log = console.log;
+  console.log = () => {};
+  try {
+    return await f();
+  } finally {
+    console.log = log;
+  }
+}
+async function evaluateSilently(set, c) {
+  return evaluate("", set, c);
+}

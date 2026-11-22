@@ -52,7 +52,9 @@ if (!(args.name || args.prefetch) || !["bardo", "crd3"].includes(args.set)) {
   process.exit(2);
 }
 const here = source("experiments/e13");
-const labels = JSON.parse(readFileSync(join(here, args.set === "crd3" ? "labels-crd3.json" : "labels.json"), "utf8")).episodes;
+const labels = JSON.parse(
+  readFileSync(join(here, args.set === "crd3" ? "labels-crd3.json" : "labels.json"), "utf8"),
+).episodes;
 const episodes = args.episodes ? args.episodes.split(",").map((s) => s.trim()) : Object.keys(labels);
 
 const sec = (mss) => {
@@ -90,7 +92,11 @@ async function bardoCaptions(ep) {
     .slice(1)
     .map((row) => {
       const f = row.split(",");
-      const text = f.slice(2, -2).join(",").replace(/^"(.*)"$/, "$1").replace(/""/g, '"');
+      const text = f
+        .slice(2, -2)
+        .join(",")
+        .replace(/^"(.*)"$/, "$1")
+        .replace(/""/g, '"');
       return { start: Number(f[0]), duration: Number(f[1]), text };
     })
     .filter((c) => c.text.trim());
@@ -99,7 +105,14 @@ async function bardoCaptions(ep) {
 // --- The site, served on the evaluation runs' origin (their profile has the models). ---
 
 const site = built("src/site");
-const types = { ".html": "text/html", ".js": "text/javascript", ".wasm": "application/wasm", ".webp": "image/webp", ".woff2": "font/woff2", ".json": "application/json" };
+const types = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".wasm": "application/wasm",
+  ".webp": "image/webp",
+  ".woff2": "font/woff2",
+  ".json": "application/json",
+};
 const server = createServer((req, res) => {
   let p = join(site, decodeURIComponent(new URL(req.url, "http://x").pathname));
   if (existsSync(p) && statSync(p).isDirectory()) p = join(p, "index.html");
@@ -151,7 +164,8 @@ async function launch(n) {
     rmSync(profile, { recursive: true, force: true });
     mkdirSync(profiles, { recursive: true });
     execFileSync("cp", ["-a", "--reflink=auto", evaluation, profile]);
-    for (const lock of ["SingletonLock", "SingletonSocket", "SingletonCookie"]) rmSync(join(profile, lock), { force: true });
+    for (const lock of ["SingletonLock", "SingletonSocket", "SingletonCookie"])
+      rmSync(join(profile, lock), { force: true });
   }
   const context = await chromium.launchPersistentContext(profile, {
     ...chrome,
@@ -165,7 +179,9 @@ async function launch(n) {
       "--enable-unsafe-webgpu",
       "--ignore-gpu-blocklist",
       "--use-angle=vulkan",
-      args.nano ? "--enable-features=Vulkan,OptimizationGuideOnDeviceModel:BypassPerfRequirement/true,PromptAPIForGeminiNano" : "--enable-features=Vulkan",
+      args.nano
+        ? "--enable-features=Vulkan,OptimizationGuideOnDeviceModel:BypassPerfRequirement/true,PromptAPIForGeminiNano"
+        : "--enable-features=Vulkan",
       "--disable-vulkan-surface",
     ],
   });
@@ -192,8 +208,16 @@ async function openApp(context, log) {
   page.setDefaultTimeout(0);
   page.on("pageerror", (e) => log(`page error: ${e.message}`));
   page.on("crash", () => fail("a page crashed"));
-  page.on("console", (m) => ["error", "warning"].includes(m.type()) && log(`console ${m.type()}: ${m.text().slice(0, 400)}`));
-  page.on("worker", (w) => w.on("console", (m) => ["error", "warning"].includes(m.type()) && log(`worker ${m.type()}: ${m.text().slice(0, 400)}`)));
+  page.on(
+    "console",
+    (m) => ["error", "warning"].includes(m.type()) && log(`console ${m.type()}: ${m.text().slice(0, 400)}`),
+  );
+  page.on("worker", (w) =>
+    w.on(
+      "console",
+      (m) => ["error", "warning"].includes(m.type()) && log(`worker ${m.type()}: ${m.text().slice(0, 400)}`),
+    ),
+  );
   await page.goto(`http://localhost:${args.port}/?replay`);
   // Straight after launch, Chrome's GPU process may still be starting Vulkan, and has no adapter yet.
   let gpu;
@@ -249,10 +273,15 @@ async function replay(context, ep, log) {
   let shown = 0;
   for (const [i, c] of arrivals.entries()) {
     await advanceTo(fake(c.arrive));
-    await page.evaluate(([text, at, d]) => window.eavesbardReplay.line(text, at, d), [c.text, fake(c.start), c.duration]);
+    await page.evaluate(
+      ([text, at, d]) => window.eavesbardReplay.line(text, at, d),
+      [c.text, fake(c.start), c.duration],
+    );
     // A run where the scene model stopped answering (or anything else failed) tests nothing: stop it.
     if (i % 50 === 0) {
-      const error = await page.evaluate(() => window.eavesbardReplay.timeline(0).find((e) => e.event.kind === "error")?.event.text);
+      const error = await page.evaluate(
+        () => window.eavesbardReplay.timeline(0).find((e) => e.event.kind === "error")?.event.text,
+      );
       if (error) await fail(`episode ${ep}: ${error}`);
     }
     if (i - shown >= 200) {
@@ -274,10 +303,21 @@ async function replay(context, ep, log) {
   let speech = 0;
   for (const { at, event: e } of entries) {
     if (e.kind === "speech") speech++;
-    else if (e.kind === "call") kept.push({ t: offset(at), kind: "call", purpose: e.purpose, model: e.model, result: e.result, latencyMs: e.latencyMs && Math.round(e.latencyMs), error: e.error });
-    else if (e.kind === "decision") kept.push({ t: offset(at), kind: "decision", changed: e.changed, from: e.from, to: e.to, notes: e.notes });
+    else if (e.kind === "call")
+      kept.push({
+        t: offset(at),
+        kind: "call",
+        purpose: e.purpose,
+        model: e.model,
+        result: e.result,
+        latencyMs: e.latencyMs && Math.round(e.latencyMs),
+        error: e.error,
+      });
+    else if (e.kind === "decision")
+      kept.push({ t: offset(at), kind: "decision", changed: e.changed, from: e.from, to: e.to, notes: e.notes });
     // A local pick's reason quotes its search query, which holds transcript text.
-    else if (e.kind === "music" || e.kind === "error" || e.kind === "session") kept.push({ t: offset(at), kind: e.kind, text: e.text.replace(/ to “[^”]*”/g, "") });
+    else if (e.kind === "music" || e.kind === "error" || e.kind === "session")
+      kept.push({ t: offset(at), kind: e.kind, text: e.text.replace(/ to “[^”]*”/g, "") });
   }
   const calls = kept.filter((k) => k.kind === "call" && k.purpose === "scene");
   const withLlm = calls.filter((k) => k.model?.includes("+")).length;
@@ -307,7 +347,9 @@ if (args.prefetch) {
 }
 
 // The longest episodes first, so no Chrome is left with a long one at the end.
-const lengths = Object.fromEntries(await Promise.all(episodes.map(async (ep) => [ep, (await captions(ep)).at(-1).start])));
+const lengths = Object.fromEntries(
+  await Promise.all(episodes.map(async (ep) => [ep, (await captions(ep)).at(-1).start])),
+);
 const queue = [...episodes].sort((a, b) => lengths[b] - lengths[a]);
 const parallel = Math.max(1, Math.min(Number(args.parallel), episodes.length));
 const done = {};
@@ -316,7 +358,7 @@ console.log(`${episodes.length} episodes, ${parallel} at a time`);
 await Promise.all(
   Array.from({ length: parallel }, async (_, n) => {
     const context = await launch(n);
-    for (let ep; (ep = queue.shift()) !== undefined; ) {
+    for (let ep; (ep = queue.shift()) !== undefined;) {
       done[ep] = await replay(context, ep, (s) => console.log(`[${n}] episode ${ep}: ${s}`));
     }
     context.done = true;

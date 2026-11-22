@@ -110,7 +110,13 @@ window.sttRun = async ({ clips, music }) => {
     }
     const started = performance.now();
     const transcript = await transcribe!(audio);
-    results.push({ name: clip.name, reference: clip.text, transcript, ms: performance.now() - started, seconds: audio.length / SAMPLE_RATE });
+    results.push({
+      name: clip.name,
+      reference: clip.text,
+      transcript,
+      ms: performance.now() - started,
+      seconds: audio.length / SAMPLE_RATE,
+    });
   }
   return results;
 };

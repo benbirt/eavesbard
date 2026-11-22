@@ -7,11 +7,6 @@ TESTS = glob(["**/*.test.ts"])
 
 ts_lib(
     name = "app",
-    visibility = [
-        "//experiments:__subpackages__",
-        "//posthog:__pkg__",
-        "//scripts:__pkg__",
-    ],
     srcs = glob(
         [
             "**/*.ts",
@@ -19,6 +14,11 @@ ts_lib(
         ],
         exclude = TESTS,
     ),
+    visibility = [
+        "//experiments:__subpackages__",
+        "//posthog:__pkg__",
+        "//scripts:__pkg__",
+    ],
     deps = [
         "//:node_modules/@anthropic-ai/sdk",
         "//:node_modules/@huggingface/transformers",
@@ -127,8 +127,8 @@ js_run_binary(
 copy_to_directory(
     name = "ort",
     srcs = ["//:node_modules/onnxruntime-web/dir"],
-    include_srcs_patterns = ["**/dist/ort-wasm-simd-threaded.asyncify.*"],
     out = "ort",
+    include_srcs_patterns = ["**/dist/ort-wasm-simd-threaded.asyncify.*"],
     replace_prefixes = {"**/dist/": ""},
 )
 
@@ -136,15 +136,18 @@ copy_to_directory(
 copy_to_directory(
     name = "site",
     srcs = [
-        ":bundle",
         ":analytics_client",
+        ":bundle",
         ":capture_worklet",
         ":embed_worker",
         ":llm_worker",
         ":ort",
         ":stamped_html",
         ":stt_worker",
-    ] + glob(["art/*.webp", "fonts/*"]),
+    ] + glob([
+        "art/*.webp",
+        "fonts/*",
+    ]),
     replace_prefixes = {"stamped/": ""},
     visibility = ["//visibility:public"],
 )
@@ -162,7 +165,6 @@ esbuild(
 
 copy_to_directory(
     name = "eval_site",
-    visibility = ["//experiments:__subpackages__"],
     srcs = [
         "eval/llm-eval.html",
         ":capture_worklet",
@@ -173,6 +175,7 @@ copy_to_directory(
         ":stt_worker",
     ],
     replace_prefixes = {"eval/": ""},
+    visibility = ["//experiments:__subpackages__"],
 )
 
 ts_tests(

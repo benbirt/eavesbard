@@ -62,7 +62,10 @@ export function parseTagMap(data: unknown): TagMap {
     const borrow = object(map["borrow"], "borrow");
     for (const [bucketName, list] of Object.entries(borrow)) {
       const [setting, intensity] = bucketName.split("/");
-      if (!(SETTINGS as readonly string[]).includes(setting ?? "") || !(INTENSITIES as readonly string[]).includes(intensity ?? "")) {
+      if (
+        !(SETTINGS as readonly string[]).includes(setting ?? "") ||
+        !(INTENSITIES as readonly string[]).includes(intensity ?? "")
+      ) {
         throw new Error(`borrow.${bucketName}: expected "<setting>/<intensity>"`);
       }
       ids(list, `borrow.${bucketName}`);
@@ -152,7 +155,8 @@ function rules(value: unknown, where: string, names: readonly string[]): void {
     const check = (r: Record<string, unknown>, at: string, allowUnless: boolean) => {
       for (const key of Object.keys(r)) {
         if (allowUnless && key === "unless") check(object(r[key], `${at}.unless`), `${at}.unless`, false);
-        else if (!(RULE_KEYS as readonly string[]).includes(key)) throw new Error(`${at}.${key}: not one of ${RULE_KEYS.join(", ")}`);
+        else if (!(RULE_KEYS as readonly string[]).includes(key))
+          throw new Error(`${at}.${key}: not one of ${RULE_KEYS.join(", ")}`);
         else strings(r[key], `${at}.${key}`);
       }
     };

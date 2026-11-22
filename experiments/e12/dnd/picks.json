@@ -1,154 +1,154 @@
 {
- "tavern/calm": {
-  "subject": "The Dran & Courtier inn in Red Larch",
-  "book": "Acquisitions Incorporated (Wizards of the Coast, 2019)",
-  "artist": "Klaus Pillon",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Dran_%26_courtier-5e.jpg",
-  "verdict": "up"
- },
- "tavern/tense": {
-  "subject": "Bandits doing banditism",
-  "book": "Monster Manual (Wizards of the Coast, 2025)",
-  "artist": "Katerina Ladon",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Bandits_5point5e.jpg",
-  "verdict": "up"
- },
- "tavern/combat": {
-  "subject": "Redbrands: criminals in their scarlet cloaks",
-  "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
-  "artist": "Zoltan Boros",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Redbrand-ruffians.webp",
-  "verdict": "up"
- },
- "town/calm": {
-  "subject": "Waterdeep as seen from the water",
-  "book": "City of Splendors: Waterdeep (Wizards of the Coast, 2005)",
-  "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep3e.jpg",
-  "verdict": "up"
- },
- "town/tense": {
-  "subject": "Arriving in Phandalin",
-  "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
-  "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Phandalin-welcome.webp",
-  "verdict": "down"
- },
- "town/tense (option 2)": {
-  "subject": "A Waterdeep alley",
-  "book": "Probably Waterdeep and the North (TSR, 1987), by Chris Miller: unconfirmed",
-  "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep-alley.jpg",
-  "verdict": "up",
-  "note": "Licence check needed: if its page names a TSR book, it's a grey area (Wizards owns TSR's work, but the policy covers material published by Wizards). Please read the source line on its page.",
-  "caution": true
- },
- "town/combat": {
-  "subject": "A fireball goes off in Trollskull Alley",
-  "book": "Waterdeep: Dragon Heist (Wizards of the Coast, 2018)",
-  "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep-fireball-5e.jpg",
-  "verdict": "up"
- },
- "interior/calm": {
-  "subject": "A sage deep in research at Candlekeep",
-  "book": "Candlekeep Mysteries (Wizards of the Coast, 2021)",
-  "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/Candlekeep",
-  "verdict": "up",
-  "note": "Search didn't give its file name: the link opens the Candlekeep article; the image is in its gallery."
- },
- "interior/tense": {
-  "subject": "Trollskull Manor: abandoned and haunted",
-  "book": "Waterdeep: Dragon Heist (Wizards of the Coast, 2018)",
-  "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Trollskull_manor-5e.jpg",
-  "verdict": "up",
-  "note": "Probably the outside of the house, not a room inside. Fallback if not: reuse the dungeon · tense image."
- },
- "interior/combat": {
-  "subject": "The bronze dragon Runara presenting her true form before Hank, and Presto, along with a third individual",
-  "book": "Dungeons & Dragons Starter Set: Dragons of Stormwreck Isle (Wizards of the Coast, 2022)",
-  "artist": "David Auden Nash",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Elder_Runara,_temple_of_Bahamut.png",
-  "verdict": "up"
- },
- "wilderness/calm": {
-  "subject": "The Heartlands",
-  "book": "Forgotten Realms: Heroes of Faerûn (Wizards of the Coast, 2025)",
-  "artist": "Pedro H. Cardoso",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Pedro-h-cardoso-heartlands.png",
-  "verdict": "up"
- },
- "wilderness/tense": {
-  "subject": "An owlbear is among the many dangers along the Triboar Trail",
-  "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
-  "artist": "Klaus Pillon",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Triboar_trail_-_Klaus_Pillon.png",
-  "verdict": "up"
- },
- "wilderness/combat": {
-  "subject": "The green dragon Chuth",
-  "book": "The Rise of Tiamat (Wizards of the Coast, 2014)",
-  "artist": "Guido Kuip",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Green_Dragon.jpg",
-  "verdict": "up"
- },
- "dungeon/calm": {
-  "subject": "Modrons march through the realm of Gzemnid, passing the skull of the deceased archdevil Beherit",
-  "book": "Planescape: Adventures in the Multiverse (Wizards of the Coast, 2023)",
-  "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Beherit_Skull.jpg",
-  "verdict": "up"
- },
- "dungeon/tense": {
-  "subject": "Drow slavers marching prisoners through the Underdark",
-  "book": "Mordenkainen's Tome of Foes (Wizards of the Coast, 2018)",
-  "artist": "Lake Hurwitz",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Drow_and_slaves-5e.jpg",
-  "verdict": "up"
- },
- "dungeon/combat": {
-  "subject": "Skeletons inhabiting Tresendar Manor",
-  "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
-  "artist": "Zoltan Boros",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Tresendar-skeletons.webp",
-  "verdict": "up"
- },
- "travel/calm": {
-  "subject": "The fishing boats of Ten Towns docked in one of the region's lakes",
-  "book": "Legacy of the Crystal Shard (Wizards of the Coast, 2013)",
-  "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Lakes.jpg",
-  "verdict": "up"
- },
- "travel/tense": {
-  "subject": "Key art for the Voyage to Stormwreck Isle encounter",
-  "book": "Dungeons & Dragons Starter Set: Dragons of Stormwreck Isle (Wizards of the Coast, 2022)",
-  "artist": "Linda Lithén",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Voyage_to_stormwreck_-_Linda_Lith%C3%A9n.webp",
-  "verdict": "up"
- },
- "travel/combat": {
-  "subject": "A vengeful roc",
-  "book": "Monster Manual (Wizards of the Coast, 2025)",
-  "artist": "Alejandro Pacheco",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Roc_5point5e.jpg",
-  "verdict": "up"
- },
- "travel/overland": {
-  "subject": "The Triboar Trail",
-  "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
-  "artist": "Klaus Pillon",
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Triboar_trail_-_Klaus_Pillon.png",
-  "verdict": "down",
-  "note": "An extra: overland travel, alongside the sea images."
- },
- "travel/overland (option 2)": {
-  "subject": "The road to Phandalin",
-  "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
-  "artist": null,
-  "page": "https://forgottenrealms.fandom.com/wiki/File:Road_to_phandalin.webp",
-  "verdict": "up"
- }
+  "tavern/calm": {
+    "subject": "The Dran & Courtier inn in Red Larch",
+    "book": "Acquisitions Incorporated (Wizards of the Coast, 2019)",
+    "artist": "Klaus Pillon",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Dran_%26_courtier-5e.jpg",
+    "verdict": "up"
+  },
+  "tavern/tense": {
+    "subject": "Bandits doing banditism",
+    "book": "Monster Manual (Wizards of the Coast, 2025)",
+    "artist": "Katerina Ladon",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Bandits_5point5e.jpg",
+    "verdict": "up"
+  },
+  "tavern/combat": {
+    "subject": "Redbrands: criminals in their scarlet cloaks",
+    "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
+    "artist": "Zoltan Boros",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Redbrand-ruffians.webp",
+    "verdict": "up"
+  },
+  "town/calm": {
+    "subject": "Waterdeep as seen from the water",
+    "book": "City of Splendors: Waterdeep (Wizards of the Coast, 2005)",
+    "artist": null,
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep3e.jpg",
+    "verdict": "up"
+  },
+  "town/tense": {
+    "subject": "Arriving in Phandalin",
+    "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
+    "artist": null,
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Phandalin-welcome.webp",
+    "verdict": "down"
+  },
+  "town/tense (option 2)": {
+    "subject": "A Waterdeep alley",
+    "book": "Probably Waterdeep and the North (TSR, 1987), by Chris Miller: unconfirmed",
+    "artist": null,
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep-alley.jpg",
+    "verdict": "up",
+    "note": "Licence check needed: if its page names a TSR book, it's a grey area (Wizards owns TSR's work, but the policy covers material published by Wizards). Please read the source line on its page.",
+    "caution": true
+  },
+  "town/combat": {
+    "subject": "A fireball goes off in Trollskull Alley",
+    "book": "Waterdeep: Dragon Heist (Wizards of the Coast, 2018)",
+    "artist": null,
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Waterdeep-fireball-5e.jpg",
+    "verdict": "up"
+  },
+  "interior/calm": {
+    "subject": "A sage deep in research at Candlekeep",
+    "book": "Candlekeep Mysteries (Wizards of the Coast, 2021)",
+    "artist": null,
+    "page": "https://forgottenrealms.fandom.com/wiki/Candlekeep",
+    "verdict": "up",
+    "note": "Search didn't give its file name: the link opens the Candlekeep article; the image is in its gallery."
+  },
+  "interior/tense": {
+    "subject": "Trollskull Manor: abandoned and haunted",
+    "book": "Waterdeep: Dragon Heist (Wizards of the Coast, 2018)",
+    "artist": null,
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Trollskull_manor-5e.jpg",
+    "verdict": "up",
+    "note": "Probably the outside of the house, not a room inside. Fallback if not: reuse the dungeon · tense image."
+  },
+  "interior/combat": {
+    "subject": "The bronze dragon Runara presenting her true form before Hank, and Presto, along with a third individual",
+    "book": "Dungeons & Dragons Starter Set: Dragons of Stormwreck Isle (Wizards of the Coast, 2022)",
+    "artist": "David Auden Nash",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Elder_Runara,_temple_of_Bahamut.png",
+    "verdict": "up"
+  },
+  "wilderness/calm": {
+    "subject": "The Heartlands",
+    "book": "Forgotten Realms: Heroes of Faerûn (Wizards of the Coast, 2025)",
+    "artist": "Pedro H. Cardoso",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Pedro-h-cardoso-heartlands.png",
+    "verdict": "up"
+  },
+  "wilderness/tense": {
+    "subject": "An owlbear is among the many dangers along the Triboar Trail",
+    "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
+    "artist": "Klaus Pillon",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Triboar_trail_-_Klaus_Pillon.png",
+    "verdict": "up"
+  },
+  "wilderness/combat": {
+    "subject": "The green dragon Chuth",
+    "book": "The Rise of Tiamat (Wizards of the Coast, 2014)",
+    "artist": "Guido Kuip",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Green_Dragon.jpg",
+    "verdict": "up"
+  },
+  "dungeon/calm": {
+    "subject": "Modrons march through the realm of Gzemnid, passing the skull of the deceased archdevil Beherit",
+    "book": "Planescape: Adventures in the Multiverse (Wizards of the Coast, 2023)",
+    "artist": null,
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Beherit_Skull.jpg",
+    "verdict": "up"
+  },
+  "dungeon/tense": {
+    "subject": "Drow slavers marching prisoners through the Underdark",
+    "book": "Mordenkainen's Tome of Foes (Wizards of the Coast, 2018)",
+    "artist": "Lake Hurwitz",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Drow_and_slaves-5e.jpg",
+    "verdict": "up"
+  },
+  "dungeon/combat": {
+    "subject": "Skeletons inhabiting Tresendar Manor",
+    "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
+    "artist": "Zoltan Boros",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Tresendar-skeletons.webp",
+    "verdict": "up"
+  },
+  "travel/calm": {
+    "subject": "The fishing boats of Ten Towns docked in one of the region's lakes",
+    "book": "Legacy of the Crystal Shard (Wizards of the Coast, 2013)",
+    "artist": null,
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Lakes.jpg",
+    "verdict": "up"
+  },
+  "travel/tense": {
+    "subject": "Key art for the Voyage to Stormwreck Isle encounter",
+    "book": "Dungeons & Dragons Starter Set: Dragons of Stormwreck Isle (Wizards of the Coast, 2022)",
+    "artist": "Linda Lithén",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Voyage_to_stormwreck_-_Linda_Lith%C3%A9n.webp",
+    "verdict": "up"
+  },
+  "travel/combat": {
+    "subject": "A vengeful roc",
+    "book": "Monster Manual (Wizards of the Coast, 2025)",
+    "artist": "Alejandro Pacheco",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Roc_5point5e.jpg",
+    "verdict": "up"
+  },
+  "travel/overland": {
+    "subject": "The Triboar Trail",
+    "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
+    "artist": "Klaus Pillon",
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Triboar_trail_-_Klaus_Pillon.png",
+    "verdict": "down",
+    "note": "An extra: overland travel, alongside the sea images."
+  },
+  "travel/overland (option 2)": {
+    "subject": "The road to Phandalin",
+    "book": "Phandelver and Below: The Shattered Obelisk (Wizards of the Coast, 2023)",
+    "artist": null,
+    "page": "https://forgottenrealms.fandom.com/wiki/File:Road_to_phandalin.webp",
+    "verdict": "up"
+  }
 }

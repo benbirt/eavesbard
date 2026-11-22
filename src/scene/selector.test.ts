@@ -38,13 +38,28 @@ const library: Library = {
 
 test("empty buckets borrow from nearby settings, then any setting, then the same setting", () => {
   // Wilderness borrows from travel, then dungeon.
-  assert.deepEqual(candidates(library, { setting: "wilderness", intensity: "combat" }).map((t) => t.track.id), [30, 31, 20]);
+  assert.deepEqual(
+    candidates(library, { setting: "wilderness", intensity: "combat" }).map((t) => t.track.id),
+    [30, 31, 20],
+  );
   // Interior borrows from tavern, town, then dungeon, nearest first.
-  assert.deepEqual(candidates(library, { setting: "interior", intensity: "combat" }).map((t) => t.track.id), [40, 20]);
+  assert.deepEqual(
+    candidates(library, { setting: "interior", intensity: "combat" }).map((t) => t.track.id),
+    [40, 20],
+  );
   // Town has no combat nearby (tavern 40, interior none, travel 30 and 31): those three.
-  assert.deepEqual(candidates(library, { setting: "town", intensity: "combat" }).map((t) => t.track.id), [40, 30, 31]);
-  assert.deepEqual(candidates(library, { setting: "tavern", intensity: "tense" }).map((t) => t.track.id), [10, 11, 40]);
-  assert.deepEqual(candidates(library, { setting: "dungeon", intensity: "tense" }).map((t) => t.track.id), [20]);
+  assert.deepEqual(
+    candidates(library, { setting: "town", intensity: "combat" }).map((t) => t.track.id),
+    [40, 30, 31],
+  );
+  assert.deepEqual(
+    candidates(library, { setting: "tavern", intensity: "tense" }).map((t) => t.track.id),
+    [10, 11, 40],
+  );
+  assert.deepEqual(
+    candidates(library, { setting: "dungeon", intensity: "tense" }).map((t) => t.track.id),
+    [20],
+  );
 });
 
 test("recently played tracks are avoided", () => {
@@ -67,14 +82,29 @@ test("in a small bucket only the last track is avoided", () => {
 
 test("on an intensity change, tracks also tagged with the old intensity are avoided", () => {
   for (let i = 0; i < 10; i++) {
-    assert.equal(pickTrack(library, { setting: "travel", intensity: "combat" }, [], () => i / 10, "calm")?.track.id, 31);
+    assert.equal(
+      pickTrack(library, { setting: "travel", intensity: "combat" }, [], () => i / 10, "calm")?.track.id,
+      31,
+    );
   }
   // A bucket with nothing distinct keeps its own tracks rather than borrowing...
-  assert.deepEqual(choices(library, { setting: "tavern", intensity: "combat" }, [], "calm").map((t) => t.track.id), [40]);
-  const nearby: Library = { ...library, tracks: [...library.tracks, entry(50, ["town"], ["combat"]), entry(51, ["town", "dungeon"], ["combat"])] };
-  assert.deepEqual(choices(nearby, { setting: "tavern", intensity: "combat" }, [], "calm").map((t) => t.track.id), [40]);
+  assert.deepEqual(
+    choices(library, { setting: "tavern", intensity: "combat" }, [], "calm").map((t) => t.track.id),
+    [40],
+  );
+  const nearby: Library = {
+    ...library,
+    tracks: [...library.tracks, entry(50, ["town"], ["combat"]), entry(51, ["town", "dungeon"], ["combat"])],
+  };
+  assert.deepEqual(
+    choices(nearby, { setting: "tavern", intensity: "combat" }, [], "calm").map((t) => t.track.id),
+    [40],
+  );
   // ...and an empty bucket borrows distinct tracks from nearby settings (for an interior: tavern, town, dungeon).
-  assert.deepEqual(choices(nearby, { setting: "interior", intensity: "combat" }, [], "calm").map((t) => t.track.id), [50, 51, 20]);
+  assert.deepEqual(
+    choices(nearby, { setting: "interior", intensity: "combat" }, [], "calm").map((t) => t.track.id),
+    [50, 51, 20],
+  );
   // With nothing of its own or nearby, it borrows distinct tracks from anywhere.
   for (let i = 0; i < 10; i++) {
     const id = pickTrack(library, { setting: "wilderness", intensity: "combat" }, [], () => i / 10, "calm")?.track.id;
@@ -92,7 +122,13 @@ test("suits checks both axes", () => {
 
 test("an empty bucket takes the tag map's hand-picked tracks first", () => {
   const picked: Library = { ...library, borrow: { "tavern/combat": [entry(31, ["travel"], ["combat"])] } };
-  assert.deepEqual(candidates(picked, { setting: "tavern", intensity: "combat" }).map((t) => t.track.id), [40]);
+  assert.deepEqual(
+    candidates(picked, { setting: "tavern", intensity: "combat" }).map((t) => t.track.id),
+    [40],
+  );
   const empty: Library = { ...picked, tracks: picked.tracks.filter((t) => t.track.id !== 40) };
-  assert.deepEqual(candidates(empty, { setting: "tavern", intensity: "combat" }).map((t) => t.track.id), [31]);
+  assert.deepEqual(
+    candidates(empty, { setting: "tavern", intensity: "combat" }).map((t) => t.track.id),
+    [31],
+  );
 });

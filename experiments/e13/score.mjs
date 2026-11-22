@@ -21,7 +21,17 @@ if (files.length === 1) {
   printReport(run, m);
 } else {
   // "average" weighs calm, tense and combat equally, whatever the mix of play.
-  const cols = ["intensity", "setting", "calm", "tense", "combat", "average", "combatDropped", "fightsCalled", "falseCombat"];
+  const cols = [
+    "intensity",
+    "setting",
+    "calm",
+    "tense",
+    "combat",
+    "average",
+    "combatDropped",
+    "fightsCalled",
+    "falseCombat",
+  ];
   console.log("run".padEnd(34) + cols.map((c) => c.slice(0, 8).padStart(9)).join("") + "  call lag  per check");
   for (const f of files) {
     const { m } = score(f);

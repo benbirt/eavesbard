@@ -10,7 +10,14 @@ import { extname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { built, chrome } from "../paths.mjs";
 const site = built("src/site");
-const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".webp": "image/webp", ".woff2": "font/woff2" };
+const types = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".mjs": "text/javascript",
+  ".wasm": "application/wasm",
+  ".webp": "image/webp",
+  ".woff2": "font/woff2",
+};
 const server = createServer((req, res) => {
   let path = join(site, decodeURIComponent(new URL(req.url, "http://x").pathname));
   if (existsSync(path) && statSync(path).isDirectory()) path = join(path, "index.html");
@@ -19,16 +26,35 @@ const server = createServer((req, res) => {
 }).listen(8766);
 const profile = mkdtempSync(join(tmpdir(), "eavesbard-pause-"));
 const context = await chromium.launchPersistentContext(profile, { ...chrome, headless: true });
-const finish = async (code) => { await Promise.race([context.close(), new Promise((r) => setTimeout(r, 5000))]); rmSync(profile, { recursive: true, force: true }); server.close(); process.exit(code); };
-setTimeout(() => { console.log("TIMED OUT"); void finish(1); }, 9 * 60_000).unref();
+const finish = async (code) => {
+  await Promise.race([context.close(), new Promise((r) => setTimeout(r, 5000))]);
+  rmSync(profile, { recursive: true, force: true });
+  server.close();
+  process.exit(code);
+};
+setTimeout(() => {
+  console.log("TIMED OUT");
+  void finish(1);
+}, 9 * 60_000).unref();
 const page = await context.newPage();
 page.setDefaultTimeout(60_000);
 page.on("pageerror", (e) => console.log("page error:", e.message));
 page.on("console", (m) => m.type() === "error" && console.log("console:", m.text().slice(0, 200)));
 let bytes = 0;
-context.on("response", (r) => { if (r.status() === 206) bytes += Number(r.headers()["content-length"] ?? 0); });
-await page.addInitScript(() => { localStorage.setItem("eavesbard.auto", "off"); localStorage.setItem("eavesbard.whisperModel", "small.en"); });
-const chip = () => page.locator(".chip").first().innerText().then((t) => t.replace(/\s+/g, " ")).catch(() => "?");
+context.on("response", (r) => {
+  if (r.status() === 206) bytes += Number(r.headers()["content-length"] ?? 0);
+});
+await page.addInitScript(() => {
+  localStorage.setItem("eavesbard.auto", "off");
+  localStorage.setItem("eavesbard.whisperModel", "small.en");
+});
+const chip = () =>
+  page
+    .locator(".chip")
+    .first()
+    .innerText()
+    .then((t) => t.replace(/\s+/g, " "))
+    .catch(() => "?");
 const mb = () => `${(bytes / 1e6).toFixed(0)} MB fetched`;
 try {
   await page.goto("http://localhost:8766/");
@@ -44,7 +70,8 @@ try {
     rate = /([\d.]+ MB\/s)/.exec(text)?.[1] ?? rate;
     if (i % 4 === 3) console.log(`t+${(i + 1) / 4}s`, text, "|", mb());
   }
-  if (pcts.some((p, i) => i > 0 && p < pcts[i - 1])) throw new Error(`the percentage went backwards: ${pcts.join(", ")}`);
+  if (pcts.some((p, i) => i > 0 && p < pcts[i - 1]))
+    throw new Error(`the percentage went backwards: ${pcts.join(", ")}`);
   if (pcts.some((p) => p >= 99)) throw new Error(`the percentage reached 99%+ early: ${pcts.join(", ")}`);
   if (!rate) throw new Error("no download speed shown");
   console.log(`percentages ${pcts[0]} → ${pcts.at(-1)}, speed shown (e.g. ${rate})`);
@@ -60,13 +87,23 @@ try {
   await page.reload();
   // Part is stored already: the button says how much is left.
   const offer = page.getByRole("button", { name: /^Download now/ });
-  await page.waitForFunction(() => /remaining/.test(document.querySelector(".download-offer button")?.textContent ?? ""), null, { timeout: 10_000 }).catch(() => undefined);
+  await page
+    .waitForFunction(
+      () => /remaining/.test(document.querySelector(".download-offer button")?.textContent ?? ""),
+      null,
+      { timeout: 10_000 },
+    )
+    .catch(() => undefined);
   const label = await offer.innerText();
   console.log("after reload, the button reads:", label);
   if (!/remaining/.test(label)) throw new Error(`expected "… remaining" after a partial download, got "${label}"`);
   await offer.click();
   await page.waitForTimeout(2000);
-  console.log("after reload + Download:", await chip(), `| fetched since reload: ${((bytes - before) / 1e6).toFixed(0)} MB`);
+  console.log(
+    "after reload + Download:",
+    await chip(),
+    `| fetched since reload: ${((bytes - before) / 1e6).toFixed(0)} MB`,
+  );
   // Downloading to the end (another few hundred MB) checks the resumed file reassembles; only with --finish.
   if (process.argv.includes("--finish")) {
     await page.locator(".chip", { hasText: "Listener · ready" }).waitFor({ timeout: 400_000 });

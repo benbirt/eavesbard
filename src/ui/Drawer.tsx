@@ -23,7 +23,9 @@ addEventListener("keydown", (e) => {
  * panel closes it (and does nothing else, so it can't stop the session).
  */
 export function Scrim() {
-  return openDrawer.value ? <div class="scrim" aria-hidden="true" onClick={() => (openDrawer.value = undefined)} /> : null;
+  return openDrawer.value ? (
+    <div class="scrim" aria-hidden="true" onClick={() => (openDrawer.value = undefined)} />
+  ) : null;
 }
 
 /**
@@ -49,7 +51,13 @@ export function SidePanel({ panels }: { panels: Record<DrawerName, ComponentChil
         </h2>
         <nav class="tabs" aria-label="Panels">
           {(Object.keys(TITLES) as DrawerName[]).map((n) => (
-            <button type="button" key={n} class="tab" aria-current={n === shown ? "page" : undefined} onClick={() => (openDrawer.value = n)}>
+            <button
+              type="button"
+              key={n}
+              class="tab"
+              aria-current={n === shown ? "page" : undefined}
+              onClick={() => (openDrawer.value = n)}
+            >
               {TITLES[n]}
             </button>
           ))}

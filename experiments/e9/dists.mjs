@@ -12,7 +12,12 @@ const texts = (s) => {
   const ls = lines(s);
   return [LC.lastWords(ls, 150), LC.latest(ls)];
 };
-const softmax = (xs, t = 1) => { const m = Math.max(...xs); const e = xs.map((x) => Math.exp((x - m) / t)); const z = e.reduce((a, b) => a + b); return e.map((x) => x / z); };
+const softmax = (xs, t = 1) => {
+  const m = Math.max(...xs);
+  const e = xs.map((x) => Math.exp((x - m) / t));
+  const z = e.reduce((a, b) => a + b);
+  return e.map((x) => x / z);
+};
 const obj = (keys, ps) => Object.fromEntries(keys.map((k, i) => [k, ps[i]]));
 
 async function L() {
@@ -25,9 +30,15 @@ async function L() {
   const out = {};
   for (const s of ALL) {
     const [st, it] = texts(s);
-    const ss = await top(st, S), is = await top(it, [...I, "offtopic"]);
+    const ss = await top(st, S),
+      is = await top(it, [...I, "offtopic"]);
     const ip = softmax(is, 0.02);
-    out[s.name] = { setting: obj(S, softmax(ss, 0.02)), unknown: Math.max(...ss) < 0.54, intensity: obj(I, ip.slice(0, 3)), offtopic: ip[3] };
+    out[s.name] = {
+      setting: obj(S, softmax(ss, 0.02)),
+      unknown: Math.max(...ss) < 0.54,
+      intensity: obj(I, ip.slice(0, 3)),
+      offtopic: ip[3],
+    };
   }
   return out;
 }

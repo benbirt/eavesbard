@@ -1,6 +1,6 @@
 # Eavesbard — Design Doc
 
-*Working title. Status: draft, pre-implementation.*
+_Working title. Status: draft, pre-implementation._
 
 ## 1. Summary
 
@@ -155,7 +155,7 @@ The file also records when it was generated. Filenames are kept exactly as the s
 - **Output:** text chunks with start and end timestamps, appended to the transcript buffer.
 - **Scope:** no speaker diarisation. We don't need to know who said what.
 - **Model choice:** a trade-off of latency against accuracy (see experiment E5). Start with the smallest English model that keeps up in real time.
-- **Web Speech alternative** (`src/stt/web-speech.ts`): the speech-model menu also offers the browser's own Web Speech API, in two modes. *Cloud* is the API's default; Chrome sends the audio to Google's servers, so the page warns that the table should know. *On-device* sets `processLocally` and, if needed, asks the browser to install its English language pack first (`SpeechRecognition.available()` / `install()`). Both are built for Chrome; the page warns that other browsers may not work. Recognition restarts itself whenever the browser ends it after a silence, and gives up if it keeps ending straight away. There's no download from us and no hallucination filter (Web Speech doesn't invent text from music the way Whisper does). Whisper stays the default: it works the same everywhere WebGPU does, and its segmenting is under our control. Web Speech is there to compare on real devices.
+- **Web Speech alternative** (`src/stt/web-speech.ts`): the speech-model menu also offers the browser's own Web Speech API, in two modes. _Cloud_ is the API's default; Chrome sends the audio to Google's servers, so the page warns that the table should know. _On-device_ sets `processLocally` and, if needed, asks the browser to install its English language pack first (`SpeechRecognition.available()` / `install()`). Both are built for Chrome; the page warns that other browsers may not work. Recognition restarts itself whenever the browser ends it after a silence, and gives up if it keeps ending straight away. There's no download from us and no hallucination filter (Web Speech doesn't invent text from music the way Whisper does). Whisper stays the default: it works the same everywhere WebGPU does, and its segmenting is under our control. Web Speech is there to compare on real devices.
 - **Visible tab:** for now the app requires its tab to stay visible while listening, because Chrome throttles timers in hidden tabs. E10 checks whether that is enough.
 
 ### 7.3 Transcript buffer
@@ -175,6 +175,7 @@ Keywords that switched the scene or forced an immediate check were tried and dro
 - **Failures:** on any model error or invalid answer, log the failure and keep the current scene. Never crash playback.
 
 **Local** (`src/local-models.ts`, `src/classify/local-classifier.ts`, `src/classify/llm-prompt.ts`, `src/llm/`): Gemma 4 E2B on WebGPU, blended with a small embedding model. No key, no cost. Over 340 hand-checked scenes this gets 88% fully right, and 93% of the held-out test set, against 64% for the embeddings alone; experiments/E9.md has the comparisons that led here.
+
 - **Gemma 4 E2B** (`onnx-community/gemma-4-E2B-it-ONNX`, text only): a one-off download of about 3.1 GB (4-bit weights, 16-bit activations), or 3.6 GB on GPUs without 16-bit floats, cached by the browser afterwards. It runs in its own worker and answers in 0.5–0.9 s on an Apple M5, and a whole scene check (embeddings and Gemma's questions together) takes about 0.45 s on an RTX 5080 (E13). If it stops answering, the embeddings decide alone and the timeline says so, once, and again if it recovers.
   - Each check asks where the characters are, with the last 300 words of transcript, the current scene with "keep that answer unless the transcript shows it has changed", and the settings with one-line meanings. (A three-way calm, tense or combat question is asked only of an opening description.)
   - **Has a fight started, or ended?** A second question, yes or no: outside a fight "has a fight started?", during one "has the fight ended?", with the newest line shown apart from the earlier ones. Its answer sets the chance of combat. Asked this way, Gemma catches far more fights starting (E9, round 5) Asked this way, Gemma catches far more fights starting (E9, round 5), and entering and leaving combat matter most.
@@ -187,6 +188,7 @@ Keywords that switched the scene or forced an immediate check were tried and dro
 - **Fallback:** the embeddings decide alone while Gemma downloads, if it fails to load or answer, or in a browser without WebGPU (then setting cutoffs apply: similarities below 0.54 mean unknown). The page and timeline say so, and the timeline names the models behind each answer.
 
 **Claude** (`src/classify/classifier.ts`): the Anthropic Messages API via the TypeScript SDK, called directly from the browser.
+
 - The model is `claude-haiku-5-5`, with structured outputs (`output_config.format` with a JSON schema whose enums come from section 6). The answer is still parsed and checked.
 - Effort `low` with the model's default adaptive thinking, and `max_tokens` 1024 to leave room for thinking before the short answer. Content blocks are read by type, since a response can start with a thinking block.
 - The system prompt (`src/classify/prompt.ts`) holds the label definitions, the table-talk rules and a few short examples, and is marked for prompt caching. Haiku 5.5 caches prompts of 512 tokens or more; the prompt is well over that, and a test keeps it so.
@@ -275,7 +277,7 @@ Designed for a GM mid-session, glancing at the screen from across the table: the
 - **Downloads need a choice** (`src/downloads.ts`): opening the page downloads nothing. A model loads by itself only if it's fully downloaded already: it finished loading here before (recorded in local storage, kept by Reset) and the browser still has its files. Otherwise, a half-finished download included, the start card offers "Download now (3.7 GB)", or, if part is already stored from an unfinished download, "Download now (2.9 of 3.7 GB remaining)" (counting whole files in transformers.js's cache and saved pieces); the choice lasts for the visit. Begin session stays disabled, saying why, until what the session needs is ready: the speech model loaded (or the browser's speech recognition available), and with automatic music the scene models loaded, or an API key saved for Claude ("Download the models to begin", "Waiting for the speech model…", "Add an Anthropic API key in Setup first"). Downloads can be paused and resumed (a button by the status chips while one is under way): the workers' fetch (`src/llm/resumable-fetch.ts`, installed by `src/ml-env.ts`) downloads model files in 16 MB pieces with byte-range requests and saves each to IndexedDB, so a resumed download, even after a reload, carries on from the last saved piece; the pieces are deleted once transformers.js has cached the whole file. `experiments/ui/download-check.mjs` checks this in a fresh profile.
 - **Before a session**, the side column is a "Set the scene" card: an opening description, Download now when models are missing, and Begin session, whose label says what it's waiting for. Model state shows in two places only: the status chips and that button.
 - **During a session**, the side column has two cards and a Stop button:
-  - **The scene:** setting and intensity; one line on the last change, tied to that moment: the line heard just before it, what it changed to and how sure (e.g. *"The kobolds raised their swords." → combat, 76% sure · 2 min ago*), or "Set by you" or "From your description"; a status box with the next check ("Next check in 9 s" with a thin countdown, "Checking the scene…", or "Next check when someone speaks") and any change in waiting, in plain words ("Could become tense if the next check agrees", "Could become calm, but combat lasts at least 60 s (40 s to go)"); and buttons to set the setting or intensity yourself. A change set by hand restarts that axis's clock, so the minimum durations (7.6) keep the classifier from undoing it at once.
+  - **The scene:** setting and intensity; one line on the last change, tied to that moment: the line heard just before it, what it changed to and how sure (e.g. _"The kobolds raised their swords." → combat, 76% sure · 2 min ago_), or "Set by you" or "From your description"; a status box with the next check ("Next check in 9 s" with a thin countdown, "Checking the scene…", or "Next check when someone speaks") and any change in waiting, in plain words ("Could become tense if the next check agrees", "Could become calm, but combat lasts at least 60 s (40 s to go)"); and buttons to set the setting or intensity yourself. A change set by hand restarts that axis's clock, so the minimum durations (7.6) keep the classifier from undoing it at once.
   - **Now playing:** the track and progress (click or drag to seek), pause, a different track, and volume.
 - **Side panels** (`src/ui/Drawer.tsx`): one panel slides over from the right, with tabs in this order: Setup (which More… opens), Session log, About. A tab switches the content in place, without closing the panel; each tab keeps its state and scroll position; Escape or a click outside closes them (the outside click does nothing else).
   - **Pick a track:** shown only when automatic music is off, before or during a session: setting, intensity and track, play it or any track from that bucket.
@@ -347,23 +349,28 @@ The repo contains no audio, but `data/tracks.json` is third-party content: its t
 Each experiment gets a short write-up in `/experiments/<ID>.md` recording what was tried, the result and the decision.
 
 **E1 — Playing from sounds.tabletopaudio.com.**
+
 - Local: play a track from a plain `<audio>` element on the deployed GitHub Pages origin and on localhost. Confirm it plays, seeks and fires `ended`, and that the browser sends no `Origin` header (check in dev tools).
 - Cast: load the same URL into the Default Media Receiver with `contentType: 'audio/mpeg'`. Confirm it plays, and that seeking and track-end events work. If the receiver gets a 403, find out whether it sends an `Origin` header.
-- *Do this first: the whole hosting plan depends on it.*
+- _Do this first: the whole hosting plan depends on it._
 
 **E2 — Scraper and tag review.**
+
 - Write the generator and check its output against the site: track count, a sample of titles, descriptions and filenames, and every audio URL returning 206 to a non-CORS range request.
 - Review Tabletop Audio's tag facets and genres to finalise the setting list and draft `tag-map.json`.
 
 **E3 — Hosting fallbacks.** Only needed if E1 fails, or if Tabletop Audio asks us not to stream from their host.
+
 - Mirror a curated subset of fantasy tracks ourselves: into a Pages repo (keeping well under the roughly 1 GB site size guideline) or into Cloudflare R2. Either way, the index's `file` field would point at our copy, and the generator would gain a download step.
 - Mirroring the full library in a git repo is not an option: 529 tracks at around 14 MB each is well above GitHub's recommended repo size.
 
 **E4 — Rate limits and the generator.**
+
 - sounds.tabletopaudio.com: expected to be a non-issue at about one audio request every ten minutes, but confirm across a full-length session.
 - Check that the generator works from GitHub Actions runners. Cloudflare may treat datacentre IP addresses differently from the requests tested so far.
 
 **E5 — In-browser Whisper.**
+
 - Compare model sizes on WebGPU on the actual laptop.
 - Measure real-time factor, end-to-end latency and transcript quality on real table audio: crosstalk, distance from the mic, background music bleeding in.
 - Pick the default model.
@@ -373,6 +380,7 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 **E7 — Transition feel.** Fade-and-swap over Cast versus crossfade locally. For Cast, check whether the media stream's own volume can be faded instead of the device volume, which would avoid fighting the speaker's own volume controls. Decide whether Cast transitions are acceptable, or whether a custom receiver is worth building later.
 
 **E8 — Haiku baseline.**
+
 - Run real sessions with the Haiku classifier.
 - Measure cost per session, classification latency, and how often the scene changes.
 - Judge subjectively whether changes feel right.
@@ -384,6 +392,7 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
 **E11 — Gemma 4 for speech-to-text.** Done ([experiments/E11.md](experiments/E11.md)): Gemma 4 E2B's audio input transcribes worse than Whisper (21% word errors on clean text-to-speech clips, against 11% for base and 7% for small) at the same speed as Whisper small, so Whisper stays. Whisper small is the most accurate, especially with music playing.
 
 **E10 — Browser behaviour over a full session.** On a Mac with default power and lock settings, left untouched, check:
+
 - that the wake lock holds, and the display, screensaver and auto-lock never kick in, with both local and Cast output;
 - that the wake lock is re-acquired after switching tabs and back;
 - the mic stays live;
@@ -398,8 +407,9 @@ Each experiment gets a short write-up in `/experiments/<ID>.md` recording what w
   - the generator and its scheduled job are running, and `data/tracks.json` is committed;
   - the library loader builds the index from it;
   - a manual track picker plays through both adapters.
-  
+
   Complete E1 to E4 here.
+
 - **M2 — Listening:** mic capture, VAD and in-browser Whisper with a live transcript view. Complete E5 and E6 here.
 - **M3 — Automation:**
   - the Haiku classifier, state machine and track selector are wired end to end;

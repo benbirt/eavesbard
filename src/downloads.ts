@@ -33,7 +33,8 @@ export function markDownloaded(repo: string): void {
   // Counted once per browser: later visits load it from the cache and land here again.
   if (loadSetting(DOWNLOADED_PREFIX + repo) !== "yes") countModelDownloaded(repo);
   saveSetting(DOWNLOADED_PREFIX + repo, "yes");
-  if (downloadedModels.value.get(repo) !== true) downloadedModels.value = new Map(downloadedModels.value).set(repo, true);
+  if (downloadedModels.value.get(repo) !== true)
+    downloadedModels.value = new Map(downloadedModels.value).set(repo, true);
 }
 
 /** Whether transformers.js's cache holds any of a model's weights. */

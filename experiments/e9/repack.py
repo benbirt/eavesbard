@@ -8,5 +8,11 @@ import onnx
 src, out = sys.argv[1], sys.argv[2]
 name = src.rsplit("/", 1)[-1]
 model = onnx.load(src)
-onnx.save_model(model, f"{out}/{name}", save_as_external_data=True, all_tensors_to_one_file=True,
-                location=f"{name}_data", size_threshold=1024)
+onnx.save_model(
+    model,
+    f"{out}/{name}",
+    save_as_external_data=True,
+    all_tensors_to_one_file=True,
+    location=f"{name}_data",
+    size_threshold=1024,
+)

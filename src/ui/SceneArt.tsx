@@ -88,7 +88,14 @@ function Gallery() {
           <h4>{cap(intensity)}</h4>
           <div class="thumbs">
             {SCENE_ART.filter((a) => a.intensity === intensity).map((a) => (
-              <button type="button" key={a.file} class="thumb" aria-pressed={a === currentArt.value} title={a.title} onClick={() => chooseArt(a)}>
+              <button
+                type="button"
+                key={a.file}
+                class="thumb"
+                aria-pressed={a === currentArt.value}
+                title={a.title}
+                onClick={() => chooseArt(a)}
+              >
                 <img src={`art/${a.file}`} alt={a.title} loading="lazy" />
               </button>
             ))}

@@ -4,7 +4,11 @@ import { INTENSITIES } from "../library/scenes.js";
 import { pickArt, SCENE_ART } from "./scene-art.js";
 
 test("every intensity has art, and every image has a file, title and book", () => {
-  for (const i of INTENSITIES) assert.ok(SCENE_ART.some((a) => a.intensity === i), i);
+  for (const i of INTENSITIES)
+    assert.ok(
+      SCENE_ART.some((a) => a.intensity === i),
+      i,
+    );
   for (const a of SCENE_ART) assert.ok(a.file.endsWith(".webp") && a.title && a.book, a.file);
   assert.equal(new Set(SCENE_ART.map((a) => a.file)).size, SCENE_ART.length);
 });

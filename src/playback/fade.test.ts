@@ -36,7 +36,12 @@ test("ramp rises monotonically to 1", async () => {
 
 test("ramp stops when cancelled", async () => {
   let calls = 0;
-  const done = await ramp(1000, () => calls++, () => calls >= 2, 5);
+  const done = await ramp(
+    1000,
+    () => calls++,
+    () => calls >= 2,
+    5,
+  );
   assert.equal(done, false);
   assert.equal(calls, 2);
 });

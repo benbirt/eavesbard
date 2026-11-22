@@ -50,8 +50,10 @@ export function parseClassification(text: string): Classification {
   const raw = JSON.parse(text) as Record<string, unknown>;
   const setting = raw["setting"];
   const intensity = raw["intensity"];
-  if (!(SETTING_VALUES as readonly unknown[]).includes(setting)) throw new Error(`Unexpected setting ${String(setting)}`);
-  if (!(INTENSITIES as readonly unknown[]).includes(intensity)) throw new Error(`Unexpected intensity ${String(intensity)}`);
+  if (!(SETTING_VALUES as readonly unknown[]).includes(setting))
+    throw new Error(`Unexpected setting ${String(setting)}`);
+  if (!(INTENSITIES as readonly unknown[]).includes(intensity))
+    throw new Error(`Unexpected intensity ${String(intensity)}`);
   return {
     setting: setting as Setting | "unknown",
     settingConfidence: confidence(raw["setting_confidence"]),

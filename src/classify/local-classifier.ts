@@ -174,7 +174,9 @@ export const BLEND: BlendOptions = {
 
 /** Raises probabilities to the power 1/T and renormalises. */
 export function soften<L extends string>(probs: Record<L, number>, temperature: number): Record<L, number> {
-  const raised = (Object.entries(probs) as [L, number][]).map(([l, p]) => [l, Math.pow(Math.max(p, 1e-12), 1 / temperature)] as const);
+  const raised = (Object.entries(probs) as [L, number][]).map(
+    ([l, p]) => [l, Math.pow(Math.max(p, 1e-12), 1 / temperature)] as const,
+  );
   const total = raised.reduce((sum, [, p]) => sum + p, 0);
   return Object.fromEntries(raised.map(([l, p]) => [l, p / total])) as Record<L, number>;
 }
@@ -230,7 +232,8 @@ function blend(
   const llmSaid = `${llm.model}: ${top(llm.setting)}, ${top(llm.intensity)}`;
   const veto =
     offtopic &&
-    (options.offtopic === "veto" || (options.offtopic === "unless-llm-changes" && top(llm.intensity) === current.intensity));
+    (options.offtopic === "veto" ||
+      (options.offtopic === "unless-llm-changes" && top(llm.intensity) === current.intensity));
 
   if (current.intensity === "combat" && llm.fightOver !== undefined && llm.fightOver > options.fightOverThreshold) {
     const after = best(intensities.filter((x) => x.label !== "combat"));

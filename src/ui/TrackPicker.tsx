@@ -28,14 +28,24 @@ export function TrackPicker() {
     <section class="card picker">
       <p class="eyebrow">Pick a track</p>
       <div class="row">
-        <select class="field" aria-label="Setting" value={setting} onChange={(e) => setSetting(e.currentTarget.value as Setting)}>
+        <select
+          class="field"
+          aria-label="Setting"
+          value={setting}
+          onChange={(e) => setSetting(e.currentTarget.value as Setting)}
+        >
           {SETTINGS.map((s) => (
             <option key={s} value={s}>
               {capitalise(s)} ({library.tracks.filter((t) => t.settings.includes(s)).length})
             </option>
           ))}
         </select>
-        <select class="field" aria-label="Intensity" value={intensity} onChange={(e) => setIntensity(e.currentTarget.value as Intensity)}>
+        <select
+          class="field"
+          aria-label="Intensity"
+          value={intensity}
+          onChange={(e) => setIntensity(e.currentTarget.value as Intensity)}
+        >
           {INTENSITIES.map((i) => (
             <option key={i} value={i}>
               {capitalise(i)} ({bucket(library, setting, i).length})
@@ -43,7 +53,12 @@ export function TrackPicker() {
           ))}
         </select>
       </div>
-      <select class="field" aria-label="Track" value={selected?.track.id} onChange={(e) => setTrackId(Number(e.currentTarget.value))}>
+      <select
+        class="field"
+        aria-label="Track"
+        value={selected?.track.id}
+        onChange={(e) => setTrackId(Number(e.currentTarget.value))}
+      >
         {tracks.map((t) => (
           <option key={t.track.id} value={t.track.id}>
             {t.track.title}

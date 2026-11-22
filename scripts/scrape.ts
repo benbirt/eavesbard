@@ -37,7 +37,9 @@ export function parseHomepage(html: string): PageTrack[] {
       title,
       // Partner tiles use "white flavor centerfy" and hold only promotional
       // text, so they deliberately get an empty description.
-      description: cleanDescription(/<span class="white flavor">([\s\S]*?)<\/span>\s*(?:<div class="buttons">|<\/div>)/.exec(tile)?.[1] ?? ""),
+      description: cleanDescription(
+        /<span class="white flavor">([\s\S]*?)<\/span>\s*(?:<div class="buttons">|<\/div>)/.exec(tile)?.[1] ?? "",
+      ),
       genres: classes.filter((c) => c !== "music"),
       hasMusic: classes.includes("music"),
       type: text(/<div class="track_title">[\s\S]*?<i[^>]*>([\s\S]*?)<\/i>/.exec(tile)?.[1] ?? ""),
@@ -49,7 +51,9 @@ export function parseHomepage(html: string): PageTrack[] {
 
 /** Removes the site's notes about Patreon-only alternate versions. */
 function cleanDescription(html: string): string {
-  return text(html).replace(/\s*\[[^\]]*(?:Patreon|Alternate|Alt\.)[^\]]*\]/gi, "").trim();
+  return text(html)
+    .replace(/\s*\[[^\]]*(?:Patreon|Alternate|Alt\.)[^\]]*\]/gi, "")
+    .trim();
 }
 
 /** Strips tags, decodes common entities and collapses whitespace. */
@@ -147,7 +151,10 @@ export function parseKeywords(script: string): Map<number, string[]> {
 /** Keeps the non-empty strings of a list, trimmed and without duplicates. */
 function cleanList(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
-  const items = value.filter((v): v is string => typeof v === "string").map((v) => v.trim()).filter(Boolean);
+  const items = value
+    .filter((v): v is string => typeof v === "string")
+    .map((v) => v.trim())
+    .filter(Boolean);
   return [...new Set(items)];
 }
 

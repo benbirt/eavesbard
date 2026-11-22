@@ -16,8 +16,7 @@ import { INTENSITIES, SETTINGS, type Intensity, type Setting } from "../library/
 import type { LlmClient } from "../llm/llm-client.js";
 
 export type VariantInput =
-  | { description: string }
-  | { lines: string[]; current: { setting: Setting; intensity: Intensity } };
+  { description: string } | { lines: string[]; current: { setting: Setting; intensity: Intensity } };
 
 export interface VariantAnswer {
   setting: Record<Setting, number>;
@@ -63,13 +62,18 @@ export interface JsonOptions {
 export function jsonPrompt(input: VariantInput, o: JsonOptions): string {
   const options = (d: Record<string, string>) =>
     o.meanings
-      ? "\n" + Object.entries(d).map(([k, v]) => `- ${k}: ${v}`).join("\n")
+      ? "\n" +
+        Object.entries(d)
+          .map(([k, v]) => `- ${k}: ${v}`)
+          .join("\n")
       : Object.keys(d).join(", ");
   const what =
     "description" in input
       ? `Opening scene, as described by the game master: ${input.description}`
       : `Last 2.5 minutes of transcript:\n${input.lines.join("\n")}` +
-        (o.withCurrent ? `\n\nThe soundtrack currently playing is for: ${input.current.setting}, ${input.current.intensity}.` : "") +
+        (o.withCurrent
+          ? `\n\nThe soundtrack currently playing is for: ${input.current.setting}, ${input.current.intensity}.`
+          : "") +
         (o.offTopic
           ? "\n\nIf the latest talk isn't about the game (rules lookups, dice, food, scheduling, real-world chat), " +
             "reply with the soundtrack that's playing."
@@ -88,11 +92,22 @@ export const JSON_START = '```json\n{\n  "setting": "';
 function jsonVariant(o: JsonOptions): Variant {
   return async (llm, input) => {
     const content = jsonPrompt(input, o);
-    const setting = asRecord(SETTINGS, await llm.ask(content, JSON_START, SETTINGS.map((l) => [l])));
+    const setting = asRecord(
+      SETTINGS,
+      await llm.ask(
+        content,
+        JSON_START,
+        SETTINGS.map((l) => [l]),
+      ),
+    );
     const top = SETTINGS.reduce((a, b) => (setting[b] > setting[a] ? b : a));
     const intensity = asRecord(
       INTENSITIES,
-      await llm.ask(content, `${JSON_START}${top}",\n  "intensity": "`, INTENSITIES.map((l) => [l])),
+      await llm.ask(
+        content,
+        `${JSON_START}${top}",\n  "intensity": "`,
+        INTENSITIES.map((l) => [l]),
+      ),
     );
     return { setting, intensity };
   };
@@ -117,9 +132,13 @@ The music should change promptly when the scene really changes, above all when a
 
 const ANCHOR = /Until now the scene was: (\w+), (\w+)\. Keep that answer unless the transcript shows it has changed\./;
 const softer = (c: string) =>
-  c.replace(ANCHOR, "The music playing now is for: $1, $2. Judge mainly from the latest lines whether the scene has changed.");
+  c.replace(
+    ANCHOR,
+    "The music playing now is for: $1, $2. Judge mainly from the latest lines whether the scene has changed.",
+  );
 
-const REASON = 'First reason briefly about what is happening in the latest lines. Then give the answer on its own line as "Answer: <word>".';
+const REASON =
+  'First reason briefly about what is happening in the latest lines. Then give the answer on its own line as "Answer: <word>".';
 
 /** What the model wrote for the latest scene, for the results file. */
 export const thoughts: string[] = [];
@@ -139,7 +158,12 @@ interface Options {
  * The intensity question, after optional reasoning or thinking; the labels
  * are then scored as the app does, after "Answer:".
  */
-async function intensityAfterThinking(llm: LlmClient, content: string, labels: string[], o: Options): Promise<number[]> {
+async function intensityAfterThinking(
+  llm: LlmClient,
+  content: string,
+  labels: string[],
+  o: Options,
+): Promise<number[]> {
   const system = o.brief ? BRIEF : undefined;
   if (o.reason) {
     const withReason = content.replace("Answer with one word from the list.", REASON);
@@ -165,7 +189,10 @@ function variant(o: Options): Variant {
     const [s, i] = llmQuestions(input);
     const edit = (c: string) => (o.soft ? softer(c) : c);
     return {
-      setting: asRecord(SETTINGS, await llm.ask(edit(s.content), ANSWER_PREFIX, spaced(s.labels), { system: o.brief ? BRIEF : undefined })),
+      setting: asRecord(
+        SETTINGS,
+        await llm.ask(edit(s.content), ANSWER_PREFIX, spaced(s.labels), { system: o.brief ? BRIEF : undefined }),
+      ),
       intensity: asRecord(INTENSITIES, await intensityAfterThinking(llm, edit(i.content), i.labels, o)),
     };
   };
@@ -206,7 +233,13 @@ const leanCache = new Map<string, number>();
  * P(yes). With `calibrate`, corrected for the model's lean on the same
  * question about a content-free transcript (contextual calibration).
  */
-async function yes(llm: LlmClient, scene: { setting: Setting; intensity: Intensity }, transcript: string, question: string, calibrate: boolean): Promise<number> {
+async function yes(
+  llm: LlmClient,
+  scene: { setting: Setting; intensity: Intensity },
+  transcript: string,
+  question: string,
+  calibrate: boolean,
+): Promise<number> {
   const p = (await llm.ask(yesNoPrompt(scene, transcript, question), ANSWER_PREFIX, spaced(["yes", "no"])))[0]!;
   if (!calibrate) return p;
   const key = `${scene.setting}/${scene.intensity}/${question}`;

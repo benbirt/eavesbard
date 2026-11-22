@@ -19,11 +19,22 @@ export const INTENSITIES = {
 };
 
 export const dists = {};
-const softmax = (xs) => { const m = Math.max(...xs); const e = xs.map((x) => Math.exp(x - m)); const s = e.reduce((a, b) => a + b); return e.map((x) => x / s); };
+const softmax = (xs) => {
+  const m = Math.max(...xs);
+  const e = xs.map((x) => Math.exp(x - m));
+  const s = e.reduce((a, b) => a + b);
+  return e.map((x) => x / s);
+};
 
-export async function makeLlm(model, { dtype = "q8", think = false, modelFile, settingWords = 150, intensityWords = 60 } = {}) {
+export async function makeLlm(
+  model,
+  { dtype = "q8", think = false, modelFile, settingWords = 150, intensityWords = 60 } = {},
+) {
   const tok = await AutoTokenizer.from_pretrained(model);
-  const lm = await AutoModelForCausalLM.from_pretrained(model, { dtype, ...(modelFile ? { model_file_name: modelFile } : {}) });
+  const lm = await AutoModelForCausalLM.from_pretrained(model, {
+    dtype,
+    ...(modelFile ? { model_file_name: modelFile } : {}),
+  });
   const firstToken = (w) => tok.encode(w, { add_special_tokens: false })[0];
 
   const logSoftmaxAt = (data, row, vocab, id) => {
@@ -39,7 +50,10 @@ export async function makeLlm(model, { dtype = "q8", think = false, modelFile, s
     const keys = Object.keys(labels);
     const menu = keys.map((k) => `- ${k}: ${labels[k]}`).join("\n");
     const messages = [
-      { role: "user", content: `You are following a tabletop role-playing game (like D&D) from a speech transcript.\n\n${context}\n\n${question}\n${menu}\n\nAnswer with one word from the list.` },
+      {
+        role: "user",
+        content: `You are following a tabletop role-playing game (like D&D) from a speech transcript.\n\n${context}\n\n${question}\n${menu}\n\nAnswer with one word from the list.`,
+      },
     ];
     let prompt = tok.apply_chat_template(messages, { tokenize: false, add_generation_prompt: true });
     if (think) prompt += "<think>\n\n</think>\n\n";
@@ -54,7 +68,9 @@ export async function makeLlm(model, { dtype = "q8", think = false, modelFile, s
       const inputs = tok(prompt, { add_special_tokens: false });
       const { logits } = await lm(inputs);
       const [, len, vocab] = logits.dims;
-      const mass = variants.map((ids) => ids.reduce((a, id) => a + Math.exp(logSoftmaxAt(logits.data, len - 1, vocab, id)), 0));
+      const mass = variants.map((ids) =>
+        ids.reduce((a, id) => a + Math.exp(logSoftmaxAt(logits.data, len - 1, vocab, id)), 0),
+      );
       const z = mass.reduce((a, b) => a + b);
       const p = mass.map((x) => x / z);
       const best = p.indexOf(Math.max(...p));
@@ -90,7 +106,13 @@ export async function makeLlm(model, { dtype = "q8", think = false, modelFile, s
     const b = await ask("How intense is the scene right now?", it, INTENSITIES);
     const obj = (ks, ps) => Object.fromEntries(ks.map((k, i) => [k, ps[i]]));
     dists[s.name] = { setting: obj(Object.keys(SETTINGS), a.p), intensity: obj(Object.keys(INTENSITIES), b.p) };
-    return { setting: a.label, settingConfidence: a.confidence, intensity: b.label, intensityConfidence: b.confidence, reason: "" };
+    return {
+      setting: a.label,
+      settingConfidence: a.confidence,
+      intensity: b.label,
+      intensityConfidence: b.confidence,
+      reason: "",
+    };
   };
 }
 

@@ -17,7 +17,13 @@ import {
   startSession,
   stopSession,
 } from "../director.js";
-import { allowDownloads, downloadsAllowed, knownDownloaded, refreshStoredBytes, storedModelBytes } from "../downloads.js";
+import {
+  allowDownloads,
+  downloadsAllowed,
+  knownDownloaded,
+  refreshStoredBytes,
+  storedModelBytes,
+} from "../downloads.js";
 import { hasWebGpu } from "../gpu.js";
 import { otherTabs } from "../other-tabs.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
@@ -80,8 +86,8 @@ function OtherTabsNotice() {
   return (
     <div class="other-tabs">
       <p class="warning small">
-        Eavesbard is also open in another tab or window. Each copy loads its own models (about 4 GB), and two copies
-        can stall each other: close the other one first.
+        Eavesbard is also open in another tab or window. Each copy loads its own models (about 4 GB), and two copies can
+        stall each other: close the other one first.
       </p>
       {waiting && pendingDownload().total === 0 && (
         <button type="button" class="btn" onClick={allowDownloads}>
@@ -121,7 +127,8 @@ function beginBlocker(): string | undefined {
   const local = auto.value && effectiveEngine() === "local";
   // With automatic music off, nothing listens or classifies: nothing to wait for.
   if (!auto.value) return undefined;
-  const notLoading = (!isWebSpeech(speech) && m.phase === "off") || (local && hasWebGpu && sceneLlm.value.phase === "off");
+  const notLoading =
+    (!isWebSpeech(speech) && m.phase === "off") || (local && hasWebGpu && sceneLlm.value.phase === "off");
   if (otherTabs.value > 0 && notLoading && !downloadsAllowed.value) return "Eavesbard is open in another tab";
   if (auto.value && engine.value === "claude" && !loadApiKey()) return "Add an Anthropic API key in Setup first";
   const notDownloaded =
@@ -245,14 +252,26 @@ export function SceneCard() {
         <p>Tap to set the scene yourself</p>
         <div class="pills" role="group" aria-label="Setting">
           {SETTINGS.map((x) => (
-            <button type="button" class="pill" key={x} aria-pressed={x === s.setting} onClick={() => setSceneYourself({ setting: x })}>
+            <button
+              type="button"
+              class="pill"
+              key={x}
+              aria-pressed={x === s.setting}
+              onClick={() => setSceneYourself({ setting: x })}
+            >
               {cap(x)}
             </button>
           ))}
         </div>
         <div class="pills" role="group" aria-label="Intensity">
           {INTENSITIES.map((x) => (
-            <button type="button" class="pill" key={x} aria-pressed={x === s.intensity} onClick={() => setSceneYourself({ intensity: x })}>
+            <button
+              type="button"
+              class="pill"
+              key={x}
+              aria-pressed={x === s.intensity}
+              onClick={() => setSceneYourself({ intensity: x })}
+            >
               {cap(x)}
             </button>
           ))}
@@ -305,7 +324,8 @@ export function MusicCard() {
             Tabletop Audio
             {loading.value ? (
               <span class="loading" role="status">
-                {" "}· loading…
+                {" "}
+                · loading…
               </span>
             ) : (
               position && ` · ${mmss(position.currentS)} / ${mmss(position.durationS)}`
@@ -333,13 +353,27 @@ export function MusicCard() {
           onClick={() => void setPaused(!paused.value)}
         >
           {paused.value ? (
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5l12 7-12 7z" /></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M7 5l12 7-12 7z" />
+            </svg>
           ) : (
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" /><rect x="14" y="5" width="4" height="14" /></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <rect x="6" y="5" width="4" height="14" />
+              <rect x="14" y="5" width="4" height="14" />
+            </svg>
           )}
         </button>
-        <button type="button" class="round" disabled={!scene.value} aria-label="A different track" title="A different track" onClick={differentTrack}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 5l9 7-9 7zM17 5v14" /></svg>
+        <button
+          type="button"
+          class="round"
+          disabled={!scene.value}
+          aria-label="A different track"
+          title="A different track"
+          onClick={differentTrack}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M5 5l9 7-9 7zM17 5v14" />
+          </svg>
         </button>
         <input
           type="range"

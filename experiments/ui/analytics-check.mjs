@@ -19,7 +19,13 @@ import { built, chrome } from "../paths.mjs";
 
 const PORT = 8767;
 const site = built("src/site");
-const T = { ".html": "text/html", ".js": "text/javascript", ".webp": "image/webp", ".woff2": "font/woff2", ".wasm": "application/wasm" };
+const T = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".webp": "image/webp",
+  ".woff2": "font/woff2",
+  ".wasm": "application/wasm",
+};
 const server = createServer((req, res) => {
   let p = join(site, decodeURIComponent(new URL(req.url, "http://x").pathname));
   if (existsSync(p) && statSync(p).isDirectory()) p = join(p, "index.html");
@@ -75,7 +81,8 @@ async function open({ automation = false, extraArgs = [] } = {}) {
       ...extraArgs,
     ],
   });
-  if (process.env.DEBUG) ctx.on("page", (p) => p.on("console", (m) => console.log("   console:", m.type(), m.text().slice(0, 300))));
+  if (process.env.DEBUG)
+    ctx.on("page", (p) => p.on("console", (m) => console.log("   console:", m.type(), m.text().slice(0, 300))));
   const events = [];
   const hosts = new Set();
   const bundles = [];
@@ -121,7 +128,10 @@ const props = (events, name) => events.find((e) => e.event === name)?.properties
   await page.goto(`http://eavesbard.com:${PORT}/`);
   await arrived(events, "$pageview");
   expect(await page.evaluate(() => navigator.webdriver === false), "the page sees an ordinary (non-automated) browser");
-  expect(names(events).join() === "$pageview", `a visit sends one page view (got: ${names(events).join() || "nothing"})`);
+  expect(
+    names(events).join() === "$pageview",
+    `a visit sends one page view (got: ${names(events).join() || "nothing"})`,
+  );
   expect(!events.some((e) => e.event === "UNDECODABLE"), "every PostHog request decodes");
   const storage = await page.evaluate(() => ({
     cookies: document.cookie,
@@ -129,7 +139,10 @@ const props = (events, name) => events.find((e) => e.event === name)?.properties
     session: Object.keys(sessionStorage),
   }));
   expect((await ctx.cookies()).length === 0 && storage.cookies === "", "no cookies");
-  expect(!storage.local.some((k) => !k.startsWith("eavesbard.")) && storage.session.length === 0, `nothing of PostHog's in local or session storage (local: ${storage.local.join(", ") || "none"}; session: ${storage.session.join(", ") || "none"})`);
+  expect(
+    !storage.local.some((k) => !k.startsWith("eavesbard.")) && storage.session.length === 0,
+    `nothing of PostHog's in local or session storage (local: ${storage.local.join(", ") || "none"}; session: ${storage.session.join(", ") || "none"})`,
+  );
   expect(bundles.length === 1, "PostHog's bundle loads once");
 
   // Automatic music off: Begin needs no models, and tracks are picked by hand.
@@ -145,19 +158,41 @@ const props = (events, name) => events.find((e) => e.event === name)?.properties
   await page.locator("button.stop").click();
   await arrived(events, "session_started", "track_started", "session_ended");
   const sent = names(events);
-  expect(["session_started", "track_started", "session_ended"].every((n) => sent.includes(n)), `a session sends its start, its track and its end (got: ${sent.join(", ")})`);
+  expect(
+    ["session_started", "track_started", "session_ended"].every((n) => sent.includes(n)),
+    `a session sends its start, its track and its end (got: ${sent.join(", ")})`,
+  );
   const started = props(events, "session_started");
-  expect(started.automatic === false && started.output === "local" && typeof started.speech_model === "string" && typeof started.scene_engine === "string", `session_started says how it was set up (${JSON.stringify({ automatic: started.automatic, scene_engine: started.scene_engine, speech_model: started.speech_model, output: started.output })})`);
+  expect(
+    started.automatic === false &&
+      started.output === "local" &&
+      typeof started.speech_model === "string" &&
+      typeof started.scene_engine === "string",
+    `session_started says how it was set up (${JSON.stringify({ automatic: started.automatic, scene_engine: started.scene_engine, speech_model: started.speech_model, output: started.output })})`,
+  );
   const track = props(events, "track_started");
-  expect(track.source === "tabletopaudio" && track.output === "local", `track_started names its host (${track.source}, ${track.output})`);
+  expect(
+    track.source === "tabletopaudio" && track.output === "local",
+    `track_started names its host (${track.source}, ${track.output})`,
+  );
   const ended = props(events, "session_ended");
-  expect(ended.tracks === 1 && ended.minutes === 0 && ended.ended_by === "stop", `session_ended counts the track (${JSON.stringify({ tracks: ended.tracks, minutes: ended.minutes, ended_by: ended.ended_by })})`);
+  expect(
+    ended.tracks === 1 && ended.minutes === 0 && ended.ended_by === "stop",
+    `session_ended counts the track (${JSON.stringify({ tracks: ended.tracks, minutes: ended.minutes, ended_by: ended.ended_by })})`,
+  );
   const everything = JSON.stringify(events);
   expect(!everything.includes("SECRET-DESCRIPTION"), "the opening description is never sent");
-  expect(events.every((e) => e.properties?.$process_person_profile === false), "no person profiles");
-  expect([...hosts].every((h) => h === "eu.i.posthog.com" || h === "sounds.tabletopaudio.com" || h === "www.gstatic.com"), `only PostHog (EU), the audio host and the Cast SDK are asked (${[...hosts].join(", ")})`);
+  expect(
+    events.every((e) => e.properties?.$process_person_profile === false),
+    "no person profiles",
+  );
+  expect(
+    [...hosts].every((h) => h === "eu.i.posthog.com" || h === "sounds.tabletopaudio.com" || h === "www.gstatic.com"),
+    `only PostHog (EU), the audio host and the Cast SDK are asked (${[...hosts].join(", ")})`,
+  );
 
-  if (process.env.DEBUG) console.log("   properties on session_started:", JSON.stringify(props(events, "session_started"), null, 1));
+  if (process.env.DEBUG)
+    console.log("   properties on session_started:", JSON.stringify(props(events, "session_started"), null, 1));
 
   // A session still running when the page goes away. Requests sent as a page unloads can't be
   // intercepted, so the page notes each beacon it sends in localStorage, read back afterwards.
@@ -173,21 +208,31 @@ const props = (events, name) => events.find((e) => e.event === name)?.properties
   await page.goto("about:blank");
   await page.goto(`http://eavesbard.com:${PORT}/`);
   const beacons = await page.evaluate(() => localStorage.getItem("check.beacons") ?? "");
-  expect(beacons.includes("eu.i.posthog.com"), `leaving the page mid-session sends a beacon to PostHog (${beacons.trim() || "none"})`);
+  expect(
+    beacons.includes("eu.i.posthog.com"),
+    `leaving the page mid-session sends a beacon to PostHog (${beacons.trim() || "none"})`,
+  );
   await close();
 }
 
 // 2. Visits that mustn't be counted: nothing is sent, and PostHog's bundle never loads.
 for (const [what, setup] of [
   ["localhost", { url: `http://localhost:${PORT}/` }],
-  ["turned off in Setup", { url: `http://eavesbard.com:${PORT}/`, before: (p) => p.evaluate(() => localStorage.setItem("eavesbard.analytics", "off")) }],
+  [
+    "turned off in Setup",
+    {
+      url: `http://eavesbard.com:${PORT}/`,
+      before: (p) => p.evaluate(() => localStorage.setItem("eavesbard.analytics", "off")),
+    },
+  ],
   ["automation (navigator.webdriver)", { url: `http://eavesbard.com:${PORT}/`, automation: true }],
   ["Do Not Track", { url: `http://eavesbard.com:${PORT}/`, dnt: true }],
   ["replaying a transcript", { url: `http://eavesbard.com:${PORT}/?replay` }],
 ]) {
   const { ctx, events, bundles, close } = await open({ automation: setup.automation });
   const page = await ctx.newPage();
-  if (setup.dnt) await page.addInitScript(() => Object.defineProperty(Navigator.prototype, "doNotTrack", { get: () => "1" }));
+  if (setup.dnt)
+    await page.addInitScript(() => Object.defineProperty(Navigator.prototype, "doNotTrack", { get: () => "1" }));
   if (setup.before) {
     await page.goto(setup.url);
     await setup.before(page);

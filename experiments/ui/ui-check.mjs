@@ -11,7 +11,13 @@ import { built, given, source, chrome } from "../paths.mjs";
 const site = built("src/site");
 const out = process.argv[2] ? given(process.argv[2]) : source("experiments/ui/shots");
 mkdirSync(out, { recursive: true });
-const T = { ".html": "text/html", ".js": "text/javascript", ".wasm": "application/wasm", ".webp": "image/webp", ".woff2": "font/woff2" };
+const T = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".wasm": "application/wasm",
+  ".webp": "image/webp",
+  ".woff2": "font/woff2",
+};
 // Port 8765, the evaluation runs' origin: their Chrome profile already has the models cached.
 const server = createServer((req, res) => {
   let p = join(site, decodeURIComponent(new URL(req.url, "http://x").pathname));
@@ -21,8 +27,15 @@ const server = createServer((req, res) => {
 }).listen(8765);
 
 const ctx = await chromium.launchPersistentContext(source("experiments/e9/.chrome-profile"), {
-  ...chrome, headless: true, permissions: ["microphone"], viewport: { width: 1360, height: 860 },
-  args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream", "--autoplay-policy=no-user-gesture-required"],
+  ...chrome,
+  headless: true,
+  permissions: ["microphone"],
+  viewport: { width: 1360, height: 860 },
+  args: [
+    "--use-fake-ui-for-media-stream",
+    "--use-fake-device-for-media-stream",
+    "--autoplay-policy=no-user-gesture-required",
+  ],
 });
 const page = await ctx.newPage();
 page.setDefaultTimeout(30_000);
@@ -62,16 +75,26 @@ try {
     for (let i = 0; i < 30; i++) {
       if (await page.getByRole("button", { name: /^Download now/ }).count()) samples++;
       for (const t of await page.locator(".top").allInnerTexts()) said.add(t.replace(/\s+/g, " "));
-      begin.add(await page.locator("button.begin").innerText().catch(() => "?"));
+      begin.add(
+        await page
+          .locator("button.begin")
+          .innerText()
+          .catch(() => "?"),
+      );
       await page.waitForTimeout(100);
     }
     const offer = page.getByRole("button", { name: /^Download now/ });
-    if (samples > 0 && !(await offer.count())) throw new Error("the Download button flashed up and went away by itself");
+    if (samples > 0 && !(await offer.count()))
+      throw new Error("the Download button flashed up and went away by itself");
     // Already downloaded: loading reads the cache, so the chips mustn't say "downloading" nor offer a pause.
     console.log("   begin button:", [...begin].join(" → "));
-    console.log("   chips seen:", [...new Set([...said].map((t) => t.replace(/^Eavesbard .*? scene /, "")))].join(" | "));
+    console.log(
+      "   chips seen:",
+      [...new Set([...said].map((t) => t.replace(/^Eavesbard .*? scene /, "")))].join(" | "),
+    );
     const misleading = [...said].filter((t) => /downloading|not downloaded|Pause downloads/.test(t));
-    if (!(await offer.count()) && misleading.length) throw new Error(`cached models shown as downloading: ${misleading[0]}`);
+    if (!(await offer.count()) && misleading.length)
+      throw new Error(`cached models shown as downloading: ${misleading[0]}`);
     if (await offer.count()) {
       console.log("   download offered:", await offer.innerText());
       await offer.click();
@@ -89,7 +112,9 @@ try {
     // loads an AudioWorklet (any worklet, even a trivial one), so listening can't
     // start here: the chip must say so ("starting"), not "ready". In a real browser
     // it then turns red ("listening").
-    await page.locator(".chip", { hasText: /Listener · (starting|listening|hearing speech)/ }).waitFor({ timeout: 30_000 });
+    await page
+      .locator(".chip", { hasText: /Listener · (starting|listening|hearing speech)/ })
+      .waitFor({ timeout: 30_000 });
   });
   await step("3-combat", async () => {
     await page.locator('.pills[aria-label="Intensity"] .pill', { hasText: "Combat" }).click();
@@ -116,10 +141,14 @@ try {
     });
     const before = await page.locator(".track").innerText();
     await page.getByRole("button", { name: "A different track" }).click();
-    await page.waitForFunction((b) => {
-      const t = document.querySelector(".track")?.textContent ?? "";
-      return t && t !== b && !document.querySelector(".src .loading");
-    }, before, { timeout: 30_000 });
+    await page.waitForFunction(
+      (b) => {
+        const t = document.querySelector(".track")?.textContent ?? "";
+        return t && t !== b && !document.querySelector(".src .loading");
+      },
+      before,
+      { timeout: 30_000 },
+    );
     await page.unroute("https://sounds.tabletopaudio.com/**");
     if (!refused) throw new Error("no audio request was refused");
     console.log("   refused", refused.split("/").pop(), "; now playing", await page.locator(".track").innerText());
@@ -137,7 +166,8 @@ try {
     await page.locator(".drawer.open .tab", { hasText: "Setup" }).click();
     await page.waitForTimeout(60);
     const after = await page.locator(".drawer.open").boundingBox();
-    if (!after || Math.abs(after.x - before.x) > 1) throw new Error(`the panel moved on a tab switch (${before.x} → ${after?.x})`);
+    if (!after || Math.abs(after.x - before.x) > 1)
+      throw new Error(`the panel moved on a tab switch (${before.x} → ${after?.x})`);
     await page.locator(".drawer.open h3", { hasText: "Who decides the scene" }).waitFor();
     await page.waitForTimeout(500);
   });
@@ -190,7 +220,8 @@ try {
       throw new Error("the saved key is in the page");
     }
     await page.getByRole("button", { name: "Replace" }).click();
-    if ((await page.getByLabel("New Anthropic API key", { exact: true }).inputValue()) !== "") throw new Error("Replace shows the old key");
+    if ((await page.getByLabel("New Anthropic API key", { exact: true }).inputValue()) !== "")
+      throw new Error("Replace shows the old key");
     await page.getByRole("button", { name: "Cancel" }).click();
     await page.screenshot({ path: join(out, "7c-api-key-saved.png") });
     await page.getByRole("button", { name: "Remove" }).click();

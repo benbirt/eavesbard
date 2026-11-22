@@ -12,7 +12,13 @@ import { library, tagMap } from "./library-data.js";
 import type { Intensity, Setting } from "./library/scenes.js";
 import type { LibraryTrack } from "./library/tag-map.js";
 import { countSessionEnded, countSessionStarted } from "./analytics.js";
-import { model as speechModel, onTranscriptLine, prepareSpeech, start as startListening, stop as stopListening } from "./listener.js";
+import {
+  model as speechModel,
+  onTranscriptLine,
+  prepareSpeech,
+  start as startListening,
+  stop as stopListening,
+} from "./listener.js";
 import { LOCAL_MODEL_NAME, localClassify, prepareLocalModels, prepareTrackIndex } from "./local-models.js";
 import { allowDownloads, mayLoad, onDownloadsAllowed } from "./downloads.js";
 import { hasWebGpu } from "./gpu.js";
@@ -114,7 +120,10 @@ async function prepareLocal(onlyCached = false): Promise<void> {
   if (onlyCached && !(await mayLoad(SCENE_LLM.repo))) return;
   prepareSceneLlm().catch((err: unknown) => {
     if (sessionActive.value) {
-      record({ kind: "error", text: `The scene LLM couldn't load, so the embeddings decide alone: ${err instanceof Error ? err.message : String(err)}` });
+      record({
+        kind: "error",
+        text: `The scene LLM couldn't load, so the embeddings decide alone: ${err instanceof Error ? err.message : String(err)}`,
+      });
     }
   });
 }
@@ -154,7 +163,12 @@ export async function startSession(): Promise<void> {
   sessionActive.value = true;
   const opening = description.value.trim();
   record({ kind: "session", text: opening ? `Session started. Opening scene: “${opening}”.` : "Session started." });
-  countSessionStarted({ automatic: auto.value, scene_engine: effectiveEngine(), speech_model: speechModel.value, output: output.value });
+  countSessionStarted({
+    automatic: auto.value,
+    scene_engine: effectiveEngine(),
+    speech_model: speechModel.value,
+    output: output.value,
+  });
   // Listening only feeds automatic music: with it off, the music is picked by hand.
   if (auto.value) void startListening();
   if (auto.value) await startAuto(opening);
@@ -185,7 +199,11 @@ async function startAuto(opening: string): Promise<void> {
     text:
       `${ENGINE_NAMES[primary]} decides the scene and picks the tracks` +
       (engine.value === "claude" && primary === "local" ? " (no Anthropic API key, so local models are used)" : "") +
-      (other ? `; ${other === "claude" ? "Claude" : "the local model"} is also asked, for comparison.` : compare.value ? "; no comparison, as Claude needs an Anthropic API key." : "."),
+      (other
+        ? `; ${other === "claude" ? "Claude" : "the local model"} is also asked, for comparison.`
+        : compare.value
+          ? "; no comparison, as Claude needs an Anthropic API key."
+          : "."),
   });
   if (other === "local") void prepareLocal();
   if (primary === "local") {
@@ -194,7 +212,10 @@ async function startAuto(opening: string): Promise<void> {
     record(
       hasWebGpu
         ? { kind: "session", text: `Local scene checks blend the embedding model with ${llm}, once it has downloaded.` }
-        : { kind: "error", text: `This browser has no WebGPU, so ${llm} can't run: local scene checks use the embedding model alone, which often misses fights ending.` },
+        : {
+            kind: "error",
+            text: `This browser has no WebGPU, so ${llm} can't run: local scene checks use the embedding model alone, which often misses fights ending.`,
+          },
     );
   }
 
@@ -232,7 +253,11 @@ async function startAuto(opening: string): Promise<void> {
   });
   lastChange.value = {
     at: Date.now(),
-    text: !start ? "The default opening scene" : guessed ? "Guessed from your description's words, until the models are ready" : "From your description",
+    text: !start
+      ? "The default opening scene"
+      : guessed
+        ? "Guessed from your description's words, until the models are ready"
+        : "From your description",
   };
   playForScene(true, "opening scene");
   if (guessed) void recheckOpening(opening, primary, s.reason);
@@ -259,7 +284,10 @@ onTranscriptLine((line) => {
 
 onTrackFailed((entry) => {
   if (!timer) return;
-  record({ kind: "music", text: `${entry.track.title} couldn't be played (its file may be missing from Tabletop Audio), so trying another.` });
+  record({
+    kind: "music",
+    text: `${entry.track.title} couldn't be played (its file may be missing from Tabletop Audio), so trying another.`,
+  });
   playForScene(true, "the last track couldn't be played");
 });
 
@@ -273,7 +301,11 @@ function addCost(usage: Usage, costUsd: number | undefined): void {
   inputTokens += usage.input_tokens + (usage.cache_creation_input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0);
   cachedTokens += usage.cache_read_input_tokens ?? 0;
   const c = sessionCost.value;
-  sessionCost.value = { usd: c.usd + (costUsd ?? 0), calls: c.calls + 1, cachedShare: inputTokens ? cachedTokens / inputTokens : 0 };
+  sessionCost.value = {
+    usd: c.usd + (costUsd ?? 0),
+    calls: c.calls + 1,
+    cachedShare: inputTokens ? cachedTokens / inputTokens : 0,
+  };
 }
 
 /**
@@ -312,9 +344,24 @@ async function checkScene(
       userText =
         "description" in input
           ? openingMessage(input.description)
-          : userMessage(input.scene, input.now - Math.min(input.scene.settingSince, input.scene.intensitySince), input.lines, input.now);
+          : userMessage(
+              input.scene,
+              input.now - Math.min(input.scene.settingSince, input.scene.intensitySince),
+              input.lines,
+              input.now,
+            );
       const result = await classify({ apiKey, model, userText });
-      record({ kind: "call", purpose, model, ...(comparison ? { comparison } : {}), userText, result: result.classification, latencyMs: result.latencyMs, costUsd: result.costUsd, usage: result.usage });
+      record({
+        kind: "call",
+        purpose,
+        model,
+        ...(comparison ? { comparison } : {}),
+        userText,
+        result: result.classification,
+        latencyMs: result.latencyMs,
+        costUsd: result.costUsd,
+        usage: result.usage,
+      });
       addCost(result.usage, result.costUsd);
       return result.classification;
     }
@@ -323,7 +370,16 @@ async function checkScene(
       "description" in input ? input : { lines: input.lines.map((l) => l.text), current: input.scene },
     );
     userText = result.queryText;
-    record({ kind: "call", purpose, model: result.model, ...(comparison ? { comparison } : {}), userText, result: result.classification, latencyMs: result.latencyMs, costUsd: 0 });
+    record({
+      kind: "call",
+      purpose,
+      model: result.model,
+      ...(comparison ? { comparison } : {}),
+      userText,
+      result: result.classification,
+      latencyMs: result.latencyMs,
+      costUsd: 0,
+    });
     return result.classification;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -360,7 +416,11 @@ async function tick(): Promise<void> {
   record({ kind: "decision", changed: t.changed, from: sceneOf(before), to: sceneOf(t.state), notes: t.notes });
   if (!t.changed) return;
   const why = t.state.reason;
-  lastChange.value = { at: Date.now(), text: why[0]!.toUpperCase() + why.slice(1), heard: "lines" in input ? input.lines.at(-1)?.text : undefined };
+  lastChange.value = {
+    at: Date.now(),
+    text: why[0]!.toUpperCase() + why.slice(1),
+    heard: "lines" in input ? input.lines.at(-1)?.text : undefined,
+  };
   if (t.state.intensity !== before.intensity) {
     // Always switch on an intensity change, to something that sounds different.
     playForScene(true, `intensity changed to ${t.state.intensity}`, before.intensity);
@@ -395,7 +455,10 @@ async function recheckOpening(opening: string, by: Engine, reason: string): Prom
   if (!c || !s || s.reason !== reason) return;
   const setting = c.setting === "unknown" ? s.setting : c.setting;
   if (setting === s.setting && c.intensity === s.intensity) {
-    record({ kind: "session", text: `Now the models are ready, they agree on the opening scene: ${setting}, ${c.intensity}.` });
+    record({
+      kind: "session",
+      text: `Now the models are ready, they agree on the opening scene: ${setting}, ${c.intensity}.`,
+    });
     return;
   }
   forceScene({ setting, intensity: c.intensity }, "from your description, now the models are ready");
@@ -453,7 +516,11 @@ function playForScene(fresh: boolean, why: string, leavingIntensity?: Intensity)
   if (!current) return;
   const playing = nowPlaying.value;
   if (!fresh && playing && suits(playing, current)) {
-    record({ kind: "music", text: `${playing.track.title} carries on: it suits ${current.setting} too.`, trackId: playing.track.id });
+    record({
+      kind: "music",
+      text: `${playing.track.title} carries on: it suits ${current.setting} too.`,
+      trackId: playing.track.id,
+    });
     return;
   }
   void choose(++pickSeq, current, why, leavingIntensity);
@@ -537,7 +604,8 @@ async function pickWith(
         usage: pick.answer.usage,
       });
       addCost(pick.answer.usage, pick.answer.costUsd);
-      if (hasFailed(pick.entry.track.id)) throw new Error(`it chose ${pick.entry.track.title}, which couldn't be played earlier`);
+      if (hasFailed(pick.entry.track.id))
+        throw new Error(`it chose ${pick.entry.track.title}, which couldn't be played earlier`);
       if (!pick.entry.intensities.includes(request.scene.intensity)) {
         throw new Error(`it chose ${pick.entry.track.title}, which doesn't suit ${request.scene.intensity}`);
       }

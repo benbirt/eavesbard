@@ -28,7 +28,17 @@ export function labelsFor(dir, set) {
 
 /** Scores a run's episodes (or those in `only`). */
 export function scoreRun(run, labels, only) {
-  const total = { steadyI: 0, okI: 0, rawI: 0, steadyS: 0, okS: 0, rawS: 0, falseCombatS: 0, calmTenseS: 0, falseEntries: 0 };
+  const total = {
+    steadyI: 0,
+    okI: 0,
+    rawI: 0,
+    steadyS: 0,
+    okS: 0,
+    rawS: 0,
+    falseCombatS: 0,
+    calmTenseS: 0,
+    falseEntries: 0,
+  };
   const confusion = {};
   const fights = [];
   const perEpisode = [];
@@ -83,7 +93,7 @@ export function scoreRun(run, labels, only) {
       if (since(c.t, "intensity") >= INTENSITY_GRACE_S) {
         total.steadyI++;
         ep_.steadyI++;
-        if (s.intensity.includes(c.scene.intensity)) total.okI++, ep_.okI++;
+        if (s.intensity.includes(c.scene.intensity)) (total.okI++, ep_.okI++);
         if (s.intensity.includes(c.result.intensity)) total.rawI++;
         const k = `${s.intensity[0]}→${c.scene.intensity}`;
         confusion[k] = (confusion[k] ?? 0) + 1;
@@ -91,7 +101,7 @@ export function scoreRun(run, labels, only) {
       if (since(c.t, "setting") >= SETTING_GRACE_S) {
         total.steadyS++;
         ep_.steadyS++;
-        if (s.setting.includes(c.scene.setting)) total.okS++, ep_.okS++;
+        if (s.setting.includes(c.scene.setting)) (total.okS++, ep_.okS++);
         if (s.setting.includes(c.result.setting)) total.rawS++;
       }
       if (!s.intensity.includes("combat") && since(c.t, "intensity") >= INTENSITY_GRACE_S) {
@@ -110,7 +120,10 @@ export function scoreRun(run, labels, only) {
       const end = stretches[j].end;
       const nextFight = stretches.slice(j + 1).find((s) => s.intensity[0] === "combat")?.t ?? data.end;
       const hit = checks.find((c) => c.t >= start - EARLY_S && c.t < end && c.scene.intensity === "combat");
-      const left = end < data.end ? checks.find((c) => c.t >= end && c.t < nextFight && c.scene.intensity !== "combat") : undefined;
+      const left =
+        end < data.end
+          ? checks.find((c) => c.t >= end && c.t < nextFight && c.scene.intensity !== "combat")
+          : undefined;
       fights.push({
         ep,
         start,
@@ -151,21 +164,46 @@ function summary(m) {
 /** Prints a score in full. */
 export function printReport(run, m) {
   const { total, confusion, fights, perEpisode } = m;
-  console.log(`${run.name}: ${m.allChecks} scene checks, ${pct(m.llmChecks, m.allChecks)} with the scene LLM, median ${median(m.latencies)} ms per check (${run.gpu})`);
+  console.log(
+    `${run.name}: ${m.allChecks} scene checks, ${pct(m.llmChecks, m.allChecks)} with the scene LLM, median ${median(m.latencies)} ms per check (${run.gpu})`,
+  );
   console.log("");
-  console.log(`Away from changes (intensity ${INTENSITY_GRACE_S} s, setting ${SETTING_GRACE_S} s after a labelled change):`);
-  console.log(`  intensity: ${pct(total.okI, total.steadyI)} of ${total.steadyI} checks (classifier alone ${pct(total.rawI, total.steadyI)})`);
-  console.log(`  setting:   ${pct(total.okS, total.steadyS)} of ${total.steadyS} checks (classifier alone ${pct(total.rawS, total.steadyS)})`);
-  console.log(`  combat in calm or tense play: ${pct(total.falseCombatS, total.calmTenseS)} of the time; ${total.falseEntries} false starts in ${(total.calmTenseS / 3600).toFixed(1)} h`);
-  console.log("  labelled → app:", Object.entries(confusion).sort().map(([k, v]) => `${k} ${v}`).join(", "));
+  console.log(
+    `Away from changes (intensity ${INTENSITY_GRACE_S} s, setting ${SETTING_GRACE_S} s after a labelled change):`,
+  );
+  console.log(
+    `  intensity: ${pct(total.okI, total.steadyI)} of ${total.steadyI} checks (classifier alone ${pct(total.rawI, total.steadyI)})`,
+  );
+  console.log(
+    `  setting:   ${pct(total.okS, total.steadyS)} of ${total.steadyS} checks (classifier alone ${pct(total.rawS, total.steadyS)})`,
+  );
+  console.log(
+    `  combat in calm or tense play: ${pct(total.falseCombatS, total.calmTenseS)} of the time; ${total.falseEntries} false starts in ${(total.calmTenseS / 3600).toFixed(1)} h`,
+  );
+  console.log(
+    "  labelled → app:",
+    Object.entries(confusion)
+      .sort()
+      .map(([k, v]) => `${k} ${v}`)
+      .join(", "),
+  );
   console.log("");
   const called = fights.filter((f) => f.called !== undefined);
   const lefts = fights.filter((f) => typeof f.left === "number");
-  console.log(`Fights: ${called.length} of ${fights.length} called, median ${median(called.map((f) => f.called))} s after the labelled start`);
-  console.log(`  left combat after the fight: ${lefts.length} of ${fights.filter((f) => f.left !== "episode ends").length}, median ${median(lefts.map((f) => f.left))} s after`);
+  console.log(
+    `Fights: ${called.length} of ${fights.length} called, median ${median(called.map((f) => f.called))} s after the labelled start`,
+  );
+  console.log(
+    `  left combat after the fight: ${lefts.length} of ${fights.filter((f) => f.left !== "episode ends").length}, median ${median(lefts.map((f) => f.left))} s after`,
+  );
   for (const f of fights) {
     const c = f.called === undefined ? "missed" : `called after ${Math.round(f.called)} s`;
-    const l = f.left === "episode ends" ? "" : typeof f.left === "number" ? `, left ${Math.round(f.left)} s after` : ", never left before the next fight or the end";
+    const l =
+      f.left === "episode ends"
+        ? ""
+        : typeof f.left === "number"
+          ? `, left ${Math.round(f.left)} s after`
+          : ", never left before the next fight or the end";
     console.log(`  episode ${f.ep} ${fmt(f.start)} (${fmt(f.length)} long): ${c}${l}`);
   }
   console.log("");

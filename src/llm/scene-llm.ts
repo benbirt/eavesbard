@@ -3,7 +3,16 @@
 
 import { signal } from "@preact/signals";
 import type { LlmAnswer } from "../classify/local-classifier.js";
-import { ANSWER_PREFIX, DANGER_QUESTION, fightOverQuestion, fightQuestion, llmQuestions, mixIntensity, yesNoQuestion, type LlmInput } from "../classify/llm-prompt.js";
+import {
+  ANSWER_PREFIX,
+  DANGER_QUESTION,
+  fightOverQuestion,
+  fightQuestion,
+  llmQuestions,
+  mixIntensity,
+  yesNoQuestion,
+  type LlmInput,
+} from "../classify/llm-prompt.js";
 import { INTENSITIES, SETTINGS } from "../library/scenes.js";
 import { markDownloaded } from "../downloads.js";
 import { LlmClient } from "./llm-client.js";
@@ -71,7 +80,10 @@ export async function askSceneLlm(input: LlmInput): Promise<LlmAnswer | undefine
     // Shown once, not at every check, until it answers again.
     if (!failing) {
       failing = true;
-      record({ kind: "error", text: `${SCENE_LLM.name} stopped answering, so the embeddings decide alone: ${err instanceof Error ? err.message : String(err)}` });
+      record({
+        kind: "error",
+        text: `${SCENE_LLM.name} stopped answering, so the embeddings decide alone: ${err instanceof Error ? err.message : String(err)}`,
+      });
     }
     throw err;
   }
@@ -104,5 +116,11 @@ async function askReady(input: LlmInput): Promise<LlmAnswer> {
     intensity = mixIntensity(intensity, inFight ? 1 - yes : yes);
     if (inFight) fightOver = (await ask(fightOverQuestion(input.lines)))[1];
   }
-  return { model: SCENE_LLM.name, setting: byLabel(SETTINGS, setting), intensity, fightOver, parts: { threeWay, fight } };
+  return {
+    model: SCENE_LLM.name,
+    setting: byLabel(SETTINGS, setting),
+    intensity,
+    fightOver,
+    parts: { threeWay, fight },
+  };
 }

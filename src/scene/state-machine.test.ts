@@ -39,8 +39,14 @@ test("starts in the default scene, or a chosen one", () => {
 test("notes explain each decision in plain words", () => {
   let s = initialScene(0);
   let t = nextScene(s, classify(MIN, "dungeon", "tense", 0.7, 0.7));
-  assert.match(t.notes.setting, /maybe dungeon \(70% sure\): changes if the next scene check agrees, or one is 80%\+ sure/);
-  assert.match(t.notes.intensity, /maybe tense \(70% sure\): changes if the next scene check agrees, or one is 80%\+ sure/);
+  assert.match(
+    t.notes.setting,
+    /maybe dungeon \(70% sure\): changes if the next scene check agrees, or one is 80%\+ sure/,
+  );
+  assert.match(
+    t.notes.intensity,
+    /maybe tense \(70% sure\): changes if the next scene check agrees, or one is 80%\+ sure/,
+  );
   s = t.state;
   t = nextScene(s, classify(2 * MIN, "dungeon", "tense", 0.7, 0.7));
   assert.match(t.notes.setting, /dungeon held back: a setting lasts at least 3 minutes, 60 s to go/);
@@ -52,14 +58,19 @@ test("notes explain each decision in plain words", () => {
   assert.match(combat.notes.intensity, /calm → combat at once \(90% confident\)/);
   const held = nextScene(combat.state, classify(MIN + 20_000, "tavern", "calm", 0.9, 0.95));
   assert.match(held.notes.intensity, /calm held back: combat lasts at least 60 s, 40 s to go/);
-  assert.deepEqual(pendingChanges(held.state, MIN + 20_000), ["Could become calm, but combat lasts at least 60 s (40 s to go)"]);
+  assert.deepEqual(pendingChanges(held.state, MIN + 20_000), [
+    "Could become calm, but combat lasts at least 60 s (40 s to go)",
+  ]);
   const waiting = nextScene(initialScene(0), classify(MIN, "tavern", "tense", 0.7, 0.7));
   assert.deepEqual(pendingChanges(waiting.state, MIN), ["Could become tense if the next check agrees"]);
 });
 
 test("a confident combat result enters combat immediately; a hesitant one needs agreement", () => {
   assert.equal(run([classify(MIN, "tavern", "combat", 0.9, 0.7)]).state.intensity, "combat");
-  const hesitant = run([classify(MIN, "tavern", "combat", 0.9, 0.55), classify(2 * MIN, "tavern", "combat", 0.9, 0.55)]);
+  const hesitant = run([
+    classify(MIN, "tavern", "combat", 0.9, 0.55),
+    classify(2 * MIN, "tavern", "combat", 0.9, 0.55),
+  ]);
   assert.deepEqual(hesitant.changes, [1]);
 });
 
@@ -87,9 +98,16 @@ test("leaving combat on hesitant results needs two in a row", () => {
 });
 
 test("calm and tense changes need two agreeing results in a row, or one at 80%+", () => {
-  assert.deepEqual(run([classify(MIN, "tavern", "tense", 0.9, 0.7), classify(2 * MIN, "tavern", "tense", 0.9, 0.7)]).changes, [1]);
+  assert.deepEqual(
+    run([classify(MIN, "tavern", "tense", 0.9, 0.7), classify(2 * MIN, "tavern", "tense", 0.9, 0.7)]).changes,
+    [1],
+  );
   // Interrupted by a different value: the streak restarts.
-  const broken = run([classify(MIN, "tavern", "tense", 0.9, 0.7), classify(2 * MIN, "tavern", "calm", 0.9, 0.7), classify(3 * MIN, "tavern", "tense", 0.9, 0.7)]);
+  const broken = run([
+    classify(MIN, "tavern", "tense", 0.9, 0.7),
+    classify(2 * MIN, "tavern", "calm", 0.9, 0.7),
+    classify(3 * MIN, "tavern", "tense", 0.9, 0.7),
+  ]);
   assert.deepEqual(broken.changes, []);
   // Sure enough: at once.
   const sure = nextScene(initialScene(0), classify(MIN, "tavern", "tense", 0.9, 0.85));
@@ -98,7 +116,11 @@ test("calm and tense changes need two agreeing results in a row, or one at 80%+"
 });
 
 test("setting changes need agreement and three minutes on the current setting", () => {
-  const early = run([classify(1 * MIN, "town", "calm"), classify(2 * MIN, "town", "calm"), classify(3 * MIN, "town", "calm")]);
+  const early = run([
+    classify(1 * MIN, "town", "calm"),
+    classify(2 * MIN, "town", "calm"),
+    classify(3 * MIN, "town", "calm"),
+  ]);
   assert.deepEqual(early.changes, [2]);
   assert.equal(early.state.setting, "town");
 });
@@ -129,7 +151,10 @@ test("a result matching the current scene resets pending changes", () => {
 });
 
 test("setting and intensity changing together is one transition", () => {
-  const { state, changes } = run([classify(3 * MIN, "dungeon", "tense", 0.7, 0.7), classify(4 * MIN, "dungeon", "tense", 0.7, 0.7)]);
+  const { state, changes } = run([
+    classify(3 * MIN, "dungeon", "tense", 0.7, 0.7),
+    classify(4 * MIN, "dungeon", "tense", 0.7, 0.7),
+  ]);
   assert.deepEqual(changes, [1]);
   assert.equal(state.setting, "dungeon");
   assert.equal(state.intensity, "tense");
@@ -138,8 +163,23 @@ test("setting and intensity changing together is one transition", () => {
 
 test("table talk says so, and keeps a pending change", () => {
   let s = initialScene(0);
-  s = nextScene(s, { type: "classification", at: 1000, setting: "tavern", settingConfidence: 0.9, intensity: "tense", intensityConfidence: 0.7 }).state;
-  const t = nextScene(s, { type: "classification", at: 2000, setting: "tavern", settingConfidence: 0.9, intensity: "calm", intensityConfidence: 0, tableTalk: true });
+  s = nextScene(s, {
+    type: "classification",
+    at: 1000,
+    setting: "tavern",
+    settingConfidence: 0.9,
+    intensity: "tense",
+    intensityConfidence: 0.7,
+  }).state;
+  const t = nextScene(s, {
+    type: "classification",
+    at: 2000,
+    setting: "tavern",
+    settingConfidence: 0.9,
+    intensity: "calm",
+    intensityConfidence: 0,
+    tableTalk: true,
+  });
   assert.equal(t.notes.intensity, "sounds like table talk, so no change; still maybe tense.");
   assert.equal(t.state.pendingIntensity?.value, "tense");
 });
