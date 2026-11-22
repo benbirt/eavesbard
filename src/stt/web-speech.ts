@@ -56,12 +56,16 @@ export interface WebSpeechCallbacks {
 async function ensureOnDevice(Rec: RecognitionClass, onInstalling: () => void): Promise<void> {
   const options = { langs: [LANG], processLocally: true };
   if (typeof Rec.available !== "function") {
-    throw new Error("This browser can't do on-device Web Speech recognition. Try a recent Chrome, the cloud option or Whisper.");
+    throw new Error(
+      "This browser can't do on-device Web Speech recognition. Try a recent Chrome, the cloud option or Whisper.",
+    );
   }
   const status = await Rec.available(options);
   if (status === "available" || status === true) return;
   if (status === "unavailable" || status === false || typeof Rec.install !== "function") {
-    throw new Error("On-device Web Speech recognition isn't available for English in this browser. Try the cloud option or Whisper.");
+    throw new Error(
+      "On-device Web Speech recognition isn't available for English in this browser. Try the cloud option or Whisper.",
+    );
   }
   onInstalling();
   if (!(await Rec.install(options))) throw new Error("The browser couldn't download its on-device speech model.");

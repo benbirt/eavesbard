@@ -35,7 +35,11 @@ export const OPENINGS: Scenario[] = [
   opening("a storm hits the ship in the middle of the night", ["travel"], ["tense"]),
   opening("sky pirates attack the airship", ["travel"], ["combat"]),
   opening("riding through the mountain pass, wolves howling in the distance", ["travel", "wilderness"], ["tense"]),
-  opening("we pick up where we left off: the fight with the bandit captain", ["unknown", "wilderness", "travel", "town"], ["combat"]),
+  opening(
+    "we pick up where we left off: the fight with the bandit captain",
+    ["unknown", "wilderness", "travel", "town"],
+    ["combat"],
+  ),
   opening("last session ended mid-combat with the dragon", ["dungeon", "wilderness", "unknown"], ["combat"]),
   opening("downtime in town, shopping and training", ["town"], ["calm"]),
   opening("the party is in jail", ["interior", "dungeon"], ["calm", "tense"]),

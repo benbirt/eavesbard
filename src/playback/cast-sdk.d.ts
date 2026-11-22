@@ -82,7 +82,10 @@ declare namespace cast.framework {
     requestSession(): Promise<string | undefined>;
     /** Ends the session; with true, also stops the receiver app. */
     endCurrentSession(stopCasting: boolean): void;
-    addEventListener(type: CastContextEventType.SESSION_STATE_CHANGED, handler: (event: SessionStateEventData) => void): void;
+    addEventListener(
+      type: CastContextEventType.SESSION_STATE_CHANGED,
+      handler: (event: SessionStateEventData) => void,
+    ): void;
     addEventListener(type: CastContextEventType.CAST_STATE_CHANGED, handler: (event: CastStateEventData) => void): void;
   }
 

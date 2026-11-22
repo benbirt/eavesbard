@@ -12,7 +12,15 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseTracksFile, type IndexedTrack, type TracksFile } from "../src/library/tracks-file.js";
 import { audioUrl } from "../src/tracks.js";
-import { buildTracks, checkResult, findMissingFiles, MAX_MISSING_FILES, parseHomepage, parseKeywords, parseTags } from "./scrape.js";
+import {
+  buildTracks,
+  checkResult,
+  findMissingFiles,
+  MAX_MISSING_FILES,
+  parseHomepage,
+  parseKeywords,
+  parseTags,
+} from "./scrape.js";
 
 const SITE = "https://tabletopaudio.com/";
 const USER_AGENT = "eavesbard-index/0.1 (+https://github.com/benbirt/eavesbard)";
@@ -86,9 +94,13 @@ async function main(): Promise<void> {
       return response.status;
     });
     if (missing.length > MAX_MISSING_FILES) {
-      problems.push(`${missing.length} audio files are missing (expected at most ${MAX_MISSING_FILES}): is the audio host down?`);
+      problems.push(
+        `${missing.length} audio files are missing (expected at most ${MAX_MISSING_FILES}): is the audio host down?`,
+      );
     } else if (missing.length > 0) {
-      console.log(`Leaving out ${missing.length} tracks whose audio file is missing: ${missing.map((t) => `${t.id} ${t.title}`).join(", ")}.`);
+      console.log(
+        `Leaving out ${missing.length} tracks whose audio file is missing: ${missing.map((t) => `${t.id} ${t.title}`).join(", ")}.`,
+      );
       const gone = new Set(missing.map((t) => t.id));
       result.tracks = result.tracks.filter((t) => !gone.has(t.id));
     }

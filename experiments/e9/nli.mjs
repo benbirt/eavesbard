@@ -30,7 +30,13 @@ export async function makeNli(model, { settingWords = 150, intensityLatest = tru
     const it = "description" in s.input ? s.input.description : intensityLatest ? LC.latest(ls) : LC.lastWords(ls, 60);
     const a = await ask(st, SETTING_HYPOTHESES);
     const b = await ask(it, INTENSITY_HYPOTHESES);
-    return { setting: a.label, settingConfidence: a.confidence, intensity: b.label, intensityConfidence: b.confidence, reason: "" };
+    return {
+      setting: a.label,
+      settingConfidence: a.confidence,
+      intensity: b.label,
+      intensityConfidence: b.confidence,
+      reason: "",
+    };
   };
 }
 

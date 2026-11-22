@@ -51,7 +51,8 @@ const KEPT_PREFIX_ON_RESET = "eavesbard.downloaded.";
 export function resetSettings(): boolean {
   try {
     const keys = Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i)).filter(
-      (k): k is string => k !== null && k.startsWith("eavesbard.") && !KEPT_ON_RESET.includes(k) && !k.startsWith(KEPT_PREFIX_ON_RESET),
+      (k): k is string =>
+        k !== null && k.startsWith("eavesbard.") && !KEPT_ON_RESET.includes(k) && !k.startsWith(KEPT_PREFIX_ON_RESET),
     );
     for (const k of keys) localStorage.removeItem(k);
     return true;

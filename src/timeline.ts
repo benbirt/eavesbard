@@ -32,7 +32,12 @@ export type TimelineEvent =
       pick?: { trackId: number; title: string; reason: string };
       latencyMs?: number;
       costUsd?: number;
-      usage?: { input_tokens: number; output_tokens: number; cache_read_input_tokens?: number | null; cache_creation_input_tokens?: number | null };
+      usage?: {
+        input_tokens: number;
+        output_tokens: number;
+        cache_read_input_tokens?: number | null;
+        cache_creation_input_tokens?: number | null;
+      };
       error?: string;
     }
   | { kind: "decision"; changed: boolean; from: Scene; to: Scene; notes: { setting: string; intensity: string } }

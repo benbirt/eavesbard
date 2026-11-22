@@ -32,7 +32,10 @@ export class LocalAdapter implements PlaybackAdapter {
       });
       el.addEventListener("error", () => {
         if (el.getAttribute("src")) {
-          this.emit("error", `${el.currentSrc || el.src}: media error ${el.error?.code ?? "unknown"} ${el.error?.message ?? ""}`);
+          this.emit(
+            "error",
+            `${el.currentSrc || el.src}: media error ${el.error?.code ?? "unknown"} ${el.error?.message ?? ""}`,
+          );
         }
       });
     }
@@ -62,17 +65,25 @@ export class LocalAdapter implements PlaybackAdapter {
       }
       throw err;
     }
-    await this.fade(fadeMs, (p) => {
-      const g = crossfadeGains(p);
-      outgoing.volume = g.out * this.level;
-      incoming.volume = g.in * this.level;
-    }, () => release(outgoing));
+    await this.fade(
+      fadeMs,
+      (p) => {
+        const g = crossfadeGains(p);
+        outgoing.volume = g.out * this.level;
+        incoming.volume = g.in * this.level;
+      },
+      () => release(outgoing),
+    );
   }
 
   async stop(fadeMs: number): Promise<void> {
     const el = this.elements[this.active]!;
     const from = el.volume;
-    await this.fade(fadeMs, (p) => (el.volume = from * (1 - p)), () => release(el));
+    await this.fade(
+      fadeMs,
+      (p) => (el.volume = from * (1 - p)),
+      () => release(el),
+    );
   }
 
   setVolume(level: number): void {

@@ -35,27 +35,31 @@ export function bestThreshold(pos, neg) {
 
 /** Each yes/no question's answers on the tuning half of these runs, split by label. */
 function collect(names) {
-const q = () => ({ pos: [], neg: [] });
-const answers = { danger: q(), started: q(), over: q() };
-for (const name of names) {
-  const run = JSON.parse(readFileSync(join(here, "results", `${name}.json`), "utf8"));
-  const details = JSON.parse(readFileSync(join(here, "results", `${name}.details.json`), "utf8"));
-  const labels = labelsFor(here, run.set);
-  for (const [ep, checks] of Object.entries(details)) {
-    if (!TUNE.has(ep)) continue;
-    for (const d of checks) {
-      let l;
-      for (const s of labels[ep]) if (sec(s.from) <= d.t) l = s;
-      if (!l || l.skip || l.intensity.length !== 1 || !d.llm?.parts || d.t - sec(l.from) < INTENSITY_GRACE_S) continue;
-      const i = l.intensity[0];
-      if (d.current?.intensity !== "combat") {
-        if (i !== "combat") (i === "tense" ? answers.danger.pos : answers.danger.neg).push(d.llm.parts.threeWay.tense);
-        if (d.llm.parts.fight?.asked === "started") (i === "combat" ? answers.started.pos : answers.started.neg).push(d.llm.parts.fight.yes);
-      } else if (d.llm.fightOver !== undefined) (i !== "combat" ? answers.over.pos : answers.over.neg).push(d.llm.fightOver);
+  const q = () => ({ pos: [], neg: [] });
+  const answers = { danger: q(), started: q(), over: q() };
+  for (const name of names) {
+    const run = JSON.parse(readFileSync(join(here, "results", `${name}.json`), "utf8"));
+    const details = JSON.parse(readFileSync(join(here, "results", `${name}.details.json`), "utf8"));
+    const labels = labelsFor(here, run.set);
+    for (const [ep, checks] of Object.entries(details)) {
+      if (!TUNE.has(ep)) continue;
+      for (const d of checks) {
+        let l;
+        for (const s of labels[ep]) if (sec(s.from) <= d.t) l = s;
+        if (!l || l.skip || l.intensity.length !== 1 || !d.llm?.parts || d.t - sec(l.from) < INTENSITY_GRACE_S)
+          continue;
+        const i = l.intensity[0];
+        if (d.current?.intensity !== "combat") {
+          if (i !== "combat")
+            (i === "tense" ? answers.danger.pos : answers.danger.neg).push(d.llm.parts.threeWay.tense);
+          if (d.llm.parts.fight?.asked === "started")
+            (i === "combat" ? answers.started.pos : answers.started.neg).push(d.llm.parts.fight.yes);
+        } else if (d.llm.fightOver !== undefined)
+          (i !== "combat" ? answers.over.pos : answers.over.neg).push(d.llm.fightOver);
+      }
     }
   }
-}
-return answers;
+  return answers;
 }
 
 // --match <runs>: shift so the false alarms match those runs' (Gemma's) at 0.5, rather than the best balanced accuracy.
@@ -74,12 +78,16 @@ for (const [question, { pos, neg }] of Object.entries(answers)) {
     const sorted = [...neg].sort((a, b) => b - a);
     t = sorted[Math.min(sorted.length - 1, Math.floor(fpr * sorted.length))] ?? 0.5;
     acc = (rate(pos, t) + 1 - rate(neg, t)) / 2;
-    console.log(`${question.padEnd(8)} reference at 0.5: false alarms ${Math.round(fpr * 100)}%, catches ${Math.round(rate(reference[question].pos, 0.5) * 100)}%; this model at ${t.toPrecision(3)}: false alarms ${Math.round(rate(neg, t) * 100)}%, catches ${Math.round(rate(pos, t) * 100)}%`);
+    console.log(
+      `${question.padEnd(8)} reference at 0.5: false alarms ${Math.round(fpr * 100)}%, catches ${Math.round(rate(reference[question].pos, 0.5) * 100)}%; this model at ${t.toPrecision(3)}: false alarms ${Math.round(rate(neg, t) * 100)}%, catches ${Math.round(rate(pos, t) * 100)}%`,
+    );
   }
   // Keep the shift finite for answers at 0 or 1.
   const tc = Math.min(Math.max(t, 1e-6), 1 - 1e-6);
   shifts[question] = Math.round(-logit(tc) * 100) / 100;
   const at50 = (pos.filter((p) => p > 0.5).length / pos.length + neg.filter((n) => n <= 0.5).length / neg.length) / 2;
-  console.log(`${question.padEnd(8)} ${String(pos.length).padStart(5)}/${String(neg.length).padEnd(5)} best threshold ${t.toPrecision(3).padEnd(9)} balanced ${Math.round(acc * 100)}% (at 0.5: ${Math.round(at50 * 100)}%), shift ${shifts[question]}`);
+  console.log(
+    `${question.padEnd(8)} ${String(pos.length).padStart(5)}/${String(neg.length).padEnd(5)} best threshold ${t.toPrecision(3).padEnd(9)} balanced ${Math.round(acc * 100)}% (at 0.5: ${Math.round(at50 * 100)}%), shift ${shifts[question]}`,
+  );
 }
 console.log(JSON.stringify(shifts));

@@ -157,11 +157,22 @@ export function Timeline() {
     <>
       <div class="pills" role="group" aria-label="Show">
         {FILTERS.map((f) => (
-          <button type="button" class="pill" key={f.kind} aria-pressed={shown.value.has(f.kind)} onClick={() => toggle(f.kind, !shown.value.has(f.kind))}>
+          <button
+            type="button"
+            class="pill"
+            key={f.kind}
+            aria-pressed={shown.value.has(f.kind)}
+            onClick={() => toggle(f.kind, !shown.value.has(f.kind))}
+          >
             {f.label}
           </button>
         ))}
-        <button type="button" class="pill" aria-pressed={showDropped.value} onClick={() => (showDropped.value = !showDropped.value)}>
+        <button
+          type="button"
+          class="pill"
+          aria-pressed={showDropped.value}
+          onClick={() => (showDropped.value = !showDropped.value)}
+        >
           Dropped speech
         </button>
       </div>

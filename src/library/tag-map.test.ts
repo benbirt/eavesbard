@@ -53,14 +53,17 @@ test("tracks land in every bucket their tags and words match", () => {
 test("words match whole words in titles and keywords, ignoring case", () => {
   const calm = { civ: [], biome: [], mood: ["peaceful"], action: [] };
   const library = buildLibrary(
-    [
-      track(1, { title: "Spinning Wheel", tags: calm }),
-      track(2, { keywords: ["INN"], tags: calm }),
-    ],
+    [track(1, { title: "Spinning Wheel", tags: calm }), track(2, { keywords: ["INN"], tags: calm })],
     MAP,
   );
-  assert.deepEqual(library.tracks.map((t) => t.track.id), [2]);
-  assert.deepEqual(library.unmapped.map((t) => t.id), [1]);
+  assert.deepEqual(
+    library.tracks.map((t) => t.track.id),
+    [2],
+  );
+  assert.deepEqual(
+    library.unmapped.map((t) => t.id),
+    [1],
+  );
 });
 
 test("genres and track lists decide what's in scope", () => {
@@ -75,16 +78,19 @@ test("genres and track lists decide what's in scope", () => {
     ],
     { ...MAP, includeTracks: [4], excludeTracks: [5] },
   );
-  assert.deepEqual(library.tracks.map((t) => t.track.id), [1, 4]);
-  assert.deepEqual(library.outOfScope.map((t) => t.id), [2, 3, 5]);
+  assert.deepEqual(
+    library.tracks.map((t) => t.track.id),
+    [1, 4],
+  );
+  assert.deepEqual(
+    library.outOfScope.map((t) => t.id),
+    [2, 3, 5],
+  );
 });
 
 test("parseTagMap rejects unknown buckets and rule keys", () => {
   assert.equal(parseTagMap(MAP), MAP);
-  assert.throws(
-    () => parseTagMap({ ...MAP, setting: { ...MAP.setting, castle: {} } }),
-    /setting\.castle: not one of/,
-  );
+  assert.throws(() => parseTagMap({ ...MAP, setting: { ...MAP.setting, castle: {} } }), /setting\.castle: not one of/);
   assert.throws(
     () => parseTagMap({ ...MAP, intensity: { ...MAP.intensity, calm: { moods: ["peaceful"] } } }),
     /intensity\.calm\.moods: not one of/,
@@ -94,7 +100,10 @@ test("parseTagMap rejects unknown buckets and rule keys", () => {
 });
 
 test("an unless rule keeps a track out of a bucket", () => {
-  const map: TagMap = { ...MAP, intensity: { ...MAP.intensity, combat: { action: ["war"], unless: { mood: ["peaceful"] } } } };
+  const map: TagMap = {
+    ...MAP,
+    intensity: { ...MAP.intensity, combat: { action: ["war"], unless: { mood: ["peaceful"] } } },
+  };
   const library = buildLibrary(
     [
       track(1, { tags: { civ: [], biome: ["forest"], mood: ["peaceful"], action: ["war"] } }),
@@ -102,6 +111,12 @@ test("an unless rule keeps a track out of a bucket", () => {
     ],
     map,
   );
-  assert.deepEqual(library.tracks.map((t) => t.intensities), [["calm"], ["tense", "combat"]]);
-  assert.throws(() => parseTagMap({ ...map, intensity: { ...map.intensity, combat: { unless: { colour: ["red"] } } } }), /combat\.unless\.colour/);
+  assert.deepEqual(
+    library.tracks.map((t) => t.intensities),
+    [["calm"], ["tense", "combat"]],
+  );
+  assert.throws(
+    () => parseTagMap({ ...map, intensity: { ...map.intensity, combat: { unless: { colour: ["red"] } } } }),
+    /combat\.unless\.colour/,
+  );
 });

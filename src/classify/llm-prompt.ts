@@ -33,8 +33,7 @@ export interface LlmQuestion {
 }
 
 export type LlmInput =
-  | { description: string }
-  | { lines: string[]; current: { setting: Setting; intensity: Intensity } };
+  { description: string } | { lines: string[]; current: { setting: Setting; intensity: Intensity } };
 
 /** The two questions (setting, then intensity) for a scene check. */
 export function llmQuestions(input: LlmInput): [LlmQuestion, LlmQuestion] {
@@ -105,7 +104,8 @@ export function labelProbabilities(logProbs: number[][]): number[] {
   const perLabel = logProbs.map(logSumExp);
   // NaN or infinite logits (e.g. 16-bit activations overflowing) mean the
   // model's answer is meaningless: fail rather than return a tie.
-  if (perLabel.some((x) => !Number.isFinite(x))) throw new Error("the model produced invalid numbers (NaN or infinity)");
+  if (perLabel.some((x) => !Number.isFinite(x)))
+    throw new Error("the model produced invalid numbers (NaN or infinity)");
   const top = Math.max(...perLabel);
   const mass = perLabel.map((x) => Math.exp(x - top));
   const total = mass.reduce((a, b) => a + b, 0);
@@ -140,7 +140,11 @@ export function transcriptBlock(lines: readonly string[], words: number): string
 }
 
 /** A yes/no question about the transcript, given the scene so far. */
-export function yesNoQuestion(current: { setting: Setting; intensity: Intensity }, lines: readonly string[], question: string): LlmQuestion {
+export function yesNoQuestion(
+  current: { setting: Setting; intensity: Intensity },
+  lines: readonly string[],
+  question: string,
+): LlmQuestion {
   return {
     axis: "intensity",
     content:
@@ -151,8 +155,15 @@ export function yesNoQuestion(current: { setting: Setting; intensity: Intensity 
 }
 
 /** "Has a fight started?" outside a fight, "has it ended?" during one. */
-export function fightQuestion(lines: readonly string[], current: { setting: Setting; intensity: Intensity }): LlmQuestion {
-  return yesNoQuestion(current, lines, current.intensity === "combat" ? FIGHT_QUESTIONS.ended : FIGHT_QUESTIONS.started);
+export function fightQuestion(
+  lines: readonly string[],
+  current: { setting: Setting; intensity: Intensity },
+): LlmQuestion {
+  return yesNoQuestion(
+    current,
+    lines,
+    current.intensity === "combat" ? FIGHT_QUESTIONS.ended : FIGHT_QUESTIONS.started,
+  );
 }
 
 /**

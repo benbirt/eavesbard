@@ -126,11 +126,10 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
       notes.intensity = `${state.intensity} → ${intensity} (${why}).`;
     } else {
       next.pendingIntensity = streak;
-      notes.intensity =
-        agreed
-          ? `${intensity} held back: combat lasts at least ${options.minCombatMs / 1000} s, ${heldFor} s to go.`
-          : `maybe ${intensity} (${pct(event.intensityConfidence)} sure): changes if ${options.agreeingResults - streak.count === 1 ? "the next scene check agrees" : `${options.agreeingResults - streak.count} more scene checks agree`}` +
-            `, or one is ${pct(options.oneCheckConfidence)}+ sure.`;
+      notes.intensity = agreed
+        ? `${intensity} held back: combat lasts at least ${options.minCombatMs / 1000} s, ${heldFor} s to go.`
+        : `maybe ${intensity} (${pct(event.intensityConfidence)} sure): changes if ${options.agreeingResults - streak.count === 1 ? "the next scene check agrees" : `${options.agreeingResults - streak.count} more scene checks agree`}` +
+          `, or one is ${pct(options.oneCheckConfidence)}+ sure.`;
     }
   }
 
@@ -152,7 +151,9 @@ export function nextScene(state: SceneState, event: SceneEvent, options = DEFAUL
     const agreed = agreedByStreak || event.settingConfidence >= options.oneCheckConfidence;
     if (agreed && heldFor <= 0) {
       Object.assign(next, { setting, settingSince: event.at, pendingSetting: undefined });
-      const why = agreedByStreak ? `${streak.count} checks in a row agree` : `${pct(event.settingConfidence)} confident`;
+      const why = agreedByStreak
+        ? `${streak.count} checks in a row agree`
+        : `${pct(event.settingConfidence)} confident`;
       reasons.setting = `${setting}, ${why.replace(" confident", " sure")}`;
       notes.setting = `${state.setting} → ${setting} (${why}).`;
     } else {

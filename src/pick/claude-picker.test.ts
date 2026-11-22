@@ -25,7 +25,10 @@ const tracks = [entry(5, "Dripping Cave"), entry(9, "Old Mine")];
 
 test("the system prompt lists every track and is stable between calls", () => {
   const prompt = pickerSystemPrompt(tracks);
-  assert.match(prompt, /^5 \| Dripping Cave \| dungeon \| tense \| biome: underground; mood: mysterious "Water drips in the dark\."$/m);
+  assert.match(
+    prompt,
+    /^5 \| Dripping Cave \| dungeon \| tense \| biome: underground; mood: mysterious "Water drips in the dark\."$/m,
+  );
   assert.match(prompt, /^9 \| Old Mine/m);
   assert.equal(pickerSystemPrompt(tracks), prompt);
 });

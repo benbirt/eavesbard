@@ -16,7 +16,16 @@ const SEGMENT_WORDS = 15;
 /** Clones the transcripts and summaries into `dir` (sparse, about 340 MB) unless there already. */
 export function fetchCrd3(dir) {
   if (existsSync(join(dir, "data", "cleaned data"))) return;
-  execFileSync("git", ["clone", "-q", "--depth", "1", "--filter=blob:none", "--sparse", "https://github.com/RevanthRameshkumar/CRD3", dir]);
+  execFileSync("git", [
+    "clone",
+    "-q",
+    "--depth",
+    "1",
+    "--filter=blob:none",
+    "--sparse",
+    "https://github.com/RevanthRameshkumar/CRD3",
+    dir,
+  ]);
   execFileSync("git", ["-C", dir, "sparse-checkout", "set", "data/cleaned data", "data/aligned data/c=2"]);
 }
 

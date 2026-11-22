@@ -12,6 +12,8 @@ Everything builds and runs through [Bazel](https://bazel.build/), via [Bazelisk]
 bazel test //...                   # type-check, build and run the tests
 bazel build //src:site             # the deployable site, in bazel-bin/src/site
 bazel run //tools:serve -- 8080    # serve it at http://localhost:8080/
+bazel run //tools:format           # format every file (CI runs //tools:format.check)
+bazel run //tools:lint             # lint the Starlark files
 bazel run //scripts:build_index    # regenerate data/tracks.json from tabletopaudio.com
 ANTHROPIC_API_KEY=... bazel run //scripts:classifier_check   # try the classifier on scripted transcripts
 bazel run //experiments/ui:ui_check         # drive the app through its main states in headless Chrome
@@ -23,7 +25,7 @@ dns/run.sh plan                             # DNS record changes (CI applies the
 
 To compare scene models on this computer's GPU (experiment E9), run `bazel run //experiments/e9:browser_eval -- --repo <model> --variants current --name <run>`, then score the run with `bazel run //experiments/e9:analyse -- experiments/e9/results/<run>.json`. The browser targets drive your installed Chrome headless, keeping downloaded models in `experiments/e9/.chrome-profile`. Each experiment's targets are listed in its `BUILD.bazel`.
 
-`data/tracks.json` is generated: don't edit it by hand. The *Update track index* workflow regenerates it weekly and opens a pull request when it changes.
+`data/tracks.json` is generated: don't edit it by hand. The _Update track index_ workflow regenerates it weekly and opens a pull request when it changes.
 
 npm dependencies are in `package.json` and `pnpm-lock.yaml`, managed with the pnpm Bazel provides, for example `bazel run -- @pnpm//:pnpm --dir $PWD add --save-exact --lockfile-only <package>` (likewise `remove` or `update`). Commit both files.
 

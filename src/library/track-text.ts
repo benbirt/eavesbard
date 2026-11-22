@@ -17,5 +17,7 @@ export function indexLine(entry: LibraryTrack): string {
 export function searchText(entry: LibraryTrack): string {
   const t = entry.track;
   const tags = TAG_FACETS.flatMap((f) => t.tags[f]);
-  return [t.title, t.description.replace(/[.\s]+$/, ""), [...tags, ...t.keywords].join(", ")].filter(Boolean).join(". ");
+  return [t.title, t.description.replace(/[.\s]+$/, ""), [...tags, ...t.keywords].join(", ")]
+    .filter(Boolean)
+    .join(". ");
 }

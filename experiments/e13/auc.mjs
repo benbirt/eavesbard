@@ -25,7 +25,7 @@ export function auc(pos, neg) {
   if (!pos.length || !neg.length) return undefined;
   const all = [...pos.map((v) => [v, 1]), ...neg.map((v) => [v, 0])].sort((a, b) => a[0] - b[0]);
   let rankSum = 0;
-  for (let i = 0; i < all.length; ) {
+  for (let i = 0; i < all.length;) {
     let j = i;
     while (j < all.length && all[j][0] === all[i][0]) j++;
     const rank = (i + 1 + j) / 2;
@@ -45,7 +45,15 @@ function labelAt(stretches, t) {
 const top = (o) => Object.entries(o).reduce((a, b) => (b[1] > a[1] ? b : a))[0];
 const pct = (x) => (x === undefined ? "–" : `${Math.round(100 * x)}%`);
 
-console.log("run".padEnd(30) + "danger AUC (n)".padStart(17) + "fight AUC (n)".padStart(17) + "ended AUC (n)".padStart(16) + "over AUC (n)".padStart(16) + "setting".padStart(9) + "   checks");
+console.log(
+  "run".padEnd(30) +
+    "danger AUC (n)".padStart(17) +
+    "fight AUC (n)".padStart(17) +
+    "ended AUC (n)".padStart(16) +
+    "over AUC (n)".padStart(16) +
+    "setting".padStart(9) +
+    "   checks",
+);
 for (const name of process.argv.slice(2)) {
   const run = JSON.parse(readFileSync(join(here, "results", `${name}.json`), "utf8"));
   const details = JSON.parse(readFileSync(join(here, "results", `${name}.details.json`), "utf8"));
@@ -68,7 +76,8 @@ for (const name of process.argv.slice(2)) {
         const i = l.intensity[0];
         if (i === "tense") danger.pos.push(d.llm.parts.threeWay.tense);
         else if (i === "calm") danger.neg.push(d.llm.parts.threeWay.tense);
-        if (d.llm.parts.fight?.asked === "started") (i === "combat" ? fight.pos : fight.neg).push(d.llm.parts.fight.yes);
+        if (d.llm.parts.fight?.asked === "started")
+          (i === "combat" ? fight.pos : fight.neg).push(d.llm.parts.fight.yes);
       }
       if (!outside && l.intensity.length === 1) {
         const done = l.intensity[0] !== "combat";

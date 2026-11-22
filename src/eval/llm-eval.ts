@@ -23,7 +23,16 @@ export interface SceneResult {
   /** Embedding similarities to every label description, for the setting and intensity texts. */
   embed: { setting: [string, number][]; intensity: [string, number][] };
   /** Per variant. */
-  llm: Record<string, { setting: Record<string, number>; intensity: Record<string, number>; fightOver?: number; ms: number; thoughts?: string[] }>;
+  llm: Record<
+    string,
+    {
+      setting: Record<string, number>;
+      intensity: Record<string, number>;
+      fightOver?: number;
+      ms: number;
+      thoughts?: string[];
+    }
+  >;
   /** Free text from the JSON prompt, for checking the prefilled scoring. */
   free?: string;
 }
@@ -40,7 +49,11 @@ export interface ExplainResult {
 declare global {
   interface Window {
     evalLoad: (model: LlmLoad) => Promise<{ ms: number }>;
-    evalRun: (options: { variants: string[]; freeText?: number; sets?: ("dev" | "test" | "large")[] }) => Promise<SceneResult[]>;
+    evalRun: (options: {
+      variants: string[];
+      freeText?: number;
+      sets?: ("dev" | "test" | "large")[];
+    }) => Promise<SceneResult[]>;
     evalLog: string[];
     /** The app's two questions for `input`, scored as the app does, plus free text for each `extra` instruction. */
     evalExplain: (input: VariantInput, extras: string[]) => Promise<ExplainResult[]>;
@@ -105,9 +118,14 @@ window.evalRun = async ({ variants, freeText = 0, sets = ["dev", "test"] }) => {
       const started = performance.now();
       thoughts.length = 0;
       const answer = await VARIANTS[v]!(llm!, input);
-      result.llm[v] = { ...answer, ms: performance.now() - started, ...(thoughts.length ? { thoughts: [...thoughts] } : {}) };
+      result.llm[v] = {
+        ...answer,
+        ms: performance.now() - started,
+        ...(thoughts.length ? { thoughts: [...thoughts] } : {}),
+      };
     }
-    if (n < freeText) result.free = await llm!.generate(jsonPrompt(input, { meanings: true, withCurrent: true, offTopic: true }), 30);
+    if (n < freeText)
+      result.free = await llm!.generate(jsonPrompt(input, { meanings: true, withCurrent: true, offTopic: true }), 30);
     results.push(result);
     if (n % 10 === 0) log(`${n + 1}/${scenes.length} ${s.name}`);
   }
@@ -124,7 +142,12 @@ window.evalExplain = async (input, extras) => {
       const content = q.content.replace("Answer with one word from the list.", instruction);
       written.push({ instruction, text: await llm!.generate(content, 200) });
     }
-    out.push({ axis: q.axis, prompt: q.content, scored: Object.fromEntries(q.labels.map((l, i) => [l, p[i]!])), written });
+    out.push({
+      axis: q.axis,
+      prompt: q.content,
+      scored: Object.fromEntries(q.labels.map((l, i) => [l, p[i]!])),
+      written,
+    });
   }
   return out;
 };

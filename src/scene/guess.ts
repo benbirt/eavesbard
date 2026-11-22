@@ -8,11 +8,44 @@ import { TAG_FACETS } from "../library/tracks-file.js";
 
 /** Words that suggest an intensity, beyond the tag map's (which are mostly tag names). */
 const INTENSITY_WORDS: Record<Exclude<Intensity, "calm">, string[]> = {
-  combat: ["attack", "attacks", "ambush", "ambushes", "battle", "brawl", "fight", "fighting", "raid", "siege", "war", "combat", "skirmish"],
-  tense: ["sneak", "sneaking", "stalk", "stalking", "chase", "chasing", "haunted", "hunt", "hunting", "trap", "traps", "danger", "threat", "spotted", "watched", "following", "lost"],
+  combat: [
+    "attack",
+    "attacks",
+    "ambush",
+    "ambushes",
+    "battle",
+    "brawl",
+    "fight",
+    "fighting",
+    "raid",
+    "siege",
+    "war",
+    "combat",
+    "skirmish",
+  ],
+  tense: [
+    "sneak",
+    "sneaking",
+    "stalk",
+    "stalking",
+    "chase",
+    "chasing",
+    "haunted",
+    "hunt",
+    "hunting",
+    "trap",
+    "traps",
+    "danger",
+    "threat",
+    "spotted",
+    "watched",
+    "following",
+    "lost",
+  ],
 };
 
-const wordsOf = (rule: BucketRule) => [...(rule.words ?? []), ...TAG_FACETS.flatMap((f) => rule[f] ?? [])].map((w) => w.toLowerCase());
+const wordsOf = (rule: BucketRule) =>
+  [...(rule.words ?? []), ...TAG_FACETS.flatMap((f) => rule[f] ?? [])].map((w) => w.toLowerCase());
 
 /** Whether `token` is `word`, or its plural. */
 const isWord = (token: string, word: string) => token === word || token === `${word}s` || token === `${word}es`;

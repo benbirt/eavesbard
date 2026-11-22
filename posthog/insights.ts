@@ -56,7 +56,9 @@ function trend<E extends EventName>(
       dateRange: LAST_90_DAYS,
       properties: FROM_THE_SITE,
       interval: options.interval,
-      series: [{ kind: "EventsNode", event, math: options.math, ...("of" in options && { math_property: options.of }) }],
+      series: [
+        { kind: "EventsNode", event, math: options.math, ...("of" in options && { math_property: options.of }) },
+      ],
       ...(options.breakdown && { breakdownFilter: { breakdown: options.breakdown, breakdown_type: "event" } }),
       ...(options.asBars && { trendsFilter: { display: "ActionsBarValue" } }),
     },
@@ -81,7 +83,8 @@ function funnel(steps: [EventName, string][]): Insight["query"] {
 export const INSIGHTS: Record<string, Insight> = {
   visitors: {
     name: "Visitors per day",
-    description: "Unique visitors each day. Cookieless, so visitors can't be told apart across days: don't add days up.",
+    description:
+      "Unique visitors each day. Cookieless, so visitors can't be told apart across days: don't add days up.",
     tile: { x: 0, y: 0, w: 6, h: 5 },
     query: trend("$pageview", { math: "dau", interval: "day" }),
   },
@@ -93,7 +96,8 @@ export const INSIGHTS: Record<string, Insight> = {
   },
   funnel: {
     name: "From visit to music",
-    description: "Of each day's visitors, how many agreed to downloads, began a session and heard a track, within a day.",
+    description:
+      "Of each day's visitors, how many agreed to downloads, began a session and heard a track, within a day.",
     tile: { x: 0, y: 5, w: 12, h: 6 },
     query: funnel([
       ["$pageview", "Visited"],

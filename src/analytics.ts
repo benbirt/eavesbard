@@ -76,7 +76,10 @@ export function countSessionEnded(endedBy: "stop" | "page_closed"): void {
   if (!session) return;
   const { startedAt, tracks } = session;
   session = undefined;
-  send({ name: "session_ended", minutes: sessionMinutes(startedAt, Date.now()), tracks, ended_by: endedBy }, endedBy === "page_closed");
+  send(
+    { name: "session_ended", minutes: sessionMinutes(startedAt, Date.now()), tracks, ended_by: endedBy },
+    endedBy === "page_closed",
+  );
 }
 
 export function countTrackStarted(url: string, output: Output): void {

@@ -61,7 +61,8 @@ async function transcribe(segment: Segment): Promise<void> {
   const text = (Array.isArray(result) ? result[0]?.text : result.text)?.trim() ?? "";
   const reason = hallucinationReason(text);
   if (reason) post({ type: "dropped", text, reason, start: segment.start, end: segment.end });
-  else post({ type: "transcript", text, start: segment.start, end: segment.end, latencyMs: performance.now() - started });
+  else
+    post({ type: "transcript", text, start: segment.start, end: segment.end, latencyMs: performance.now() - started });
 }
 
 async function audio(frame: Float32Array): Promise<void> {

@@ -1,7 +1,14 @@
 // Local models for scene decisions and track picks (DESIGN.md 7.5, 7.7): one
 // embedding index holding every track and every scene-label description.
 
-import { ALL_LABEL_KEYS, classifyFromScores, labelDocs, lastWords, latest, type LlmAnswer } from "./classify/local-classifier.js";
+import {
+  ALL_LABEL_KEYS,
+  classifyFromScores,
+  labelDocs,
+  lastWords,
+  latest,
+  type LlmAnswer,
+} from "./classify/local-classifier.js";
 import type { Classification } from "./classify/classifier.js";
 import { library } from "./library-data.js";
 import type { Intensity, Setting } from "./library/scenes.js";

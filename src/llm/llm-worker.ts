@@ -129,7 +129,13 @@ function chatPrompt(content: string, chat: ChatOptions = {}): string {
   return emptyThought ? `${prompt}<think>\n\n</think>\n\n` : prompt;
 }
 
-async function ask(requestId: number, content: string, prefill: string, spellings: string[][], chat?: ChatOptions): Promise<void> {
+async function ask(
+  requestId: number,
+  content: string,
+  prefill: string,
+  spellings: string[][],
+  chat?: ChatOptions,
+): Promise<void> {
   const started = performance.now();
   const prompt = chatPrompt(content, chat) + prefill;
   const base = encode(prompt).length;
@@ -161,7 +167,12 @@ async function ask(requestId: number, content: string, prefill: string, spelling
   post({ type: "answer", requestId, probs, ms: performance.now() - started });
 }
 
-async function transcribe(requestId: number, audio: Float32Array, instruction: string, maxTokens: number): Promise<void> {
+async function transcribe(
+  requestId: number,
+  audio: Float32Array,
+  instruction: string,
+  maxTokens: number,
+): Promise<void> {
   if (!processor) throw new Error("the model was loaded without audio");
   const started = performance.now();
   const prompt = processor.apply_chat_template(
@@ -172,15 +183,34 @@ async function transcribe(requestId: number, audio: Float32Array, instruction: s
   const inputs = (await processor(prompt, null, audio, { add_special_tokens: false })) as Record<string, Tensor>;
   const output = (await model!.generate({ ...inputs, max_new_tokens: maxTokens, do_sample: false })) as Tensor;
   const ids = Array.from(output.data as BigInt64Array, Number).slice(inputs.input_ids!.dims.at(-1));
-  post({ type: "text", requestId, text: tokenizer!.decode(ids, { skip_special_tokens: true }).trim(), ms: performance.now() - started });
+  post({
+    type: "text",
+    requestId,
+    text: tokenizer!.decode(ids, { skip_special_tokens: true }).trim(),
+    ms: performance.now() - started,
+  });
 }
 
-async function generate(requestId: number, content: string, maxTokens: number, prefill = "", chat?: ChatOptions): Promise<void> {
+async function generate(
+  requestId: number,
+  content: string,
+  maxTokens: number,
+  prefill = "",
+  chat?: ChatOptions,
+): Promise<void> {
   const started = performance.now();
-  const inputs = tokenizer!(chatPrompt(content, chat) + prefill, { add_special_tokens: false }) as Record<string, Tensor>;
+  const inputs = tokenizer!(chatPrompt(content, chat) + prefill, { add_special_tokens: false }) as Record<
+    string,
+    Tensor
+  >;
   const output = (await model!.generate({ ...inputs, max_new_tokens: maxTokens, do_sample: false })) as Tensor;
   const ids = Array.from(output.data as BigInt64Array, Number).slice(inputs.input_ids!.dims[1]);
-  post({ type: "text", requestId, text: tokenizer!.decode(ids, { skip_special_tokens: false }), ms: performance.now() - started });
+  post({
+    type: "text",
+    requestId,
+    text: tokenizer!.decode(ids, { skip_special_tokens: false }),
+    ms: performance.now() - started,
+  });
 }
 
 // One request at a time, in order.

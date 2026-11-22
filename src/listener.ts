@@ -7,7 +7,15 @@ import { startMic, type Mic } from "./audio/mic.js";
 import { gpuAdapter } from "./gpu.js";
 import { markDownloaded, mayLoad, registerDownloader, unregisterDownloader } from "./downloads.js";
 import { loadSetting, saveSetting } from "./settings.js";
-import { isWebSpeech, SPEECH_MODELS, whisperRepo, type FromWorker, type SpeechModel, type ToWorker, type WhisperModel } from "./stt/protocol.js";
+import {
+  isWebSpeech,
+  SPEECH_MODELS,
+  whisperRepo,
+  type FromWorker,
+  type SpeechModel,
+  type ToWorker,
+  type WhisperModel,
+} from "./stt/protocol.js";
 import { startWebSpeech } from "./stt/web-speech.js";
 import { record } from "./timeline.js";
 
@@ -100,7 +108,13 @@ export function replayLine(text: string, at: number, durationS: number): void {
 function addLine(line: Omit<TranscriptLine, "id">): void {
   const full = { id: nextId++, ...line };
   transcript.value = [...transcript.value, full];
-  record({ kind: "speech", text: full.text, durationS: full.durationS, latencyMs: full.latencyMs, dropped: full.dropped });
+  record({
+    kind: "speech",
+    text: full.text,
+    durationS: full.durationS,
+    latencyMs: full.latencyMs,
+    dropped: full.dropped,
+  });
   if (!full.dropped) for (const listener of lineListeners) listener(full);
 }
 
@@ -189,12 +203,17 @@ export async function start(): Promise<void> {
       await startBrowserSpeech(chosen === "webspeech-device");
     } else {
       if (!(await gpuAdapter())) {
-        throw new Error("This browser has no WebGPU, which Whisper needs. Use an up-to-date Chrome, or try Web Speech.");
+        throw new Error(
+          "This browser has no WebGPU, which Whisper needs. Use an up-to-date Chrome, or try Web Speech.",
+        );
       }
       // Usually already downloaded in the background (prepareSpeech); otherwise wait here.
       const m = speechModel.value;
       if (!(m.phase === "ready" && workerModel === chosen)) {
-        state.value = m.phase === "loading" && workerModel === chosen ? { ...m } : { phase: "loading", loaded: 0, total: 0, preparing: false };
+        state.value =
+          m.phase === "loading" && workerModel === chosen
+            ? { ...m }
+            : { phase: "loading", loaded: 0, total: 0, preparing: false };
       }
       await loadWorker(chosen);
       // The model's ready; the microphone may still need the user's permission.

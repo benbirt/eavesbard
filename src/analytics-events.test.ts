@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { EVENT_NAMES, mayCount, PRODUCTION_HOST, sessionMinutes, trackSource, type Environment } from "./analytics-events.js";
+import {
+  EVENT_NAMES,
+  mayCount,
+  PRODUCTION_HOST,
+  sessionMinutes,
+  trackSource,
+  type Environment,
+} from "./analytics-events.js";
 import { audioUrl } from "./tracks.js";
 
 const visit: Environment = {
@@ -20,7 +27,13 @@ test("an ordinary visit to eavesbard.com is counted", () => {
 });
 
 test("development, experiments, forks, opted-out and do-not-track visits are not counted", () => {
-  for (const hostname of ["localhost", "127.0.0.1", "benbirt.github.io", "www.eavesbard.com", "eavesbard.com.example"]) {
+  for (const hostname of [
+    "localhost",
+    "127.0.0.1",
+    "benbirt.github.io",
+    "www.eavesbard.com",
+    "eavesbard.com.example",
+  ]) {
     assert.equal(mayCount({ ...visit, hostname }), false, hostname);
   }
   assert.equal(mayCount({ ...visit, replaying: true }), false, "replaying a transcript");
@@ -32,7 +45,10 @@ test("development, experiments, forks, opted-out and do-not-track visits are not
 
 test("tracks are attributed to their audio host", () => {
   assert.equal(trackSource(audioUrl("318_The_Gaping_Maw")), "tabletopaudio");
-  assert.equal(trackSource("https://incompetech.com/music/royalty-free/mp3-royaltyfree/Sneaky%20Snitch.mp3"), "incompetech");
+  assert.equal(
+    trackSource("https://incompetech.com/music/royalty-free/mp3-royaltyfree/Sneaky%20Snitch.mp3"),
+    "incompetech",
+  );
   assert.equal(trackSource("https://music.example.org/a.mp3"), "music.example.org");
   assert.equal(trackSource("not a url"), "unknown");
 });

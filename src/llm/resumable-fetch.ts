@@ -111,7 +111,8 @@ export async function resumableFetch(input: RequestInfo | URL, init?: RequestIni
   // An error (e.g. 404), no byte ranges, or one piece holds it all: nothing to resume.
   if (first.status !== 206) return first;
   const total = Number(/\/(\d+)$/.exec(first.headers.get("Content-Range") ?? "")?.[1] ?? NaN);
-  if (!Number.isFinite(total) || total <= PIECE) return new Response(await first.arrayBuffer(), { status: 200, headers: withoutRange(first.headers) });
+  if (!Number.isFinite(total) || total <= PIECE)
+    return new Response(await first.arrayBuffer(), { status: 200, headers: withoutRange(first.headers) });
 
   const pieces = Math.ceil(total / PIECE);
   const firstBytes = new Uint8Array(await first.arrayBuffer());
@@ -122,7 +123,10 @@ export async function resumableFetch(input: RequestInfo | URL, init?: RequestIni
           let bytes: Uint8Array | undefined;
           if (i === 0) bytes = firstBytes;
           else {
-            const saved = await idb<ArrayBuffer | undefined>("readonly", (s) => s.get(key(url, total, i)) as IDBRequest<ArrayBuffer | undefined>).catch(() => undefined);
+            const saved = await idb<ArrayBuffer | undefined>(
+              "readonly",
+              (s) => s.get(key(url, total, i)) as IDBRequest<ArrayBuffer | undefined>,
+            ).catch(() => undefined);
             if (saved) bytes = new Uint8Array(saved);
             else {
               const start = i * PIECE;
@@ -135,7 +139,9 @@ export async function resumableFetch(input: RequestInfo | URL, init?: RequestIni
         }
         controller.close();
         // transformers.js now caches the whole file; the pieces aren't needed.
-        await idb("readwrite", (s) => s.delete(IDBKeyRange.bound(`${url}|${total}|`, `${url}|${total}|￿`))).catch(() => undefined);
+        await idb("readwrite", (s) => s.delete(IDBKeyRange.bound(`${url}|${total}|`, `${url}|${total}|￿`))).catch(
+          () => undefined,
+        );
       } catch (err) {
         controller.error(err);
       }

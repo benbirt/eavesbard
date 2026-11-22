@@ -39,17 +39,32 @@ export class LlmClient {
 
   /** Probabilities of each label (given as its spellings) after `prefill`. */
   ask(content: string, prefill: string, spellings: string[][], chat?: ChatOptions): Promise<number[]> {
-    return this.request((requestId) => ({ type: "ask", requestId, content, prefill, spellings, chat })) as Promise<number[]>;
+    return this.request((requestId) => ({ type: "ask", requestId, content, prefill, spellings, chat })) as Promise<
+      number[]
+    >;
   }
 
   /** Speech to text (16 kHz mono, at most 30 s); the model must be loaded with `audio`. */
   transcribe(audio: Float32Array, instruction: string, maxTokens = 128): Promise<string> {
-    return this.request((requestId) => ({ type: "transcribe", requestId, audio, instruction, maxTokens })) as Promise<string>;
+    return this.request((requestId) => ({
+      type: "transcribe",
+      requestId,
+      audio,
+      instruction,
+      maxTokens,
+    })) as Promise<string>;
   }
 
   /** What the model writes, greedily, up to `maxTokens`, after `prefill`; special tokens are kept. */
   generate(content: string, maxTokens: number, prefill?: string, chat?: ChatOptions): Promise<string> {
-    return this.request((requestId) => ({ type: "generate", requestId, content, maxTokens, prefill, chat })) as Promise<string>;
+    return this.request((requestId) => ({
+      type: "generate",
+      requestId,
+      content,
+      maxTokens,
+      prefill,
+      chat,
+    })) as Promise<string>;
   }
 
   terminate(): void {

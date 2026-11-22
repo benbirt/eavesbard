@@ -62,14 +62,25 @@ export async function evaluate(name, set, classify, { verbose = false } = {}) {
     const okS = s.settings.includes(e.setting) || (e.setting === current(s)?.setting && s.settings.includes("unknown"));
     const okI = s.intensities.includes(e.intensity);
     rows.push({ s, c, e, okS, okI });
-    if (verbose && !(okS && okI)) console.log(`   ✗ ${s.name}: got ${e.setting}/${e.intensity} want ${s.settings.join("|")}/${s.intensities.join("|")}`);
+    if (verbose && !(okS && okI))
+      console.log(
+        `   ✗ ${s.name}: got ${e.setting}/${e.intensity} want ${s.settings.join("|")}/${s.intensities.join("|")}`,
+      );
   }
   const ms = (performance.now() - started) / set.length;
   const cats = [...new Set(set.map((s) => s.category ?? "dev"))];
   const pct = (xs, f) => `${Math.round((100 * xs.filter(f).length) / xs.length)}`.padStart(3) + "%";
-  const line = (label, xs) => `${label.padEnd(15)} n=${String(xs.length).padStart(3)}  setting ${pct(xs, (r) => r.okS)}  intensity ${pct(xs, (r) => r.okI)}  both ${pct(xs, (r) => r.okS && r.okI)}`;
+  const line = (label, xs) =>
+    `${label.padEnd(15)} n=${String(xs.length).padStart(3)}  setting ${pct(xs, (r) => r.okS)}  intensity ${pct(xs, (r) => r.okI)}  both ${pct(xs, (r) => r.okS && r.okI)}`;
   console.log(`== ${name}  (${ms.toFixed(0)} ms/scene)`);
-  for (const c of cats) console.log("  " + line(c, rows.filter((r) => (r.s.category ?? "dev") === c)));
+  for (const c of cats)
+    console.log(
+      "  " +
+        line(
+          c,
+          rows.filter((r) => (r.s.category ?? "dev") === c),
+        ),
+    );
   console.log("  " + line("ALL", rows));
   return rows;
 }

@@ -21,7 +21,10 @@ type Doc = { key: string; text: string };
 let worker: Worker | undefined;
 let prepared: { first: Promise<void>; all: Promise<void> } | undefined;
 let nextRequest = 0;
-const waiting = new Map<number, { resolve: (r: { key: string; score: number }[]) => void; reject: (e: Error) => void }>();
+const waiting = new Map<
+  number,
+  { resolve: (r: { key: string; score: number }[]) => void; reject: (e: Error) => void }
+>();
 /** One per "index" message sent, answered in order. */
 const indexing: (() => void)[] = [];
 
@@ -64,7 +67,8 @@ export function prepareEmbeddings(first: () => Doc[], rest: () => Doc[]): { firs
     const m = e.data;
     switch (m.type) {
       case "progress":
-        if (localModel.value.phase === "loading") localModel.value = { phase: "loading", loaded: m.loaded, total: m.total };
+        if (localModel.value.phase === "loading")
+          localModel.value = { phase: "loading", loaded: m.loaded, total: m.total };
         break;
       case "indexed":
         indexing.shift()?.();

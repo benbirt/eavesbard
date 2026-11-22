@@ -1,6 +1,16 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { buildTracks, checkResult, findMissingFiles, parseHomepage, parseKeywords, parseTags, readObjectLiteral, text, type BuildResult } from "./scrape.js";
+import {
+  buildTracks,
+  checkResult,
+  findMissingFiles,
+  parseHomepage,
+  parseKeywords,
+  parseTags,
+  readObjectLiteral,
+  text,
+  type BuildResult,
+} from "./scrape.js";
 
 // Invented tiles in the shape of the homepage's markup.
 const tile = (id: number, classes: string, title: string, flavor: string, file?: string, type = "ambience + music") => `
@@ -12,8 +22,12 @@ const tile = (id: number, classes: string, title: string, flavor: string, file?:
   <div class="thumbnail">
   <div class="caption animated">
   <span class="white flavor">${flavor}</span>
-  ${file ? `<div class="buttons"><span class="saveButton"><a href="javascript:" onclick="saveAs('${file}')">Save</a></span>
-  <button data-track="song_${id}">Play</button></div>` : "</div>"}
+  ${
+    file
+      ? `<div class="buttons"><span class="saveButton"><a href="javascript:" onclick="saveAs('${file}')">Save</a></span>
+  <button data-track="song_${id}">Play</button></div>`
+      : "</div>"
+  }
   </div></div>`;
 
 const PAGE = `<html><body><div id="Grid">
@@ -105,12 +119,32 @@ test("checks reject suspicious scrapes", () => {
 });
 
 test("tracks whose audio file the host refuses are found; other failures count as present", async () => {
-  const track = (id: number) => ({ id, title: `T${id}`, description: "", genres: [], hasMusic: false, type: "", tags: { civ: [], biome: [], mood: [], action: [] }, keywords: [], file: `${id}_T` });
-  const statuses: Record<number, number | Error> = { 1: 200, 2: 403, 3: 404, 4: 500, 5: new Error("network down"), 6: 403 };
+  const track = (id: number) => ({
+    id,
+    title: `T${id}`,
+    description: "",
+    genres: [],
+    hasMusic: false,
+    type: "",
+    tags: { civ: [], biome: [], mood: [], action: [] },
+    keywords: [],
+    file: `${id}_T`,
+  });
+  const statuses: Record<number, number | Error> = {
+    1: 200,
+    2: 403,
+    3: 404,
+    4: 500,
+    5: new Error("network down"),
+    6: 403,
+  };
   const missing = await findMissingFiles([1, 2, 3, 4, 5, 6].map(track), async (t) => {
     const s = statuses[t.id]!;
     if (s instanceof Error) throw s;
     return s;
   });
-  assert.deepEqual(missing.map((t) => t.id), [2, 3, 6]);
+  assert.deepEqual(
+    missing.map((t) => t.id),
+    [2, 3, 6],
+  );
 });

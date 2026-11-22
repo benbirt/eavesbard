@@ -3,10 +3,19 @@
 module(name = "eavesbard")
 
 bazel_dep(name = "aspect_rules_esbuild", version = "0.27.1")
-bazel_dep(name = "aspect_rules_js", version = "3.5.1")
+bazel_dep(name = "aspect_rules_js", version = "3.6.1")
 bazel_dep(name = "aspect_rules_ts", version = "3.10.1")
 bazel_dep(name = "bazel_lib", version = "3.7.2")
-bazel_dep(name = "rules_nodejs", version = "6.7.6")
+bazel_dep(name = "rules_nodejs", version = "6.7.7")
+
+# Formatting and Starlark lint from benbirt/bazel-style: bazel run
+# //tools:format, //tools:format.check and //tools:lint.
+bazel_dep(name = "bazel_style", version = "0.0.0", dev_dependency = True)
+git_override(
+    module_name = "bazel_style",
+    commit = "f7127ad68627f170db74a38743ef8e742b3a8828",
+    remote = "https://github.com/benbirt/bazel-style.git",
+)
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
 node.toolchain(node_version = "22.22.0")

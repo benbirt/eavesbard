@@ -105,7 +105,9 @@ function DebugSection() {
           </p>
           {compare.value && engine.value === "local" && (
             <>
-              {needsKey && <p class="warning small">No API key is saved, so Claude can't be asked yet. Add one here:</p>}
+              {needsKey && (
+                <p class="warning small">No API key is saved, so Claude can't be asked yet. Add one here:</p>
+              )}
               <ApiKey onChange={() => keyChanged((n) => n + 1)} />
             </>
           )}
@@ -138,8 +140,8 @@ function ResetSection() {
     <section class="section">
       <h3>Reset to defaults</h3>
       <p>
-        Clears the options above and the Anthropic API key saved in this browser, then reloads the page. Downloaded models
-        and your choice about counting visits stay.
+        Clears the options above and the Anthropic API key saved in this browser, then reloads the page. Downloaded
+        models and your choice about counting visits stay.
       </p>
       {sessionActive.value ? (
         <p class="small">Stop the session first.</p>
@@ -185,7 +187,11 @@ export function Settings() {
 
       {/* The models only matter when the music is chosen automatically. */}
       <fieldset class="models" disabled={!auto.value}>
-        {!auto.value && <p class="small">Transcription and scene classification are only used when the music is chosen automatically.</p>}
+        {!auto.value && (
+          <p class="small">
+            Transcription and scene classification are only used when the music is chosen automatically.
+          </p>
+        )}
         <section class="section">
           <h3>Transcription</h3>
           <SpeechModelChooser />
@@ -193,7 +199,12 @@ export function Settings() {
 
         <section class="section">
           <h3>Scene classification</h3>
-          <Choice name="engine" checked={engine.value === "local"} onPick={() => setEngine("local")} title="On this computer">
+          <Choice
+            name="engine"
+            checked={engine.value === "local"}
+            onPick={() => setEngine("local")}
+            title="On this computer"
+          >
             <LocalModelsNote />
           </Choice>
           <Choice name="engine" checked={engine.value === "claude"} onPick={() => setEngine("claude")} title="Claude">

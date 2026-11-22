@@ -22,7 +22,10 @@ export interface LocalPick {
 /** Ranks the allowed `choices` against the request and returns the best. */
 export async function localPick(request: PickRequest, choices: readonly LibraryTrack[]): Promise<LocalPick> {
   const query = localQuery(request);
-  const ranked = await rank(query, choices.map((c) => trackKey(c.track.id)));
+  const ranked = await rank(
+    query,
+    choices.map((c) => trackKey(c.track.id)),
+  );
   const best = ranked[0];
   const entry = best && choices.find((c) => trackKey(c.track.id) === best.key);
   if (!best || !entry) throw new Error("Local search found no track.");

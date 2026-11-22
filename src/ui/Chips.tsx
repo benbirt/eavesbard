@@ -9,7 +9,6 @@ import { localModel } from "../local-models.js";
 import { EMBEDDING_MODEL } from "../pick/embed-protocol.js";
 import { isWebSpeech, whisperRepo, WHISPER_DOWNLOAD_MB, type WhisperModel } from "../stt/protocol.js";
 
-
 /** "rec": listening, shown red like a browser's recording indicator. */
 type Tone = "ok" | "busy" | "warn" | "off" | "rec";
 
@@ -35,21 +34,49 @@ const ICONS = {
 function textOf(node: ComponentChildren): string {
   if (typeof node === "string" || typeof node === "number") return String(node);
   if (Array.isArray(node)) return node.map(textOf).join("");
-  if (node && typeof node === "object" && "props" in node) return textOf((node.props as { children?: ComponentChildren }).children);
+  if (node && typeof node === "object" && "props" in node)
+    return textOf((node.props as { children?: ComponentChildren }).children);
   return "";
 }
 
-function Chip({ icon, tone, pulse = false, children, title, extra }: { icon: keyof typeof ICONS; tone: Tone; pulse?: boolean; children: ComponentChildren; title?: string; extra?: string }) {
+function Chip({
+  icon,
+  tone,
+  pulse = false,
+  children,
+  title,
+  extra,
+}: {
+  icon: keyof typeof ICONS;
+  tone: Tone;
+  pulse?: boolean;
+  children: ComponentChildren;
+  title?: string;
+  extra?: string;
+}) {
   // On narrow screens only the icon and the dot show, and a download's percentage.
   const percent = textOf(children).match(/\d+%/)?.[0];
   return (
     <span class={`chip ${tone}${extra ? ` ${extra}` : ""}`} title={title ?? textOf(children)} role="status">
       <span class={`dot${pulse ? " hearing" : ""}`} aria-hidden="true" />
-      <svg class="chip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+      <svg
+        class="chip-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linejoin="round"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
         {ICONS[icon]}
       </svg>
       <span class="chip-text">{children}</span>
-      {percent && <span class="chip-short" aria-hidden="true">{percent}</span>}
+      {percent && (
+        <span class="chip-short" aria-hidden="true">
+          {percent}
+        </span>
+      )}
     </span>
   );
 }
@@ -105,7 +132,11 @@ function speed(repo: string, loaded: number): string {
  * workers' own totals start with the few small files seen so far, which
  * would read as 100% before the big ones begin.
  */
-function progress(m: { loaded: number; total: number; preparing: boolean }, repo: string, expectedBytes: number): string {
+function progress(
+  m: { loaded: number; total: number; preparing: boolean },
+  repo: string,
+  expectedBytes: number,
+): string {
   if (m.preparing) return "preparing";
   // Already downloaded: the progress is the browser reading its own cache.
   if (knownDownloaded(repo)) return "loading";
@@ -117,55 +148,146 @@ function progress(m: { loaded: number; total: number; preparing: boolean }, repo
   return `downloading ${shown}%${rate ? ` · ${rate}` : ""}`;
 }
 
-const speechName = () => (isWebSpeech(model.value) ? "the browser's speech recognition" : `Whisper ${model.value.replace(".en", "")}`);
+const speechName = () =>
+  isWebSpeech(model.value) ? "the browser's speech recognition" : `Whisper ${model.value.replace(".en", "")}`;
 
 /** The listener: whether it can listen, is listening, or can hear anyone. Model details are in the tooltip. */
 export function ListeningChip() {
   const speech = speechModel.value;
-  if (!isWebSpeech(model.value) && state.value.phase !== "loading" && speech.phase !== "loading") forget(whisperRepo(model.value as WhisperModel));
-  if (!auto.value && state.value.phase === "idle") return <Chip icon="mic" tone="off" title="Only used when the music is chosen automatically"><b>Listener</b> · off</Chip>;
+  if (!isWebSpeech(model.value) && state.value.phase !== "loading" && speech.phase !== "loading")
+    forget(whisperRepo(model.value as WhisperModel));
+  if (!auto.value && state.value.phase === "idle")
+    return (
+      <Chip icon="mic" tone="off" title="Only used when the music is chosen automatically">
+        <b>Listener</b> · off
+      </Chip>
+    );
   const s = state.value;
   const name = speechName();
-  if (s.phase === "error") return <Chip icon="mic" tone="warn" title={s.message}><b>Listener</b> · problem</Chip>;
-  if (s.phase === "loading") return <Chip icon="mic" tone="busy" title={name}><b>Listener</b> · {s.preparing || !s.total ? "starting" : progress(s, whisperRepo(model.value as WhisperModel), whisperBytes())}</Chip>;
+  if (s.phase === "error")
+    return (
+      <Chip icon="mic" tone="warn" title={s.message}>
+        <b>Listener</b> · problem
+      </Chip>
+    );
+  if (s.phase === "loading")
+    return (
+      <Chip icon="mic" tone="busy" title={name}>
+        <b>Listener</b> ·{" "}
+        {s.preparing || !s.total ? "starting" : progress(s, whisperRepo(model.value as WhisperModel), whisperBytes())}
+      </Chip>
+    );
   if (s.phase === "listening") {
     if (wakeLock.value === "lost") {
-      return <Chip icon="mic" tone="warn" pulse={speaking.value} title="The screen may sleep and stop the listening: keep this tab visible"><b>Listener</b> · listening, keep this tab visible</Chip>;
+      return (
+        <Chip
+          icon="mic"
+          tone="warn"
+          pulse={speaking.value}
+          title="The screen may sleep and stop the listening: keep this tab visible"
+        >
+          <b>Listener</b> · listening, keep this tab visible
+        </Chip>
+      );
     }
-    return <Chip icon="mic" tone="rec" pulse={speaking.value} title={name}><b>Listener</b> · {speaking.value ? "hearing speech" : "listening"}</Chip>;
+    return (
+      <Chip icon="mic" tone="rec" pulse={speaking.value} title={name}>
+        <b>Listener</b> · {speaking.value ? "hearing speech" : "listening"}
+      </Chip>
+    );
   }
-  if (isWebSpeech(model.value)) return <Chip icon="mic" tone="ok" title={name}><b>Listener</b> · ready</Chip>;
+  if (isWebSpeech(model.value))
+    return (
+      <Chip icon="mic" tone="ok" title={name}>
+        <b>Listener</b> · ready
+      </Chip>
+    );
   const m = speechModel.value;
-  if (m.phase === "loading") return <Chip icon="mic" tone="busy" title={name}><b>Listener</b> · {progress(m, whisperRepo(model.value as WhisperModel), whisperBytes())}</Chip>;
-  if (m.phase === "error") return <Chip icon="mic" tone="warn" title={`${name}: ${m.message}`}><b>Listener</b> · problem</Chip>;
-  if (m.phase === "ready") return <Chip icon="mic" tone="ok" title={name}><b>Listener</b> · ready</Chip>;
-  return <Chip icon="mic" tone="off" title={name}><b>Listener</b> · {notLoaded(whisperRepo(model.value as WhisperModel))}</Chip>;
+  if (m.phase === "loading")
+    return (
+      <Chip icon="mic" tone="busy" title={name}>
+        <b>Listener</b> · {progress(m, whisperRepo(model.value as WhisperModel), whisperBytes())}
+      </Chip>
+    );
+  if (m.phase === "error")
+    return (
+      <Chip icon="mic" tone="warn" title={`${name}: ${m.message}`}>
+        <b>Listener</b> · problem
+      </Chip>
+    );
+  if (m.phase === "ready")
+    return (
+      <Chip icon="mic" tone="ok" title={name}>
+        <b>Listener</b> · ready
+      </Chip>
+    );
+  return (
+    <Chip icon="mic" tone="off" title={name}>
+      <b>Listener</b> · {notLoaded(whisperRepo(model.value as WhisperModel))}
+    </Chip>
+  );
 }
 
 /** The scene model: who decides the scene, and whether it's ready. Model details are in the tooltip. */
 export function ModelChip() {
-  if (!auto.value) return <Chip icon="scenes" tone="off" extra="model" title="Only used when the music is chosen automatically"><b>Scenes</b> · off</Chip>;
+  if (!auto.value)
+    return (
+      <Chip icon="scenes" tone="off" extra="model" title="Only used when the music is chosen automatically">
+        <b>Scenes</b> · off
+      </Chip>
+    );
   if (sceneLlm.value.phase !== "loading") forget(SCENE_LLM.repo);
   if (effectiveEngine() === "claude") {
     const c = sessionCost.value;
-    return <Chip icon="scenes" tone="ok" extra="model" title="Claude decides the scene"><b>Scenes</b> · Claude{c.calls ? `, $${c.usd.toFixed(3)} so far` : ""}</Chip>;
+    return (
+      <Chip icon="scenes" tone="ok" extra="model" title="Claude decides the scene">
+        <b>Scenes</b> · Claude{c.calls ? `, $${c.usd.toFixed(3)} so far` : ""}
+      </Chip>
+    );
   }
   const llm = sceneLlm.value;
   const embed = localModel.value;
   const name = `${SCENE_LLM.name} with embeddings, on this computer`;
   if (llm.phase === "error" || embed.phase === "error") {
     const message = llm.phase === "error" ? llm.message : embed.phase === "error" ? embed.message : "";
-    return <Chip icon="scenes" tone="warn" extra="model" title={message}><b>Scenes</b> · problem</Chip>;
+    return (
+      <Chip icon="scenes" tone="warn" extra="model" title={message}>
+        <b>Scenes</b> · problem
+      </Chip>
+    );
   }
   if (!hasWebGpu) {
-    return <Chip icon="scenes" tone={embed.phase === "ready" || embed.phase === "indexing" ? "ok" : "off"} extra="model" title="No WebGPU in this browser, so only the embedding model decides: less accurate"><b>Scenes</b> · basic</Chip>;
+    return (
+      <Chip
+        icon="scenes"
+        tone={embed.phase === "ready" || embed.phase === "indexing" ? "ok" : "off"}
+        extra="model"
+        title="No WebGPU in this browser, so only the embedding model decides: less accurate"
+      >
+        <b>Scenes</b> · basic
+      </Chip>
+    );
   }
-  if (llm.phase === "loading") return <Chip icon="scenes" tone="busy" extra="model" title={name}><b>Scenes</b> · {progress(llm, SCENE_LLM.repo, SCENE_LLM.downloadMb * 1e6)}</Chip>;
+  if (llm.phase === "loading")
+    return (
+      <Chip icon="scenes" tone="busy" extra="model" title={name}>
+        <b>Scenes</b> · {progress(llm, SCENE_LLM.repo, SCENE_LLM.downloadMb * 1e6)}
+      </Chip>
+    );
   if (llm.phase === "ready") {
-    const indexing = embed.phase === "indexing" ? `; indexing tracks for picking (${embed.done} of ${embed.total})` : "";
-    return <Chip icon="scenes" tone="ok" extra="model" title={name + indexing}><b>Scenes</b> · ready</Chip>;
+    const indexing =
+      embed.phase === "indexing" ? `; indexing tracks for picking (${embed.done} of ${embed.total})` : "";
+    return (
+      <Chip icon="scenes" tone="ok" extra="model" title={name + indexing}>
+        <b>Scenes</b> · ready
+      </Chip>
+    );
   }
-  return <Chip icon="scenes" tone="off" extra="model" title={name}><b>Scenes</b> · {notLoaded(SCENE_LLM.repo)}</Chip>;
+  return (
+    <Chip icon="scenes" tone="off" extra="model" title={name}>
+      <b>Scenes</b> · {notLoaded(SCENE_LLM.repo)}
+    </Chip>
+  );
 }
 
 /** Whether any model is downloading right now (not just preparing on the GPU). */
@@ -175,7 +297,10 @@ function downloading(): boolean {
   // Loading a model that's already downloaded reads the cache: nothing to pause.
   const fresh = (repo: string) => knownDownloaded(repo) === false;
   return (
-    (speech.phase === "loading" && !speech.preparing && !isWebSpeech(model.value) && fresh(whisperRepo(model.value as WhisperModel))) ||
+    (speech.phase === "loading" &&
+      !speech.preparing &&
+      !isWebSpeech(model.value) &&
+      fresh(whisperRepo(model.value as WhisperModel))) ||
     (llm.phase === "loading" && !llm.preparing && fresh(SCENE_LLM.repo)) ||
     (localModel.value.phase === "loading" && fresh(EMBEDDING_MODEL))
   );
@@ -189,7 +314,11 @@ export function DownloadControl() {
     <button
       type="button"
       class="iconbtn"
-      title={paused ? "Resume downloading the models, from where they stopped" : "Pause the model downloads; resume later, even after a reload"}
+      title={
+        paused
+          ? "Resume downloading the models, from where they stopped"
+          : "Pause the model downloads; resume later, even after a reload"
+      }
       onClick={() => setDownloadsPaused(!paused)}
     >
       {paused ? "▶" : "⏸"}

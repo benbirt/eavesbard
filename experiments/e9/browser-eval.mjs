@@ -28,7 +28,13 @@ const { values: args } = parseArgs({
 });
 const here = source("experiments/e9");
 const site = built("src/eval_site");
-const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".wasm": "application/wasm", ".map": "application/json" };
+const types = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".mjs": "text/javascript",
+  ".wasm": "application/wasm",
+  ".map": "application/json",
+};
 const server = createServer((req, res) => {
   const path = join(site, decodeURIComponent(new URL(req.url, "http://x").pathname));
   if (!path.startsWith(site) || !existsSync(path) || statSync(path).isDirectory()) return res.writeHead(404).end();
@@ -42,10 +48,13 @@ const context = await chromium.launchPersistentContext(join(here, ".chrome-profi
   headless: !args.headed,
 });
 // Give up rather than hang: a run that stalls (e.g. a lost GPU device) never finishes on its own.
-setTimeout(() => {
-  console.error(`gave up after ${args["max-minutes"]} minutes`);
-  process.exit(1);
-}, Number(args["max-minutes"]) * 60_000).unref();
+setTimeout(
+  () => {
+    console.error(`gave up after ${args["max-minutes"]} minutes`);
+    process.exit(1);
+  },
+  Number(args["max-minutes"]) * 60_000,
+).unref();
 const page = await context.newPage();
 page.setDefaultTimeout(0);
 page.on("pageerror", (e) => console.error("page error:", e.message));
@@ -67,7 +76,12 @@ const progress = setInterval(async () => {
 }, 2000);
 
 const started = Date.now();
-await page.evaluate((m) => window.evalLoad(m), { repo: args.repo, emptyThought: args["empty-thought"], ...(args.dtype ? { dtype: args.dtype } : {}), ...(args.tokenizer ? { tokenizerRepo: args.tokenizer } : {}) });
+await page.evaluate((m) => window.evalLoad(m), {
+  repo: args.repo,
+  emptyThought: args["empty-thought"],
+  ...(args.dtype ? { dtype: args.dtype } : {}),
+  ...(args.tokenizer ? { tokenizerRepo: args.tokenizer } : {}),
+});
 const results = await page.evaluate((o) => window.evalRun(o), {
   variants: args.variants.split(","),
   freeText: Number(args.free),
@@ -77,8 +91,15 @@ clearInterval(progress);
 mkdirSync(join(here, "results"), { recursive: true });
 const out = join(here, "results", `${args.name}.json`);
 writeFileSync(out, JSON.stringify({ repo: args.repo, dtype: args.dtype, variants: args.variants.split(","), results }));
-const perScene = Object.fromEntries(args.variants.split(",").map((v) => [v, (results.reduce((a, r) => a + r.llm[v].ms, 0) / results.length / 1000).toFixed(2) + " s"]));
-console.log(`saved ${out}: ${results.length} scenes in ${((Date.now() - started) / 1000).toFixed(0)} s; per scene:`, perScene);
+const perScene = Object.fromEntries(
+  args.variants
+    .split(",")
+    .map((v) => [v, (results.reduce((a, r) => a + r.llm[v].ms, 0) / results.length / 1000).toFixed(2) + " s"]),
+);
+console.log(
+  `saved ${out}: ${results.length} scenes in ${((Date.now() - started) / 1000).toFixed(0)} s; per scene:`,
+  perScene,
+);
 finished = true;
 // Closing Chrome can hang after a large model; the results are saved, so don't wait long.
 await Promise.race([context.close(), new Promise((r) => setTimeout(r, 10_000))]);
