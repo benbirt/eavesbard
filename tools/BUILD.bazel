@@ -1,4 +1,5 @@
 load("@aspect_rules_js//js:defs.bzl", "js_binary")
+load("@bazel_style//:defs.bzl", "style")
 
 js_binary(
     name = "serve",
@@ -12,3 +13,10 @@ js_binary(
     entry_point = "stamp-html.mjs",
     visibility = ["//visibility:public"],
 )
+
+# bazel run //tools:format formats every git-tracked file, with the formatters
+# and settings of benbirt/bazel-style; //tools:format.check only checks, and
+# //tools:lint lints the Starlark. Exclude a file with the rules-lint-ignored
+# attribute in .gitattributes. OpenTofu files are formatted with the tofu this
+# repository already has, from rules_tofu.
+style(terraform = "@rules_tofu//tofu")

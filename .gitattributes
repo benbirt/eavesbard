@@ -1,0 +1,8 @@
+# Written by scripts and pnpm: GitHub collapses their diffs, and //tools:format
+# leaves them as written.
+data/tracks.json linguist-generated
+experiments/*/results/** linguist-generated
+experiments/e12/candidates.json linguist-generated
+experiments/e12/contact-sheet.html linguist-generated
+pnpm-lock.yaml linguist-generated
+experiments/pnpm-lock.yaml linguist-generated

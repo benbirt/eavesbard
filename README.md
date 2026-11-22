@@ -12,6 +12,8 @@ Everything builds and runs through [Bazel](https://bazel.build/), via [Bazelisk]
 bazel test //...                   # type-check, build and run the tests
 bazel build //src:site             # the deployable site, in bazel-bin/src/site
 bazel run //tools:serve -- 8080    # serve it at http://localhost:8080/
+bazel run //tools:format           # format every file (CI runs //tools:format.check)
+bazel run //tools:lint             # lint the Starlark files
 bazel run //scripts:build_index    # regenerate data/tracks.json from tabletopaudio.com
 ANTHROPIC_API_KEY=... bazel run //scripts:classifier_check   # try the classifier on scripted transcripts
 bazel run //experiments/ui:ui_check         # drive the app through its main states in headless Chrome
