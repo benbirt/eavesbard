@@ -38,7 +38,7 @@ use_repo(typescript, "npm_typescript")
 
 # PostHog's insights and dashboard (posthog/) and the DNS records (dns/) as
 # OpenTofu, through rules_tofu.
-bazel_dep(name = "rules_tofu", version = "0.4.0")
+bazel_dep(name = "rules_tofu", version = "0.6.0")
 
 tofu = use_extension("@rules_tofu//toolchain:extensions.bzl", "tofu", dev_dependency = True)
 use_repo(tofu, "tofu_toolchains")

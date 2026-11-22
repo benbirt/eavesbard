@@ -27,7 +27,7 @@ provider "registry.opentofu.org/cloudflare/cloudflare" {
 
 provider "registry.opentofu.org/posthog/posthog" {
   version     = "1.0.32"
-  constraints = ">= 1.0.0, 1.0.28"
+  constraints = ">= 1.0.0, 1.0.32"
   hashes = [
     "h1:+PlPM51EH0Of7Jx1yO1nWr18jPBcBhZ0gCji8+tWWOM=",
     "h1:Asr69jLQTKaS+WQBaZVN1hNrz2N7Mb53IB0BLqtAjTw=",
@@ -50,6 +50,7 @@ provider "registry.opentofu.org/posthog/posthog" {
     "zh:698c28fe3f71d4dcd1b9ab71fb55c35109ccb20220a91497f1dc1e44d2cd8849",
     "zh:76679496a097fdc32ca571c2c3e21eacb4ab863c707dce3190473e15e37d96a5",
     "zh:82d66b19fe4dd3365a228739da44df0ff038168143ad1767f0de429ee1023c9d",
+    "zh:890df766e9b839623b1f0437355032a3c006226a6c200cd911e15ee1a9014e9f",
     "zh:949cc5c00d5af1cd9dedea7382b5b106a9119e458554a12152cb270f11adba1b",
     "zh:c4441d81117f5826232d419427614ea26bb81ba76d926bb3d02c9d07ac534571",
     "zh:dbe7f6197954571f47eeeb48dcfb0706636464b788958e15cbfb0b66be268193",
