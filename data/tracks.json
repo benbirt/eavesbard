@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-16T15:59:31.380Z",
+  "generated": "2026-11-23T18:23:34.802Z",
   "source": "https://tabletopaudio.com/",
   "tracks": [
     {
@@ -1588,35 +1588,6 @@
       ]
     },
     {
-      "id": 50,
-      "title": "Super Hero",
-      "description": "Like a Michael Bay movie in your head. Calling all heroes. The villainous tropes are on the loose!",
-      "genres": [
-        "modern"
-      ],
-      "hasMusic": true,
-      "type": "music + ambience",
-      "file": "50_Super_Hero",
-      "tags": {
-        "civ": [
-          "cities"
-        ],
-        "biome": [],
-        "mood": [
-          "optimistic"
-        ],
-        "action": [
-          "skirmish"
-        ]
-      },
-      "keywords": [
-        "action",
-        "city",
-        "explosions",
-        "thriller"
-      ]
-    },
-    {
       "id": 51,
       "title": "Woodland Campsite",
       "description": "Every adventurer needs downtime. Here's a nice spot in the woods to rest the horses and enjoy a hot meal over a fire.",
@@ -2789,7 +2760,7 @@
       "genres": [
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + minimal ambience",
       "file": "86_Dark_City",
       "tags": {
@@ -3092,7 +3063,7 @@
       "genres": [
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "95_Arabesque",
       "tags": {
@@ -3198,7 +3169,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "98_Lost_Mine",
       "tags": {
@@ -3436,7 +3407,7 @@
       "title": "Weirder Things",
       "description": "An homage to an era, and a show. With love.",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "105_Weirder_Things_2",
       "tags": {
@@ -3500,7 +3471,7 @@
         "historical",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "107_Lonesome_West",
       "tags": {
@@ -3554,34 +3525,6 @@
         "fair",
         "rides",
         "circus"
-      ]
-    },
-    {
-      "id": 109,
-      "title": "747 Interior",
-      "description": "The timeless sound of a 747 cabin in flight.",
-      "genres": [
-        "modern",
-        "historical"
-      ],
-      "hasMusic": false,
-      "type": "ambience",
-      "file": "109_747_Interior",
-      "tags": {
-        "civ": [
-          "interiors"
-        ],
-        "biome": [],
-        "mood": [
-          "peaceful"
-        ],
-        "action": []
-      },
-      "keywords": [
-        "aircraft",
-        "airplane",
-        "cabin",
-        "white noise"
       ]
     },
     {
@@ -4136,7 +4079,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "126_Endless_Voyage",
       "tags": {
@@ -4172,7 +4115,7 @@
       "genres": [
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "127_Car_Chase_a",
       "tags": {
@@ -4206,7 +4149,7 @@
       "title": "Waiting Time",
       "description": "Tick Tock, sometimes adventures need a little downtime music. Lighthearted or slightly sinister, it's up to you to decide.",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "128_Waiting_Time",
       "tags": {
@@ -4239,7 +4182,7 @@
       "title": "Weirder Things: 2",
       "description": "The sequel, to the homage that was the first Weirder Things track. This time, with more 80s.",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "129_Weirder_Things_2",
       "tags": {
@@ -4267,7 +4210,7 @@
       "genres": [
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "130_Russian_Winter",
       "tags": {
@@ -4424,6 +4367,40 @@
         "travel",
         "coach",
         "rain"
+      ]
+    },
+    {
+      "id": 135,
+      "title": "Dark Matter",
+      "description": "The sound of the cosmos, or an alternate dimension. Infinite and majestic.",
+      "genres": [
+        "scifi",
+        "fantasy",
+        "horror"
+      ],
+      "hasMusic": false,
+      "type": "ambience + music",
+      "file": "135_Dark_Matter",
+      "tags": {
+        "civ": [],
+        "biome": [
+          "planar"
+        ],
+        "mood": [
+          "peaceful",
+          "mysterious"
+        ],
+        "action": []
+      },
+      "keywords": [
+        "infinity",
+        "cosmos",
+        "universe",
+        "celestial",
+        "cyberpunk",
+        "planets",
+        "computers",
+        "abstract"
       ]
     },
     {
@@ -4870,7 +4847,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "148_Barovian_Castle",
       "tags": {
@@ -4940,7 +4917,7 @@
       "genres": [
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "150_Loop_Tales",
       "tags": {
@@ -4967,32 +4944,6 @@
         "synth",
         "tv",
         "television"
-      ]
-    },
-    {
-      "id": 151,
-      "title": "Metropolis Fanfare",
-      "description": "A Heroic introduction to the city of tomorrow.",
-      "genres": [],
-      "hasMusic": true,
-      "type": "music",
-      "file": "151_Metropolis_Fanfare",
-      "tags": {
-        "civ": [
-          "cities"
-        ],
-        "biome": [],
-        "mood": [
-          "optimistic"
-        ],
-        "action": []
-      },
-      "keywords": [
-        "combat",
-        "battle",
-        "action",
-        "drama",
-        "steampunk"
       ]
     },
     {
@@ -5111,7 +5062,7 @@
         "scifi",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "155_Outpost_31",
       "tags": {
@@ -5180,7 +5131,7 @@
       "title": "Field of Heroes",
       "description": "On the field of battle, heroes are born.",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "157_Field_of_Heroes",
       "tags": {
@@ -5216,7 +5167,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "158_Waterkeep",
       "tags": {
@@ -5350,7 +5301,7 @@
       "genres": [
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "162_Dark_Angel",
       "tags": {
@@ -5557,7 +5508,7 @@
       "title": "Neon Drive",
       "description": "Hi intensity cyberpunk action for highly modified people and cars.",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "168_Neon_Drive",
       "tags": {
@@ -5658,7 +5609,7 @@
       "title": "Cry Havoc",
       "description": "\"Cry Havoc and let slip the dogs of war\" - W. Shakespeare",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "171_Cry_Havoc",
       "tags": {
@@ -5767,7 +5718,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "174_Wizards_Tower",
       "tags": {
@@ -5874,7 +5825,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "177_Tavern_Music",
       "tags": {
@@ -6047,7 +5998,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "182_Country_Village",
       "tags": {
@@ -6141,7 +6092,7 @@
       "genres": [
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "185_Gravity",
       "tags": {
@@ -6176,7 +6127,7 @@
       "genres": [
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "186_Haunted",
       "tags": {
@@ -6208,7 +6159,7 @@
       "title": "Endgame",
       "description": "Big, brash, pulpy. Save this for the fights you might lose.",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "187_Endgame",
       "tags": {
@@ -6411,7 +6362,7 @@
       "title": "The Steppes",
       "description": "A Mongolian flavored battle track. Mostly Drums.",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "193_The_Steppes",
       "tags": {
@@ -6688,7 +6639,7 @@
       "title": "Haven",
       "description": "A safe quiet place to regroup for the next battle.",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "201_Haven",
       "tags": {
@@ -6894,7 +6845,7 @@
       "genres": [
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "207_Biodome",
       "tags": {
@@ -6929,7 +6880,7 @@
         "historical",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "208_Ghost_Town",
       "tags": {
@@ -6962,7 +6913,7 @@
       "title": "Rat Battle",
       "description": "Not every sword is magical. Not every fight is epic.",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "209_Rat_Battle",
       "tags": {
@@ -7031,7 +6982,7 @@
       "genres": [
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "211_Thieves_Guild",
       "tags": {
@@ -7065,7 +7016,7 @@
       "title": "Witch Mountain",
       "description": "A lively and chaotic night of magic and danger.",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music",
       "file": "212_Witch_Mountain",
       "tags": {
@@ -7481,7 +7432,7 @@
       "title": "Mansion: Night",
       "description": "Secrets are hidden in the great old house. Wait until dark, tread quietly.",
       "genres": [],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "224_Mansion_Night",
       "tags": {
@@ -7581,7 +7532,7 @@
       "genres": [
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "227_Terror_in_the_Woods",
       "tags": {
@@ -7685,7 +7636,7 @@
         "horror",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "230_All_Hallows_Eve",
       "tags": {
@@ -7763,7 +7714,7 @@
         "modern",
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "232_Mech_War",
       "tags": {
@@ -8079,7 +8030,7 @@
         "historical",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "241_Pirates",
       "tags": {
@@ -9459,7 +9410,7 @@
       "genres": [
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "280_The_City_Above",
       "tags": {
@@ -9491,7 +9442,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "music + ambience",
       "file": "281_Escape_from_Shadow",
       "tags": {
@@ -9524,7 +9475,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "282_The_Wild_Hunt",
       "tags": {
@@ -10687,7 +10638,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "315_Dragon_Rider",
       "tags": {
@@ -10724,7 +10675,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "316_Goblin_Ambush",
       "tags": {
@@ -10758,7 +10709,7 @@
       "genres": [
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "317_Robot_Scrapyard",
       "tags": {
@@ -10791,7 +10742,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "318_The_Gaping_Maw",
       "tags": {
@@ -10829,7 +10780,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "319_Shamans_Hollow",
       "tags": {
@@ -10863,7 +10814,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "320_Cultists_Cavern",
       "tags": {
@@ -10899,7 +10850,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "321_Invisible_Mountain",
       "tags": {
@@ -10998,7 +10949,7 @@
       "genres": [
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "324_Distilled_Highlands",
       "tags": {
@@ -11058,7 +11009,7 @@
       "genres": [
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "326_Distilled_Tranquility",
       "tags": {
@@ -11092,7 +11043,7 @@
         "nature",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "327_Distilled_Tropical",
       "tags": {
@@ -11129,7 +11080,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "328_Battle_Requiem",
       "tags": {
@@ -11160,7 +11111,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "329_Desert_Temple",
       "tags": {
@@ -11195,7 +11146,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "330_Mega_City_Slums",
       "tags": {
@@ -11229,7 +11180,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "331_Drowned_Sailors",
       "tags": {
@@ -11263,7 +11214,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "332_Myconid_Colony",
       "tags": {
@@ -11302,7 +11253,7 @@
         "modern",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "333_Arcane_Athenaeum",
       "tags": {
@@ -11337,7 +11288,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "334_Harpies_Nest",
       "tags": {
@@ -11373,7 +11324,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "335_Abandoned_Chapel",
       "tags": {
@@ -11407,7 +11358,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "336_Medieval_Banquet",
       "tags": {
@@ -11443,7 +11394,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "337_Village_of_the_Damned",
       "tags": {
@@ -11481,7 +11432,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "338_Adventure_Supply",
       "tags": {
@@ -11513,7 +11464,7 @@
       "genres": [
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "339_Red_Planet",
       "tags": {
@@ -11551,7 +11502,7 @@
       "genres": [
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "340_Starbase_Omega",
       "tags": {
@@ -11587,7 +11538,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "341_Beggars_Rest",
       "tags": {
@@ -11622,7 +11573,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "342_Tavern_Celebration",
       "tags": {
@@ -11657,7 +11608,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "343_Dungeon_Collapse",
       "tags": {
@@ -11803,7 +11754,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "347_Elven_Procession",
       "tags": {
@@ -11837,7 +11788,7 @@
         "historical",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "348_Viking_Village",
       "tags": {
@@ -11872,7 +11823,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "349_Puzzle_Dungeon",
       "tags": {
@@ -11905,7 +11856,7 @@
       "genres": [
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "350_Covert_Ops",
       "tags": {
@@ -11938,7 +11889,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "351_Halfling_Lodge",
       "tags": {
@@ -11972,7 +11923,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "352_Black_Rider",
       "tags": {
@@ -12010,7 +11961,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "353_Spirit_of_the_Plains",
       "tags": {
@@ -12043,7 +11994,7 @@
         "horror",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "354_Warlocks_Whisper",
       "tags": {
@@ -12077,7 +12028,7 @@
       "genres": [
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "355_Hydroponics_Bay",
       "tags": {
@@ -12107,7 +12058,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "356_Adventure_Begins",
       "tags": {
@@ -12139,7 +12090,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "357_Promontory",
       "tags": {
@@ -12172,7 +12123,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "358_Egg_Chamber",
       "tags": {
@@ -12206,7 +12157,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "359_Skull_Island",
       "tags": {
@@ -12247,7 +12198,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "360_Pit_Fighter",
       "tags": {
@@ -12282,7 +12233,7 @@
         "fantasy",
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "361_Ancient_Beacon",
       "tags": {
@@ -12320,7 +12271,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "362_Rolling_Emporium",
       "tags": {
@@ -12356,7 +12307,7 @@
       "genres": [
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "363_Starship_Adrift",
       "tags": {
@@ -12392,7 +12343,7 @@
         "horror",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "364_River_of_Blood",
       "tags": {
@@ -12425,7 +12376,7 @@
         "historical",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "365_Trail_of_Ashes",
       "tags": {
@@ -12463,7 +12414,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "366_Rocs_Nest",
       "tags": {
@@ -12568,7 +12519,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "369_Troll_Grotto",
       "tags": {
@@ -12604,7 +12555,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "370_Awakenings",
       "tags": {
@@ -12638,7 +12589,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "371_Whirlpool",
       "tags": {
@@ -12678,7 +12629,7 @@
         "historical",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "372_Den_of_Iniquity",
       "tags": {
@@ -12712,7 +12663,7 @@
         "scifi",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "373_Infernal_Machine",
       "tags": {
@@ -12742,7 +12693,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "374_Hall_of_Angels",
       "tags": {
@@ -12775,7 +12726,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "375_Rise_of_the_Golem",
       "tags": {
@@ -12810,7 +12761,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "376_Voyage_Begins",
       "tags": {
@@ -12848,7 +12799,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "377_Through_the_Woods",
       "tags": {
@@ -12885,7 +12836,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "378_Descent",
       "tags": {
@@ -12920,7 +12871,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "379_Terraforming",
       "tags": {
@@ -12954,7 +12905,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "380_The_Great_Lift",
       "tags": {
@@ -12989,7 +12940,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "381_Halfling_Sneak",
       "tags": {
@@ -13023,7 +12974,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "382_Long_Rest",
       "tags": {
@@ -13055,7 +13006,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "383_Banshees_Lair",
       "tags": {
@@ -13090,7 +13041,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "384_Western_Watchtower",
       "tags": {
@@ -13126,7 +13077,7 @@
       "genres": [
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "385_Infiltration",
       "tags": {
@@ -13159,7 +13110,7 @@
       "genres": [
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "386_The_Attic",
       "tags": {
@@ -13193,7 +13144,7 @@
       "genres": [
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "387_Docking_Bay",
       "tags": {
@@ -13231,7 +13182,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "388_Lord_of_Bones",
       "tags": {
@@ -13270,7 +13221,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "389_Medieval_Market",
       "tags": {
@@ -13304,7 +13255,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "390_Desert_Devotional",
       "tags": {
@@ -13343,7 +13294,7 @@
         "modern",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "391_Train_Job",
       "tags": {
@@ -13382,7 +13333,7 @@
         "historical",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "392_Trireme",
       "tags": {
@@ -13421,7 +13372,7 @@
         "fantasy",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "393_Hellhound_Alley",
       "tags": {
@@ -13455,7 +13406,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "394_Demon_Army",
       "tags": {
@@ -13568,7 +13519,7 @@
         "historical",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "397_Homecoming",
       "tags": {
@@ -13604,7 +13555,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "398_The_Misty_Marsh",
       "tags": {
@@ -13643,7 +13594,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "399_Whiteout",
       "tags": {
@@ -13682,7 +13633,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "400_Whispering_Caverns",
       "tags": {
@@ -13719,7 +13670,7 @@
         "historical",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "401_Feast_of_Crispian",
       "tags": {
@@ -13755,7 +13706,7 @@
         "nature",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "402_The_Drowned_Tower",
       "tags": {
@@ -13792,7 +13743,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "403_Steel_Foundry",
       "tags": {
@@ -13828,7 +13779,7 @@
         "horror",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "404_Vampyr",
       "tags": {
@@ -13864,7 +13815,7 @@
         "fantasy",
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "405_Brood_Mother",
       "tags": {
@@ -13902,7 +13853,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "406_Treacherous_Path",
       "tags": {
@@ -13943,7 +13894,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "407_Viking_Tavern",
       "tags": {
@@ -13980,7 +13931,7 @@
         "scifi",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "408_Nautiloid_Escape",
       "tags": {
@@ -14017,7 +13968,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "409_Docking_Procedure",
       "tags": {
@@ -14054,7 +14005,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "410_Forgotten_Forest",
       "tags": {
@@ -14091,7 +14042,7 @@
       "genres": [
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "411_Ship_of_the_Line",
       "tags": {
@@ -14168,7 +14119,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "413_Collegium_Magica",
       "tags": {
@@ -14200,7 +14151,7 @@
       "genres": [
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "414_Stakeout",
       "tags": {
@@ -14238,7 +14189,7 @@
         "scifi",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "415_Jungle_Bunker",
       "tags": {
@@ -14277,7 +14228,7 @@
         "historical",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "416_Rebuilding",
       "tags": {
@@ -14303,45 +14254,6 @@
       ]
     },
     {
-      "id": 417,
-      "title": "Mainframe",
-      "description": "The digital plane contains echoes of humanity.",
-      "genres": [
-        "scifi",
-        "modern"
-      ],
-      "hasMusic": true,
-      "type": "ambience + music",
-      "file": "417_Mainframe",
-      "tags": {
-        "civ": [
-          "facilities"
-        ],
-        "biome": [
-          "planar"
-        ],
-        "mood": [
-          "somber",
-          "dramatic"
-        ],
-        "action": [
-          "investigate",
-          "sneak",
-          "explore"
-        ]
-      },
-      "keywords": [
-        "motherboard",
-        "computer",
-        "cyberpunk",
-        "cyberspace",
-        "metaverse",
-        "Tron",
-        "Shodan",
-        "Glados"
-      ]
-    },
-    {
       "id": 418,
       "title": "Pagan Woods",
       "description": "Spirits exist in the trees, the rocks, and the loam.",
@@ -14350,7 +14262,7 @@
         "nature",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "418_Pagan_Woods",
       "tags": {
@@ -14389,7 +14301,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "419_Hidden_Passage",
       "tags": {
@@ -14427,7 +14339,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "420_Counting_House",
       "tags": {
@@ -14458,7 +14370,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "421_The_Madding_Crowd",
       "tags": {
@@ -14492,7 +14404,7 @@
         "historical",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "422_Ghost_Ship",
       "tags": {
@@ -14532,7 +14444,7 @@
         "scifi",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "423_Magical_Flora",
       "tags": {
@@ -14564,7 +14476,7 @@
       "genres": [
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "424_Frontier_Town",
       "tags": {
@@ -14602,7 +14514,7 @@
       "genres": [
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "425_The_Stranger",
       "tags": {
@@ -14637,7 +14549,7 @@
       "genres": [
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "426_Stagecoach_Heist",
       "tags": {
@@ -14678,7 +14590,7 @@
         "scifi",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "427_Bug_Hunt",
       "tags": {
@@ -14718,7 +14630,7 @@
         "scifi",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "428_The_Sisterhood",
       "tags": {
@@ -14751,7 +14663,7 @@
       "genres": [
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "429_Imperial_Pursuit",
       "tags": {
@@ -14789,7 +14701,7 @@
         "horror",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "430_Fire_Dance",
       "tags": {
@@ -14824,7 +14736,7 @@
       "genres": [
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "431_Hotel_Noir",
       "tags": {
@@ -14861,7 +14773,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "432_Lair_of_the_Wyrm",
       "tags": {
@@ -14899,7 +14811,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "433_Spectral_Abbey",
       "tags": {
@@ -14940,7 +14852,7 @@
         "scifi",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "434_Cryo_Pods",
       "tags": {
@@ -14977,7 +14889,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "435_The_Undercroft",
       "tags": {
@@ -15015,7 +14927,7 @@
         "historical",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "436_Winter_Encampment",
       "tags": {
@@ -15050,7 +14962,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "437_Dungeon_Asylum",
       "tags": {
@@ -15087,7 +14999,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "438_Red_Sky_Mine",
       "tags": {
@@ -15123,7 +15035,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "439_Goodhaven",
       "tags": {
@@ -15159,7 +15071,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "440_Map_Chamber",
       "tags": {
@@ -15193,7 +15105,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "441_Tech_Market",
       "tags": {
@@ -15227,7 +15139,7 @@
         "horror",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "442_Darkmoor",
       "tags": {
@@ -15264,7 +15176,7 @@
         "scifi",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "443_Primate_Lab",
       "tags": {
@@ -15297,7 +15209,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "444_Yuletide_Cantrips",
       "tags": {
@@ -15331,7 +15243,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "445_Lava_Kings_Lair",
       "tags": {
@@ -15367,7 +15279,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "446_Between_Adventures",
       "tags": {
@@ -15399,7 +15311,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "447_The_Murky_Depths",
       "tags": {
@@ -15432,7 +15344,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "448_Checkpoint_Omega",
       "tags": {
@@ -15469,7 +15381,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "449_A_Royal_Visit",
       "tags": {
@@ -15503,7 +15415,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "450_Nightlands",
       "tags": {
@@ -15539,7 +15451,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "451_Orb_of_Doom",
       "tags": {
@@ -15576,7 +15488,7 @@
         "historical",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "452_The_Last_Express",
       "tags": {
@@ -15612,7 +15524,7 @@
         "historical",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "453_Capes_and_Canes",
       "tags": {
@@ -15647,7 +15559,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "454_Broken_Pantheon",
       "tags": {
@@ -15682,7 +15594,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "455_Harpers_Waypoint",
       "tags": {
@@ -15715,7 +15627,7 @@
       "genres": [
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "456_Drawing_Room_Night",
       "tags": {
@@ -15749,7 +15661,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "457_Hunting_Grounds",
       "tags": {
@@ -15786,7 +15698,7 @@
         "nature",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "458_Deep_Blue",
       "tags": {
@@ -15820,7 +15732,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "459_Xenon_Refinery",
       "tags": {
@@ -15855,7 +15767,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "460_Doll_Shoppe",
       "tags": {
@@ -15891,7 +15803,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "461_Resurrection",
       "tags": {
@@ -15928,7 +15840,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "462_Foghaven",
       "tags": {
@@ -15963,7 +15875,7 @@
         "scifi",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "463_Listening_Post",
       "tags": {
@@ -16003,7 +15915,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "464_Petrified_Forest",
       "tags": {
@@ -16042,7 +15954,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "465_Light_the_Beacons",
       "tags": {
@@ -16077,7 +15989,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "466_Drow_Slave_Camp",
       "tags": {
@@ -16115,7 +16027,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "467_Battle_Stations",
       "tags": {
@@ -16153,7 +16065,7 @@
         "scifi",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "468_Steampunk_Telescope",
       "tags": {
@@ -16187,7 +16099,7 @@
         "historical",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "469_Monsoon_Temple",
       "tags": {
@@ -16223,7 +16135,7 @@
         "modern",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "470_The_Threshing_Hour",
       "tags": {
@@ -16257,7 +16169,7 @@
         "scif",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "471_Prisoner_Transport",
       "tags": {
@@ -16293,7 +16205,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "472_Ice_Mephit_Cavern",
       "tags": {
@@ -16328,7 +16240,7 @@
         "historical",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "473_Prison_Block",
       "tags": {
@@ -16364,7 +16276,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "474_Kingdom_of_Mist",
       "tags": {
@@ -16400,7 +16312,7 @@
         "modern",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "475_Lost_Contact",
       "tags": {
@@ -16439,7 +16351,7 @@
         "nature",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "476_Barghest_Fell",
       "tags": {
@@ -16475,7 +16387,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "477_Lifeboat",
       "tags": {
@@ -16514,7 +16426,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "478_Gravedigger",
       "tags": {
@@ -16549,7 +16461,7 @@
         "modern",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "479_Boiler_Room",
       "tags": {
@@ -16585,7 +16497,7 @@
         "historical",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "480_Pharaohs_Chamber",
       "tags": {
@@ -16622,7 +16534,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "481_Witches_Dance",
       "tags": {
@@ -16660,7 +16572,7 @@
         "nature",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "482_Upriver_Recon",
       "tags": {
@@ -16696,7 +16608,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "483_Ice_Harvester_Station",
       "tags": {
@@ -16733,7 +16645,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "484_Ready_the_Castle",
       "tags": {
@@ -16766,7 +16678,7 @@
         "horror",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "485_Lady_of_the_Wood",
       "tags": {
@@ -16801,7 +16713,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "486_War_Wagon",
       "tags": {
@@ -16834,7 +16746,7 @@
         "modern",
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "487_High_Alert",
       "tags": {
@@ -16868,7 +16780,7 @@
         "historical",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "488_Manor_Dark",
       "tags": {
@@ -16905,7 +16817,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "489_The_Crown_Road",
       "tags": {
@@ -16939,7 +16851,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "490_Stone_Barrow",
       "tags": {
@@ -16975,7 +16887,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "491_Red_Dragon_Dawn",
       "tags": {
@@ -17009,7 +16921,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "492_Maturation_Chamber",
       "tags": {
@@ -17046,7 +16958,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "493_News_from_the_Front",
       "tags": {
@@ -17078,7 +16990,7 @@
         "historical",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "494_Docks_Noir",
       "tags": {
@@ -17113,7 +17025,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "495_Dedication_Day",
       "tags": {
@@ -17148,7 +17060,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "496_Village_Raid",
       "tags": {
@@ -17185,7 +17097,7 @@
         "historical",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "497_Winters_Veil",
       "tags": {
@@ -17222,7 +17134,7 @@
       "genres": [
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "498_Urban_Rooftop",
       "tags": {
@@ -17259,7 +17171,7 @@
         "horror",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "499_Ravaged_Lands",
       "tags": {
@@ -17295,7 +17207,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "500_Village_Festival",
       "tags": {
@@ -17331,7 +17243,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "501_Crimson_Haboob",
       "tags": {
@@ -17365,7 +17277,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "502_Sentient_Eye",
       "tags": {
@@ -17401,7 +17313,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "503_Frost_Giant_Ridge",
       "tags": {
@@ -17441,7 +17353,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "504_Privy_Council",
       "tags": {
@@ -17472,7 +17384,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "505_Visitation",
       "tags": {
@@ -17507,7 +17419,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "506_The_Verdant_Dark",
       "tags": {
@@ -17542,7 +17454,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "507_Flux_Array",
       "tags": {
@@ -17577,7 +17489,7 @@
         "fantasy",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "508_Danse_de_Vampyr",
       "tags": {
@@ -17614,7 +17526,7 @@
         "scifi",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "509_Doors_and_Corners",
       "tags": {
@@ -17651,7 +17563,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "510_City_of_Wonders",
       "tags": {
@@ -17683,7 +17595,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "511_Beyond_the_Walls",
       "tags": {
@@ -17718,7 +17630,7 @@
         "scifi",
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "512_Robot_Caretaker",
       "tags": {
@@ -17751,7 +17663,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "513_Seers_Chamber",
       "tags": {
@@ -17786,7 +17698,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "514_Millhaven",
       "tags": {
@@ -17820,7 +17732,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "515_Raven_Queen",
       "tags": {
@@ -17855,7 +17767,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "516_Storm_Giant",
       "tags": {
@@ -17889,7 +17801,7 @@
       "genres": [
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "517_The_Beast_Within",
       "tags": {
@@ -17925,7 +17837,7 @@
       "genres": [
         "modern"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "518_Neo_Noir",
       "tags": {
@@ -17960,7 +17872,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "519_Assassins_Bazaar",
       "tags": {
@@ -17997,7 +17909,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "520_Slave_Ship_Hold",
       "tags": {
@@ -18034,7 +17946,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "521_The_Last_Watcher",
       "tags": {
@@ -18071,7 +17983,7 @@
       "genres": [
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "522_Dragon_Clan_Attack",
       "tags": {
@@ -18108,7 +18020,7 @@
         "historical",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "523_Ship_Graveyard",
       "tags": {
@@ -18147,7 +18059,7 @@
         "nature",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "524_Harvests_End",
       "tags": {
@@ -18180,7 +18092,7 @@
       "genres": [
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "525_Wormhole",
       "tags": {
@@ -18217,7 +18129,7 @@
         "historical",
         "horror"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "526_Lighthouse",
       "tags": {
@@ -18252,7 +18164,7 @@
         "fantasy",
         "scifi"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "527_Prismatic_Halls",
       "tags": {
@@ -18284,7 +18196,7 @@
         "fantasy",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "528_Treefolk_Village",
       "tags": {
@@ -18316,7 +18228,7 @@
       "genres": [
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "529_To_Catch_a_Thief",
       "tags": {
@@ -18352,7 +18264,7 @@
         "horror",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "530_Eldritch_Wood",
       "tags": {
@@ -18386,7 +18298,7 @@
         "horror",
         "fantasy"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "531_Demon_Hunter",
       "tags": {
@@ -18421,7 +18333,7 @@
         "scifi",
         "nature"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "532_Exoplanet",
       "tags": {
@@ -18456,7 +18368,7 @@
         "fantasy",
         "historical"
       ],
-      "hasMusic": true,
+      "hasMusic": false,
       "type": "ambience + music",
       "file": "533_Chillwater_Reach",
       "tags": {
@@ -18478,6 +18390,39 @@
         "horses",
         "carriages",
         "crowds"
+      ]
+    },
+    {
+      "id": 534,
+      "title": "Apothecary",
+      "description": "Fine potions, brewed fresh. No refunds.",
+      "genres": [
+        "fantasy",
+        "historical"
+      ],
+      "hasMusic": false,
+      "type": "ambience + music",
+      "file": "534_Apothecary",
+      "tags": {
+        "civ": [
+          "public"
+        ],
+        "biome": [],
+        "mood": [
+          "peaceful"
+        ],
+        "action": [
+          "ritual",
+          "explore"
+        ]
+      },
+      "keywords": [
+        "potions",
+        "shop",
+        "magic",
+        "alchemist",
+        "herbalist",
+        "medicine"
       ]
     }
   ]
