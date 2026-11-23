@@ -18,7 +18,7 @@ git_override(
 )
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node", dev_dependency = True)
-node.toolchain(node_version = "22.22.0")
+node.toolchain(node_version = "22.23.4")
 
 # pnpm, run through Bazel to change dependencies:
 #   bazel run -- @pnpm//:pnpm --dir $PWD add --save-exact --lockfile-only <package>
